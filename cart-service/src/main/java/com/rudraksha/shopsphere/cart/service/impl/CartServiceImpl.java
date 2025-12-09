@@ -95,18 +95,18 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void clearCart(String userId) {
-        cartRepository.findByUserId(userId).ifPresent(cart -> {
+        cartRepository.findById(userId).ifPresent(cart -> {
             cartRepository.delete(cart);
             log.info("Cleared cart for user {}", userId);
         });
     }
 
     private Cart getOrCreateCart(String userId) {
-        return cartRepository.findByUserId(userId)
+        return cartRepository.findById(userId)
                 .orElseGet(() -> {
                     Cart newCart = Cart.builder()
-                            .id(UUID.randomUUID().toString())
                             .userId(userId)
+                            .id(UUID.randomUUID().toString())
                             .items(new ArrayList<>())
                             .createdAt(LocalDateTime.now())
                             .updatedAt(LocalDateTime.now())

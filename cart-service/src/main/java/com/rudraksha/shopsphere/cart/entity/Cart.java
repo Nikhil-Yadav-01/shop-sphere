@@ -16,8 +16,8 @@ import java.util.concurrent.TimeUnit;
 @RedisHash("cart")
 public class Cart implements Serializable {
     @Id
-    private String id;
     private String userId;
+    private String id;
     @Builder.Default
     private List<CartItem> items = new ArrayList<>();
     private LocalDateTime createdAt;
