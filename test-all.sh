@@ -48,3 +48,17 @@ AFTER_COUNT=$(curl -s http://$IP:8090/analytics/api/v1/count | grep -o '"data":[
 echo "After: $AFTER_COUNT"
 if [ "$AFTER_COUNT" -gt "$BEFORE_COUNT" ]; then echo "✓ Kafka working"; else echo "✗ Kafka failed"; fi
 echo ""
+echo "13. Catalog Service - Health (8083):"
+curl -s http://$IP:8083/actuator/health | grep -o '"status":"[^"]*"' || echo "FAILED"
+echo ""
+echo "14. Catalog Service - Get Categories (8083):"
+curl -s http://$IP:8083/api/v1/categories | grep -o '"name":"[^"]*"' | head -1 || echo "FAILED"
+echo ""
+echo "15. Catalog Service - Create Product (8083):"
+PROD=$(curl -s -X POST http://$IP:8083/api/v1/products -H "Content-Type: application/json" -d '{"sku":"TEST-'$(date +%s)'","name":"Test Product","price":99.99,"categoryId":"693844e81617aa0c42ade0a2"}')
+echo $PROD | grep -o '"name":"[^"]*"' || echo "FAILED"
+echo ""
+echo "16. Discovery Service - Registered Apps:"
+curl -s http://$IP:8761/eureka/apps | grep "<app>" | wc -l
+echo ""
+echo "=== Test Complete ==="
