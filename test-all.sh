@@ -29,4 +29,13 @@ LOGIN=$(curl -s -X POST http://$IP:8080/auth/login -H "Content-Type: application
 ADMIN_TOKEN=$(echo $LOGIN | grep -o '"accessToken":"[^"]*' | cut -d'"' -f4)
 curl -s http://$IP:8080/admin/api/v1/dashboard/overview -H "Authorization: Bearer $ADMIN_TOKEN" | grep -o '"serviceStatus":"[^"]*"' || echo "FAILED"
 echo ""
+echo "8. Analytics Service - Health (8090):"
+curl -s -X POST http://$IP:8090/analytics/api/v1/health | grep -o '"data":"[^"]*"' || echo "FAILED"
+echo ""
+echo "9. Analytics Service - Ingest Event (8090):"
+curl -s -X POST "http://$IP:8090/analytics/api/v1/events?eventType=ORDER_PLACED&userId=1&sessionId=sess$(date +%s)" -H "Content-Type: application/json" -d '{"orderId":123,"amount":99.99}' | grep -o '"data":"[^"]*"' || echo "FAILED"
+echo ""
+echo "10. Analytics Service - Get Count (8090):"
+curl -s http://$IP:8090/analytics/api/v1/count | grep -o '"data":[0-9]*' || echo "FAILED"
+echo ""
 echo "=== Test Complete ==="

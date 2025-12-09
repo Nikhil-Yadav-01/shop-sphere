@@ -150,6 +150,48 @@ services:
       retries: 5
       start_period: 60s
 
+  # MongoDB for Analytics Service
+  analytics-db:
+    image: mongo:7.0
+    container_name: analytics-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - analytics-db-data:/data/db
+    networks:
+      - shopsphere-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Analytics Service
+  analytics-service:
+    build:
+      context: .
+      dockerfile: analytics-service/Dockerfile
+    container_name: analytics-service
+    environment:
+      MONGO_URI: mongodb://analytics-db:27017/shopsphere_analytics
+      EUREKA_HOST: discovery-service
+      EUREKA_PORT: 8761
+    ports:
+      - "8090:8090"
+    depends_on:
+      analytics-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    networks:
+      - shopsphere-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/analytics/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
 networks:
   shopsphere-network:
     driver: bridge
@@ -157,3 +199,4 @@ networks:
 volumes:
   auth-db-data:
   admin-db-data:
+  analytics-db-data:
