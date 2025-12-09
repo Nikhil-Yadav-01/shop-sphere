@@ -35,6 +35,12 @@ public class GatewayConfig {
                         .filters(f -> f.filter(authenticationFilter.apply(new Object())))
                         .uri("lb://admin-service"))
                 
+                // Batch Service - Public routes
+                .route("batch-service", r -> r
+                        .path("/batch/**")
+                        .filters(f -> f.stripPrefix(1))
+                        .uri("lb://BATCH-SERVICE"))
+                
                 .build();
     }
 }

@@ -1,4 +1,8 @@
 /home/ubuntu/shop-sphere/batch-service/src/main/java/com/rudraksha/shopsphere/batch/service/BatchJobService.java
-/home/ubuntu/shop-sphere/batch-service/src/main/java/com/rudraksha/shopsphere/batch/controller/RootController.java
 /home/ubuntu/shop-sphere/batch-service/src/main/java/com/rudraksha/shopsphere/batch/BatchApplication.java
+/home/ubuntu/shop-sphere/batch-service/src/main/java/com/rudraksha/shopsphere/batch/entity/BatchJob.java
+/home/ubuntu/shop-sphere/batch-service/src/main/java/com/rudraksha/shopsphere/batch/repository/BatchJobRepository.java
+/home/ubuntu/shop-sphere/batch-service/src/main/java/com/rudraksha/shopsphere/batch/service/impl/BatchJobServiceImpl.java
 /home/ubuntu/shop-sphere/batch-service/src/main/java/com/rudraksha/shopsphere/batch/controller/BatchController.java
+/home/ubuntu/shop-sphere/batch-service/src/main/java/com/rudraksha/shopsphere/batch/dto/BatchJobResponse.java
+/home/ubuntu/shop-sphere/batch-service/src/main/java/com/rudraksha/shopsphere/batch/models/ApiResponse.java

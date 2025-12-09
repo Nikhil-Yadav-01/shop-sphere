@@ -1,27 +1,29 @@
 package com.rudraksha.shopsphere.batch.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import com.rudraksha.shopsphere.batch.dto.BatchJobResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
-@Service
-@Slf4j
-public class BatchJobService {
+public interface BatchJobService {
 
-    public Map<String, Object> executeJob(String jobName) {
-        log.info("Executing batch job: {}", jobName);
-        return Map.of(
-            "success", true,
-            "jobName", jobName,
-            "status", "COMPLETED",
-            "executedAt", LocalDateTime.now().toString()
-        );
-    }
+    void executeNightlyReportJob();
 
-    public List<String> getAvailableJobs() {
-        return List.of("data-cleanup", "report-generation", "order-processing");
-    }
+    void executeStockSyncJob();
+
+    void executePriceSyncJob();
+
+    Page<BatchJobResponse> getJobsByStatus(String status, Pageable pageable);
+
+    List<BatchJobResponse> getJobsByName(String jobName);
+
+    List<BatchJobResponse> getJobsByDateRange(LocalDateTime startDate, LocalDateTime endDate);
+
+    List<BatchJobResponse> getFailedJobs();
+
+    BatchJobResponse getJobById(Long jobId);
+
+    void retryFailedJob(Long jobId);
 }

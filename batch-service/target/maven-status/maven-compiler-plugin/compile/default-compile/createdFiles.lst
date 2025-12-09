@@ -1,4 +1,12 @@
+com/rudraksha/shopsphere/batch/entity/BatchJob$JobStatus.class
+com/rudraksha/shopsphere/batch/dto/BatchJobResponse.class
+com/rudraksha/shopsphere/batch/service/impl/BatchJobServiceImpl.class
 com/rudraksha/shopsphere/batch/service/BatchJobService.class
 com/rudraksha/shopsphere/batch/controller/BatchController.class
+com/rudraksha/shopsphere/batch/repository/BatchJobRepository.class
+com/rudraksha/shopsphere/batch/entity/BatchJob$BatchJobBuilder.class
 com/rudraksha/shopsphere/batch/BatchApplication.class
-com/rudraksha/shopsphere/batch/controller/RootController.class
+com/rudraksha/shopsphere/batch/entity/BatchJob.class
+com/rudraksha/shopsphere/batch/dto/BatchJobResponse$BatchJobResponseBuilder.class
+com/rudraksha/shopsphere/batch/models/ApiResponse$ApiResponseBuilder.class
+com/rudraksha/shopsphere/batch/models/ApiResponse.class
