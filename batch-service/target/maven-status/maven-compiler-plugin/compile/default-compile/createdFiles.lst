@@ -1,0 +1,4 @@
+com/rudraksha/shopsphere/batch/service/BatchJobService.class
+com/rudraksha/shopsphere/batch/controller/BatchController.class
+com/rudraksha/shopsphere/batch/BatchApplication.class
+com/rudraksha/shopsphere/batch/controller/RootController.class

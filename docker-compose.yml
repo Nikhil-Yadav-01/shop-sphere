@@ -243,6 +243,29 @@ services:
       retries: 5
       start_period: 60s
 
+  # Batch Service
+  batch-service:
+    build:
+      context: .
+      dockerfile: batch-service/Dockerfile
+    container_name: batch-service
+    environment:
+      EUREKA_HOST: discovery-service
+      EUREKA_PORT: 8761
+    ports:
+      - "8091:8091"
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    networks:
+      - shopsphere-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8091/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
   # Catalog Service
   catalog-service:
     build:
