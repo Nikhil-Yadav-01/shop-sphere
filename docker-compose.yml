@@ -198,6 +198,22 @@ services:
       timeout: 5s
       retries: 5
 
+  # MongoDB for Catalog Service
+  catalog-db:
+    image: mongo:7.0
+    container_name: catalog-db
+    ports:
+      - "27018:27017"
+    volumes:
+      - catalog-db-data:/data/db
+    networks:
+      - shopsphere-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Analytics Service
   analytics-service:
     build:
@@ -227,6 +243,33 @@ services:
       retries: 5
       start_period: 60s
 
+  # Catalog Service
+  catalog-service:
+    build:
+      context: .
+      dockerfile: catalog-service/Dockerfile
+    container_name: catalog-service
+    environment:
+      MONGO_URI: mongodb://catalog-db:27017/shopsphere_catalog
+      EUREKA_HOST: discovery-service
+      EUREKA_PORT: 8761
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+      - "8083:8083"
+    depends_on:
+      catalog-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    networks:
+      - shopsphere-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
 networks:
   shopsphere-network:
     driver: bridge
@@ -235,3 +278,4 @@ volumes:
   auth-db-data:
   admin-db-data:
   analytics-db-data:
+  catalog-db-data:

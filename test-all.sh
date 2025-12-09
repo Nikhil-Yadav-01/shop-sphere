@@ -48,4 +48,17 @@ AFTER_COUNT=$(curl -s http://$IP:8090/analytics/api/v1/count | grep -o '"data":[
 echo "After: $AFTER_COUNT"
 if [ "$AFTER_COUNT" -gt "$BEFORE_COUNT" ]; then echo "✓ Kafka working"; else echo "✗ Kafka failed"; fi
 echo ""
+echo "13. Catalog Service - Health (8083):"
+curl -s http://$IP:8083/catalog/actuator/health | grep -o '"status":"[^"]*"' || echo "FAILED"
+echo ""
+echo "14. Catalog Service - Get Categories (8083):"
+curl -s http://$IP:8083/catalog/api/v1/categories | grep -o '"name":"[^"]*"' | head -1 || echo "FAILED"
+echo ""
+echo "15. API Gateway - Catalog Route (8080):"
+curl -s http://$IP:8080/catalog/api/v1/categories | grep -o '"name":"[^"]*"' | head -1 || echo "FAILED"
+echo ""
+echo "16. Catalog Service - Create Category via Gateway (8080):"
+NEW_CAT=$(curl -s -X POST http://$IP:8080/catalog/api/v1/categories -H "Content-Type: application/json" -d '{"name":"TestCat'$(date +%s)'","description":"Test category"}')
+echo $NEW_CAT | grep -o '"name":"[^"]*"' || echo "FAILED"
+echo ""
 echo "=== Test Complete ==="
