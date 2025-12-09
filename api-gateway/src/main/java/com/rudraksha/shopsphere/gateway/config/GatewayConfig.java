@@ -41,6 +41,12 @@ public class GatewayConfig {
                         .filters(f -> f.stripPrefix(1))
                         .uri("lb://BATCH-SERVICE"))
                 
+                // Cart Service - Public routes
+                .route("cart-service", r -> r
+                        .path("/cart/**")
+                        .filters(f -> f.stripPrefix(1))
+                        .uri("lb://CART-SERVICE"))
+                
                 .build();
     }
 }
