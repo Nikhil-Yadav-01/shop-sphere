@@ -1,0 +1,3 @@
+/home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/config/GatewayConfig.java
+/home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/filter/AuthenticationFilter.java
+/home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/GatewayApplication.java
