@@ -1,5 +1,6 @@
 package com.rudraksha.shopsphere.analytics.kafka;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rudraksha.shopsphere.analytics.service.AnalyticsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +15,13 @@ import java.util.Map;
 public class KafkaConsumer {
 
     private final AnalyticsService analyticsService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @KafkaListener(topics = "user-events", groupId = "analytics-service")
-    public void consumeUserEvent(Map<String, Object> event) {
+    public void consumeUserEvent(String message) {
         try {
-            log.info("Consumed user event: {}", event);
+            log.info("Consumed user event: {}", message);
+            Map<String, Object> event = objectMapper.readValue(message, Map.class);
             String eventType = (String) event.get("eventType");
             Object userIdObj = event.get("userId");
             Long userId = userIdObj instanceof Number ? ((Number) userIdObj).longValue() : Long.parseLong(userIdObj.toString());
@@ -31,9 +34,10 @@ public class KafkaConsumer {
     }
 
     @KafkaListener(topics = "order-events", groupId = "analytics-service")
-    public void consumeOrderEvent(Map<String, Object> event) {
+    public void consumeOrderEvent(String message) {
         try {
-            log.info("Consumed order event: {}", event);
+            log.info("Consumed order event: {}", message);
+            Map<String, Object> event = objectMapper.readValue(message, Map.class);
             String action = (String) event.getOrDefault("action", "PLACED");
             String eventType = "ORDER_" + action;
             Object userIdObj = event.get("userId");
