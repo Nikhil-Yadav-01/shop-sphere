@@ -23,14 +23,11 @@ public class GatewayConfig {
                         .path("/auth/**")
                         .uri("lb://auth-service"))
                 
-                // Catalog Service - Public routes (must come before admin)
-                .route("catalog-products", r -> r
-                        .path("/api/v1/products/**")
-                        .uri("lb://catalog-service"))
-                
-                .route("catalog-categories", r -> r
-                        .path("/api/v1/categories/**")
-                        .uri("lb://catalog-service"))
+                // Catalog Service - Public routes
+                .route("catalog-service", r -> r
+                        .path("/catalog/**")
+                        .filters(f -> f.stripPrefix(1))
+                        .uri("lb://CATALOG-SERVICE"))
                 
                 // Admin Service - Protected routes (requires ADMIN role)
                 .route("admin-service", r -> r

@@ -1,3 +1,4 @@
+com/rudraksha/shopsphere/auth/controller/RootController.class
 com/rudraksha/shopsphere/auth/exception/UserAlreadyExistsException.class
 com/rudraksha/shopsphere/shared/db/PaginationUtils.class
 com/rudraksha/shopsphere/auth/service/impl/AuthServiceImpl.class

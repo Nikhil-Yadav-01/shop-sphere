@@ -10,4 +10,5 @@ com/rudraksha/shopsphere/analytics/service/AnalyticsServiceImpl.class
 com/rudraksha/shopsphere/analytics/dto/AnalyticsResponse.class
 com/rudraksha/shopsphere/analytics/controller/AnalyticsController.class
 com/rudraksha/shopsphere/analytics/document/AnalyticsEvent$AnalyticsEventBuilder.class
+com/rudraksha/shopsphere/admin/controller/RootController.class
 com/rudraksha/shopsphere/analytics/kafka/KafkaConsumer.class

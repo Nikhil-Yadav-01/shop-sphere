@@ -56,6 +56,7 @@
 /home/ubuntu/shop-sphere/admin-service/src/main/java/com/rudraksha/shopsphere/shared/kafka/TopicConstants.java
 /home/ubuntu/shop-sphere/admin-service/src/main/java/com/rudraksha/shopsphere/shared/models/ApiResponse.java
 /home/ubuntu/shop-sphere/admin-service/src/main/java/com/rudraksha/shopsphere/shared/utils/ResponseUtil.java
+/home/ubuntu/shop-sphere/admin-service/src/main/java/com/rudraksha/shopsphere/admin/controller/RootController.java
 /home/ubuntu/shop-sphere/admin-service/src/main/java/com/rudraksha/shopsphere/shared/models/dto/PriceDTO.java
 /home/ubuntu/shop-sphere/admin-service/src/main/java/com/rudraksha/shopsphere/shared/utils/JsonUtil.java
 /home/ubuntu/shop-sphere/admin-service/src/main/java/com/rudraksha/shopsphere/shared/models/AuditFields.java

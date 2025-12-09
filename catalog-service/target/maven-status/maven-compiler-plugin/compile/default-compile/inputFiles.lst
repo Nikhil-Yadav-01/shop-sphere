@@ -16,3 +16,4 @@
 /home/ubuntu/shop-sphere/catalog-service/src/main/java/com/rudraksha/shopsphere/catalog/dto/request/CreateProductRequest.java
 /home/ubuntu/shop-sphere/catalog-service/src/main/java/com/rudraksha/shopsphere/catalog/service/ProductService.java
 /home/ubuntu/shop-sphere/catalog-service/src/main/java/com/rudraksha/shopsphere/catalog/controller/ProductController.java
+/home/ubuntu/shop-sphere/catalog-service/src/main/java/com/rudraksha/shopsphere/catalog/controller/RootController.java

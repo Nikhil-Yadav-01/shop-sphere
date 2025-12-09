@@ -41,6 +41,7 @@
 /home/ubuntu/shop-sphere/auth-service/src/main/java/com/rudraksha/shopsphere/shared/security/KeyRotationService.java
 /home/ubuntu/shop-sphere/auth-service/src/main/java/com/rudraksha/shopsphere/auth/dto/response/TokenValidationResponse.java
 /home/ubuntu/shop-sphere/auth-service/src/main/java/com/rudraksha/shopsphere/shared/security/OAuth2ClientConfig.java
+/home/ubuntu/shop-sphere/auth-service/src/main/java/com/rudraksha/shopsphere/auth/controller/RootController.java
 /home/ubuntu/shop-sphere/auth-service/src/main/java/com/rudraksha/shopsphere/auth/dto/request/RefreshTokenRequest.java
 /home/ubuntu/shop-sphere/auth-service/src/main/java/com/rudraksha/shopsphere/auth/repository/UserRepository.java
 /home/ubuntu/shop-sphere/auth-service/src/main/java/com/rudraksha/shopsphere/shared/models/SortOrder.java

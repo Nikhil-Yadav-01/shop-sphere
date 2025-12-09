@@ -20,6 +20,7 @@ com/rudraksha/shopsphere/catalog/entity/Product.class
 com/rudraksha/shopsphere/catalog/entity/Category.class
 com/rudraksha/shopsphere/catalog/dto/request/CreateProductRequest.class
 com/rudraksha/shopsphere/catalog/service/ProductService.class
+com/rudraksha/shopsphere/catalog/controller/RootController.class
 com/rudraksha/shopsphere/catalog/dto/request/CreateCategoryRequest.class
 com/rudraksha/shopsphere/catalog/dto/response/CategoryResponse$CategoryResponseBuilder.class
 com/rudraksha/shopsphere/catalog/entity/Product$ProductBuilder.class
