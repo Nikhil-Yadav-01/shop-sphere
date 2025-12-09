@@ -150,6 +150,34 @@ services:
       retries: 5
       start_period: 60s
 
+  # Kafka
+  kafka:
+    image: apache/kafka:3.7.0
+    container_name: kafka
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:29093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    networks:
+      - shopsphere-network
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
   # MongoDB for Analytics Service
   analytics-db:
     image: mongo:7.0
@@ -176,6 +204,7 @@ services:
       MONGO_URI: mongodb://analytics-db:27017/shopsphere_analytics
       EUREKA_HOST: discovery-service
       EUREKA_PORT: 8761
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     ports:
       - "8090:8090"
     depends_on:
@@ -183,6 +212,8 @@ services:
         condition: service_healthy
       discovery-service:
         condition: service_healthy
+      kafka:
+        condition: service_started
     networks:
       - shopsphere-network
     healthcheck:
@@ -200,3 +231,4 @@ volumes:
   auth-db-data:
   admin-db-data:
   analytics-db-data:
+  kafka-data:

@@ -36,6 +36,16 @@ echo "9. Analytics Service - Ingest Event (8090):"
 curl -s -X POST "http://$IP:8090/analytics/api/v1/events?eventType=ORDER_PLACED&userId=1&sessionId=sess$(date +%s)" -H "Content-Type: application/json" -d '{"orderId":123,"amount":99.99}' | grep -o '"data":"[^"]*"' || echo "FAILED"
 echo ""
 echo "10. Analytics Service - Get Count (8090):"
-curl -s http://$IP:8090/analytics/api/v1/count | grep -o '"data":[0-9]*' || echo "FAILED"
+BEFORE_COUNT=$(curl -s http://$IP:8090/analytics/api/v1/count | grep -o '"data":[0-9]*' | cut -d':' -f2)
+echo "Before: $BEFORE_COUNT"
+echo ""
+echo "11. Kafka - Send Event to user-events topic:"
+echo '{"eventType":"PRODUCT_CLICKED","userId":999,"sessionId":"kafka-test","productId":777}' | docker exec -i kafka /opt/kafka/bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic user-events --property "parse.key=false" 2>&1 | head -1 || echo "SENT"
+echo ""
+echo "12. Kafka - Verify event consumed (wait 3s):"
+sleep 3
+AFTER_COUNT=$(curl -s http://$IP:8090/analytics/api/v1/count | grep -o '"data":[0-9]*' | cut -d':' -f2)
+echo "After: $AFTER_COUNT"
+if [ "$AFTER_COUNT" -gt "$BEFORE_COUNT" ]; then echo "✓ Kafka working"; else echo "✗ Kafka failed"; fi
 echo ""
 echo "=== Test Complete ==="
