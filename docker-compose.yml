@@ -375,6 +375,26 @@ services:
       timeout: 5s
       retries: 5
 
+  # PostgreSQL for Pricing Service
+  pricing-db:
+    image: postgres:15-alpine
+    container_name: pricing-db
+    environment:
+      POSTGRES_DB: pricing_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5437:5432"
+    volumes:
+      - pricing-db-data:/var/lib/postgresql/data
+    networks:
+      - shopsphere-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Checkout Service
   checkout-service:
     build:
@@ -437,6 +457,35 @@ services:
       retries: 5
       start_period: 60s
 
+  # Pricing Service
+  pricing-service:
+    build:
+      context: .
+      dockerfile: pricing-service/Dockerfile
+    container_name: pricing-service
+    environment:
+      DB_HOST: pricing-db
+      DB_PORT: 5432
+      DB_NAME: pricing_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      EUREKA_URI: http://discovery-service:8761/eureka
+    ports:
+      - "8087:8087"
+    depends_on:
+      pricing-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    networks:
+      - shopsphere-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8087/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
 networks:
   shopsphere-network:
     driver: bridge
@@ -448,3 +497,4 @@ volumes:
   catalog-db-data:
   checkout-db-data:
   coupon-db-data:
+  pricing-db-data:
