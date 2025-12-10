@@ -53,6 +53,12 @@ public class GatewayConfig {
                         .filters(f -> f.stripPrefix(1).filter(authenticationFilter.apply(new Object())))
                         .uri("lb://CHECKOUT-SERVICE"))
                 
+                // Pricing Service - Public routes
+                .route("pricing-service", r -> r
+                        .path("/pricing/**")
+                        .filters(f -> f.stripPrefix(1))
+                        .uri("lb://pricing-service"))
+                
                 .build();
     }
 }
