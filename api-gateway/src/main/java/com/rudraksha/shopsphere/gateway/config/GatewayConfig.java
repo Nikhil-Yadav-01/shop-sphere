@@ -59,6 +59,12 @@ public class GatewayConfig {
                         .filters(f -> f.stripPrefix(1))
                         .uri("lb://pricing-service"))
                 
+                // Order Service - Protected routes (requires authentication)
+                .route("order-service", r -> r
+                        .path("/order/**")
+                        .filters(f -> f.stripPrefix(1).filter(authenticationFilter.apply(new Object())))
+                        .uri("lb://order-service"))
+                
                 .build();
     }
 }
