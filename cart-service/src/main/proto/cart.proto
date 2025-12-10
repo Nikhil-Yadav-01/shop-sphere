@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package cart;
+
+option java_package = "com.rudraksha.shopsphere.checkout.grpc";
+option java_outer_classname = "CartProto";
+
+service CartService {
+  rpc GetCart(GetCartRequest) returns (CartResponse);
+  rpc ClearCart(ClearCartRequest) returns (ClearCartResponse);
+}
+
+message GetCartRequest {
+  string user_id = 1;
+}
+
+message ClearCartRequest {
+  string user_id = 1;
+}
+
+message CartResponse {
+  string id = 1;
+  string user_id = 2;
+  repeated CartItem items = 3;
+  int32 total_items = 4;
+  double total_price = 5;
+}
+
+message CartItem {
+  string product_id = 1;
+  string product_name = 2;
+  int32 quantity = 3;
+  double price = 4;
+  double subtotal = 5;
+  string image_url = 6;
+}
+
+message ClearCartResponse {
+  bool success = 1;
+}
