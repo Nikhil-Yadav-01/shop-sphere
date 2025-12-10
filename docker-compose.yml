@@ -355,6 +355,26 @@ services:
       timeout: 5s
       retries: 5
 
+  # PostgreSQL for Coupon Service
+  coupon-db:
+    image: postgres:15-alpine
+    container_name: coupon-db
+    environment:
+      POSTGRES_DB: coupon_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5436:5432"
+    volumes:
+      - coupon-db-data:/var/lib/postgresql/data
+    networks:
+      - shopsphere-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Checkout Service
   checkout-service:
     build:
@@ -388,6 +408,35 @@ services:
       retries: 5
       start_period: 60s
 
+  # Coupon Service
+  coupon-service:
+    build:
+      context: .
+      dockerfile: coupon-service/Dockerfile
+    container_name: coupon-service
+    environment:
+      DB_HOST: coupon-db
+      DB_PORT: 5432
+      DB_NAME: coupon_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      EUREKA_URI: http://discovery-service:8761/eureka
+    ports:
+      - "8088:8088"
+    depends_on:
+      coupon-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    networks:
+      - shopsphere-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
 networks:
   shopsphere-network:
     driver: bridge
@@ -398,3 +447,4 @@ volumes:
   analytics-db-data:
   catalog-db-data:
   checkout-db-data:
+  coupon-db-data:

@@ -47,6 +47,12 @@ public class GatewayConfig {
                         .filters(f -> f.stripPrefix(1))
                         .uri("lb://CART-SERVICE"))
                 
+                // Checkout Service - Protected routes (requires authentication)
+                .route("checkout-service", r -> r
+                        .path("/checkout/**")
+                        .filters(f -> f.stripPrefix(1).filter(authenticationFilter.apply(new Object())))
+                        .uri("lb://CHECKOUT-SERVICE"))
+                
                 .build();
     }
 }

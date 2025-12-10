@@ -1,0 +1,941 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.0)
+
+2025-12-10T04:38:13.345Z  INFO 51295 --- [coupon-service] [           main] c.r.shopsphere.coupon.CouponApplication  : Starting CouponApplication v1.0.0 using Java 21.0.9 with PID 51295 (/home/ubuntu/shop-sphere/coupon-service/target/coupon-service.jar started by ubuntu in /home/ubuntu/shop-sphere/coupon-service)
+2025-12-10T04:38:13.349Z DEBUG 51295 --- [coupon-service] [           main] c.r.shopsphere.coupon.CouponApplication  : Running with Spring Boot v3.2.0, Spring v6.1.1
+2025-12-10T04:38:13.349Z  INFO 51295 --- [coupon-service] [           main] c.r.shopsphere.coupon.CouponApplication  : No active profile set, falling back to 1 default profile: "default"
+2025-12-10T04:38:14.522Z  INFO 51295 --- [coupon-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-10T04:38:14.692Z  INFO 51295 --- [coupon-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 154 ms. Found 2 JPA repository interfaces.
+2025-12-10T04:38:15.316Z  INFO 51295 --- [coupon-service] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=9e98544a-2ceb-3fc7-9556-2d236cc7fb49
+2025-12-10T04:38:15.830Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$LoadBalancerInterceptorConfig' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$LoadBalancerInterceptorConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [lbRestClientPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2025-12-10T04:38:15.836Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.loadbalancer.config.BlockingLoadBalancerClientAutoConfiguration' of type [org.springframework.cloud.loadbalancer.config.BlockingLoadBalancerClientAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.842Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.loadbalancer.config.LoadBalancerAutoConfiguration' of type [org.springframework.cloud.loadbalancer.config.LoadBalancerAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.859Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.commons.config.CommonsConfigAutoConfiguration' of type [org.springframework.cloud.commons.config.CommonsConfigAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.866Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.client.loadbalancer.LoadBalancerDefaultMappingsProviderAutoConfiguration' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerDefaultMappingsProviderAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.871Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'loadBalancerClientsDefaultsMappingsProvider' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerDefaultMappingsProviderAutoConfiguration$$Lambda/0x000075e020497ba8] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.878Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'defaultsBindHandlerAdvisor' of type [org.springframework.cloud.commons.config.DefaultsBindHandlerAdvisor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.886Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration' of type [org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.890Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'stringOrNumberMigrationVersionConverter' of type [org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration$StringOrNumberToMigrationVersionConverter] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.895Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'spring.cloud.loadbalancer-org.springframework.cloud.client.loadbalancer.LoadBalancerClientsProperties' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerClientsProperties] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.908Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'default.org.springframework.cloud.loadbalancer.config.LoadBalancerAutoConfiguration.LoadBalancerClientSpecification' of type [org.springframework.cloud.loadbalancer.annotation.LoadBalancerClientSpecification] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.911Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'default.org.springframework.cloud.loadbalancer.config.BlockingLoadBalancerClientAutoConfiguration.LoadBalancerClientSpecification' of type [org.springframework.cloud.loadbalancer.annotation.LoadBalancerClientSpecification] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.912Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'default.org.springframework.cloud.netflix.eureka.loadbalancer.LoadBalancerEurekaAutoConfiguration.LoadBalancerClientSpecification' of type [org.springframework.cloud.loadbalancer.annotation.LoadBalancerClientSpecification] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.914Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'loadBalancerClientFactory' of type [org.springframework.cloud.loadbalancer.support.LoadBalancerClientFactory] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.930Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'blockingLoadBalancerClient' of type [org.springframework.cloud.loadbalancer.blocking.client.BlockingLoadBalancerClient] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.944Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'loadBalancerServiceInstanceCookieTransformer' of type [org.springframework.cloud.loadbalancer.core.LoadBalancerServiceInstanceCookieTransformer] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.947Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'xForwarderHeadersTransformer' of type [org.springframework.cloud.loadbalancer.blocking.XForwardedHeadersTransformer] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.962Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.967Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'loadBalancerRequestFactory' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerRequestFactory] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:15.969Z  WARN 51295 --- [coupon-service] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'loadBalancerInterceptor' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-12-10T04:38:16.356Z  INFO 51295 --- [coupon-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8088 (http)
+2025-12-10T04:38:16.368Z  INFO 51295 --- [coupon-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-12-10T04:38:16.370Z  INFO 51295 --- [coupon-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-12-10T04:38:16.416Z  INFO 51295 --- [coupon-service] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-12-10T04:38:16.417Z  INFO 51295 --- [coupon-service] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2994 ms
+2025-12-10T04:38:16.785Z DEBUG 51295 --- [coupon-service] [           main] o.s.w.f.ServerHttpObservationFilter      : Filter 'webMvcObservationFilter' configured for use
+2025-12-10T04:38:16.992Z  INFO 51295 --- [coupon-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-10T04:38:17.287Z  INFO 51295 --- [coupon-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@760a2b6e
+2025-12-10T04:38:17.289Z  INFO 51295 --- [coupon-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-12-10T04:38:17.409Z  INFO 51295 --- [coupon-service] [           main] o.f.c.internal.license.VersionPrinter    : Flyway Community Edition 9.22.3 by Redgate
+2025-12-10T04:38:17.409Z  INFO 51295 --- [coupon-service] [           main] o.f.c.internal.license.VersionPrinter    : See release notes here: https://rd.gt/416ObMi
+2025-12-10T04:38:17.409Z  INFO 51295 --- [coupon-service] [           main] o.f.c.internal.license.VersionPrinter    : 
+2025-12-10T04:38:17.437Z  INFO 51295 --- [coupon-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/coupon_db (PostgreSQL 15.15)
+2025-12-10T04:38:17.513Z  INFO 51295 --- [coupon-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 1 migration (execution time 00:00.046s)
+2025-12-10T04:38:17.535Z  INFO 51295 --- [coupon-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 1
+2025-12-10T04:38:17.540Z  INFO 51295 --- [coupon-service] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2025-12-10T04:38:17.675Z  INFO 51295 --- [coupon-service] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-12-10T04:38:17.736Z  INFO 51295 --- [coupon-service] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.3.1.Final
+2025-12-10T04:38:17.775Z  INFO 51295 --- [coupon-service] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-12-10T04:38:18.041Z  INFO 51295 --- [coupon-service] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-12-10T04:38:18.093Z  WARN 51295 --- [coupon-service] [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-12-10T04:38:19.319Z  INFO 51295 --- [coupon-service] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-12-10T04:38:19.352Z  INFO 51295 --- [coupon-service] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-12-10T04:38:19.811Z  INFO 51295 --- [coupon-service] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-12-10T04:38:20.781Z  WARN 51295 --- [coupon-service] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-12-10T04:38:20.926Z DEBUG 51295 --- [coupon-service] [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : 15 mappings in 'requestMappingHandlerMapping'
+2025-12-10T04:38:21.148Z DEBUG 51295 --- [coupon-service] [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**] in 'resourceHandlerMapping'
+2025-12-10T04:38:21.210Z DEBUG 51295 --- [coupon-service] [           main] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-12-10T04:38:21.263Z DEBUG 51295 --- [coupon-service] [           main] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-12-10T04:38:22.068Z  INFO 51295 --- [coupon-service] [           main] DiscoveryClientOptionalArgsConfiguration : Eureka HTTP Client uses RestTemplate.
+2025-12-10T04:38:22.141Z  WARN 51295 --- [coupon-service] [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2025-12-10T04:38:22.164Z  INFO 51295 --- [coupon-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-12-10T04:38:22.264Z  INFO 51295 --- [coupon-service] [           main] o.s.c.n.eureka.InstanceInfoFactory       : Setting initial instance status as: STARTING
+2025-12-10T04:38:22.429Z  INFO 51295 --- [coupon-service] [           main] com.netflix.discovery.DiscoveryClient    : Initializing Eureka in region us-east-1
+2025-12-10T04:38:22.437Z  INFO 51295 --- [coupon-service] [           main] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2025-12-10T04:38:22.475Z  INFO 51295 --- [coupon-service] [           main] com.netflix.discovery.DiscoveryClient    : Disable delta property : false
+2025-12-10T04:38:22.475Z  INFO 51295 --- [coupon-service] [           main] com.netflix.discovery.DiscoveryClient    : Single vip registry refresh property : null
+2025-12-10T04:38:22.476Z  INFO 51295 --- [coupon-service] [           main] com.netflix.discovery.DiscoveryClient    : Force full registry fetch : false
+2025-12-10T04:38:22.477Z  INFO 51295 --- [coupon-service] [           main] com.netflix.discovery.DiscoveryClient    : Application is null : false
+2025-12-10T04:38:22.477Z  INFO 51295 --- [coupon-service] [           main] com.netflix.discovery.DiscoveryClient    : Registered Applications size is zero : true
+2025-12-10T04:38:22.477Z  INFO 51295 --- [coupon-service] [           main] com.netflix.discovery.DiscoveryClient    : Application version is -1: true
+2025-12-10T04:38:22.477Z  INFO 51295 --- [coupon-service] [           main] com.netflix.discovery.DiscoveryClient    : Getting all instance registry info from the eureka server
+2025-12-10T04:38:22.751Z DEBUG 51295 --- [coupon-service] [           main] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/
+2025-12-10T04:38:22.893Z DEBUG 51295 --- [coupon-service] [           main] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:38:22.955Z DEBUG 51295 --- [coupon-service] [           main] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:38:22.958Z DEBUG 51295 --- [coupon-service] [           main] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:38:23.005Z  INFO 51295 --- [coupon-service] [           main] com.netflix.discovery.DiscoveryClient    : The response status is 200
+2025-12-10T04:38:23.010Z  INFO 51295 --- [coupon-service] [           main] com.netflix.discovery.DiscoveryClient    : Starting heartbeat executor: renew interval is: 30
+2025-12-10T04:38:23.014Z  INFO 51295 --- [coupon-service] [           main] c.n.discovery.InstanceInfoReplicator     : InstanceInfoReplicator onDemand update allowed rate per min is 4
+2025-12-10T04:38:23.019Z  INFO 51295 --- [coupon-service] [           main] com.netflix.discovery.DiscoveryClient    : Discovery Client initialized at timestamp 1765341503019 with initial instances count: 5
+2025-12-10T04:38:23.029Z  INFO 51295 --- [coupon-service] [           main] o.s.c.n.e.s.EurekaServiceRegistry        : Registering application COUPON-SERVICE with eureka with status UP
+2025-12-10T04:38:23.030Z  INFO 51295 --- [coupon-service] [           main] com.netflix.discovery.DiscoveryClient    : Saw local status change event StatusChangeEvent [timestamp=1765341503030, current=UP, previous=STARTING]
+2025-12-10T04:38:23.031Z  INFO 51295 --- [coupon-service] [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088: registering service...
+2025-12-10T04:38:23.038Z DEBUG 51295 --- [coupon-service] [nfoReplicator-0] o.s.web.client.RestTemplate              : HTTP POST http://localhost:8761/eureka/apps/COUPON-SERVICE
+2025-12-10T04:38:23.040Z DEBUG 51295 --- [coupon-service] [nfoReplicator-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:38:23.072Z DEBUG 51295 --- [coupon-service] [nfoReplicator-0] o.s.web.client.RestTemplate              : Writing [InstanceInfo [instanceId = ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088, appName = COUPON-SERVICE, hostName = 172.31.47.17, status = UP, ipAddr = 172.31.47.17, port = 8088, securePort = 443, dataCenterInfo = com.netflix.appinfo.MyDataCenterInfo@a1cac17] as "application/json"
+2025-12-10T04:38:23.072Z  INFO 51295 --- [coupon-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8088 (http) with context path ''
+2025-12-10T04:38:23.073Z  INFO 51295 --- [coupon-service] [           main] .s.c.n.e.s.EurekaAutoServiceRegistration : Updating port to 8088
+2025-12-10T04:38:23.112Z  INFO 51295 --- [coupon-service] [           main] c.r.shopsphere.coupon.CouponApplication  : Started CouponApplication in 10.313 seconds (process running for 10.798)
+2025-12-10T04:38:23.117Z DEBUG 51295 --- [coupon-service] [nfoReplicator-0] o.s.web.client.RestTemplate              : Response 204 NO_CONTENT
+2025-12-10T04:38:23.118Z  INFO 51295 --- [coupon-service] [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088 - registration status: 204
+2025-12-10T04:38:34.196Z  INFO 51295 --- [coupon-service] [nio-8088-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-12-10T04:38:34.197Z  INFO 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-12-10T04:38:34.197Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : Detected StandardServletMultipartResolver
+2025-12-10T04:38:34.197Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : Detected AcceptHeaderLocaleResolver
+2025-12-10T04:38:34.197Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : Detected FixedThemeResolver
+2025-12-10T04:38:34.198Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@8c6a7db
+2025-12-10T04:38:34.199Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : Detected org.springframework.web.servlet.support.SessionFlashMapManager@2c05ccdb
+2025-12-10T04:38:34.199Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2025-12-10T04:38:34.199Z  INFO 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2025-12-10T04:38:34.212Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : GET "/actuator/health", parameters={}
+2025-12-10T04:38:34.227Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] m.m.a.RequestResponseBodyMethodProcessor : Read "application/octet-stream" to []
+2025-12-10T04:38:34.285Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/vnd.spring-boot.actuator.v3+json', given [*/*] and supported [application/vnd.spring-boot.actuator.v3+json, application/vnd.spring-boot.actuator.v2+json, application/json]
+2025-12-10T04:38:34.300Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [org.springframework.boot.actuate.health.SystemHealth@49f8eb2a]
+2025-12-10T04:38:34.322Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:38:53.012Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:38:53.012Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:38:53.015Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:38:53.017Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:38:53.019Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:38:53.022Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/
+2025-12-10T04:38:53.023Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:38:53.025Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:38:53.025Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:38:53.035Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:38:53.040Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:39:04.775Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.web.servlet.DispatcherServlet        : GET "/api/v1/coupons", parameters={}
+2025-12-10T04:39:04.777Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#getAllActiveCoupons()
+2025-12-10T04:39:04.903Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:39:04.908Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [[CouponResponse(id=1, code=WELCOME10, description=10% off for new customers, discountType=PERCENTAGE (truncated)...]
+2025-12-10T04:39:04.924Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:39:04.946Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] o.s.web.servlet.DispatcherServlet        : GET "/api/v1/coupons/WELCOME10", parameters={}
+2025-12-10T04:39:04.948Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#getCoupon(String)
+2025-12-10T04:39:04.980Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:39:04.982Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [CouponResponse(id=1, code=WELCOME10, description=10% off for new customers, discountType=PERCENTAGE, (truncated)...]
+2025-12-10T04:39:04.983Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:39:05.005Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-6] o.s.web.servlet.DispatcherServlet        : POST "/api/v1/coupons/validate", parameters={}
+2025-12-10T04:39:05.006Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-6] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#validateCoupon(ValidateCouponRequest)
+2025-12-10T04:39:05.019Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-6] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [ValidateCouponRequest(couponCode=WELCOME10, userId=user123, orderAmount=100.00)]
+2025-12-10T04:39:05.125Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:39:05.127Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [CouponValidationResponse(valid=true, message=Coupon is valid, discountAmount=10.00, finalAmount=90.0 (truncated)...]
+2025-12-10T04:39:05.128Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-6] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:39:05.147Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] o.s.web.servlet.DispatcherServlet        : POST "/api/v1/coupons/apply", parameters={}
+2025-12-10T04:39:05.148Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#applyCoupon(ApplyCouponRequest)
+2025-12-10T04:39:05.155Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [ApplyCouponRequest(couponCode=WELCOME10, userId=user123, orderId=order123, orderAmount=100.00)]
+2025-12-10T04:39:05.214Z  INFO 51295 --- [coupon-service] [nio-8088-exec-7] c.r.s.c.service.impl.CouponServiceImpl   : Applied coupon WELCOME10 for user user123 on order order123, discount: 10.00
+2025-12-10T04:39:05.244Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:39:05.245Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [CouponValidationResponse(valid=true, message=Coupon applied successfully, discountAmount=10.00, fina (truncated)...]
+2025-12-10T04:39:05.246Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:39:05.265Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.web.servlet.DispatcherServlet        : POST "/api/v1/coupons", parameters={}
+2025-12-10T04:39:05.267Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#createCoupon(CreateCouponRequest)
+2025-12-10T04:39:05.288Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [CreateCouponRequest(code=TEST15, description=Test 15% discount, discountType=PERCENTAGE, discountVal (truncated)...]
+2025-12-10T04:39:05.331Z  WARN 51295 --- [coupon-service] [nio-8088-exec-9] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<com.rudraksha.shopsphere.coupon.dto.response.CouponResponse> com.rudraksha.shopsphere.coupon.controller.CouponController.createCoupon(com.rudraksha.shopsphere.coupon.dto.request.CreateCouponRequest): [Field error in object 'createCouponRequest' on field 'validFrom': rejected value [2025-01-01T00:00]; codes [Future.createCouponRequest.validFrom,Future.validFrom,Future.java.time.LocalDateTime,Future]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [createCouponRequest.validFrom,validFrom]; arguments []; default message [validFrom]]; default message [Valid from date must be in the future]] ]
+2025-12-10T04:39:05.332Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.web.servlet.DispatcherServlet        : Completed 400 BAD_REQUEST
+2025-12-10T04:39:05.337Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.web.servlet.DispatcherServlet        : "ERROR" dispatch for POST "/error", parameters={}
+2025-12-10T04:39:05.339Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+2025-12-10T04:39:05.343Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:39:05.344Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Wed Dec 10 04:39:05 UTC 2025, status=400, error=Bad Request, path=/api/v1/coupons}]
+2025-12-10T04:39:05.351Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.web.servlet.DispatcherServlet        : Exiting from "ERROR" dispatch, status 400
+2025-12-10T04:39:05.370Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] o.s.web.servlet.DispatcherServlet        : PUT "/api/v1/coupons/TEST15", parameters={}
+2025-12-10T04:39:05.372Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#updateCoupon(String, UpdateCouponRequest)
+2025-12-10T04:39:05.382Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [UpdateCouponRequest(description=Updated 15% discount, discountValue=20.00, minimumOrderAmount=null,  (truncated)...]
+2025-12-10T04:39:05.397Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] o.s.web.servlet.DispatcherServlet        : Failed to complete request: java.lang.RuntimeException: Coupon not found: TEST15
+2025-12-10T04:39:05.398Z ERROR 51295 --- [coupon-service] [io-8088-exec-10] o.a.c.c.C.[.[.[/].[dispatcherServlet]    : Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: java.lang.RuntimeException: Coupon not found: TEST15] with root cause
+
+java.lang.RuntimeException: Coupon not found: TEST15
+	at com.rudraksha.shopsphere.coupon.service.impl.CouponServiceImpl.lambda$updateCoupon$3(CouponServiceImpl.java:162) ~[!/:1.0.0]
+	at java.base/java.util.Optional.orElseThrow(Optional.java:403) ~[na:na]
+	at com.rudraksha.shopsphere.coupon.service.impl.CouponServiceImpl.updateCoupon(CouponServiceImpl.java:162) ~[!/:1.0.0]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:352) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:123) ~[spring-tx-6.1.1.jar!/:6.1.1]
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:385) ~[spring-tx-6.1.1.jar!/:6.1.1]
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119) ~[spring-tx-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:717) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at com.rudraksha.shopsphere.coupon.service.impl.CouponServiceImpl$$SpringCGLIB$$0.updateCoupon(<generated>) ~[!/:1.0.0]
+	at com.rudraksha.shopsphere.coupon.controller.CouponController.updateCoupon(CouponController.java:56) ~[!/:1.0.0]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:254) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:182) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:917) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:829) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.FrameworkServlet.doPut(FrameworkServlet.java:925) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:593) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51) ~[tomcat-embed-websocket-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:109) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+
+2025-12-10T04:39:05.403Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] o.s.web.servlet.DispatcherServlet        : "ERROR" dispatch for PUT "/error", parameters={}
+2025-12-10T04:39:05.404Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+2025-12-10T04:39:05.405Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:39:05.405Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Wed Dec 10 04:39:05 UTC 2025, status=500, error=Internal Server Error, path=/api/v1/coupo (truncated)...]
+2025-12-10T04:39:05.406Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] o.s.web.servlet.DispatcherServlet        : Exiting from "ERROR" dispatch, status 500
+2025-12-10T04:39:05.429Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : GET "/api/v1/coupons/all?page=0&size=5", parameters={masked}
+2025-12-10T04:39:05.430Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#getAllCoupons(Pageable)
+2025-12-10T04:39:05.450Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:39:05.450Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [Page 1 of 1 containing com.rudraksha.shopsphere.coupon.dto.response.CouponResponse instances]
+2025-12-10T04:39:05.461Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:39:05.479Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.web.servlet.DispatcherServlet        : GET "/api/v1/coupons/users/user123/history", parameters={}
+2025-12-10T04:39:05.483Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#getUserCouponHistory(String)
+2025-12-10T04:39:05.491Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:39:05.491Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [[CouponUsageResponse(id=1, couponCode=WELCOME10, userId=user123, orderId=order123, discountAmount=10 (truncated)...]
+2025-12-10T04:39:05.494Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:39:05.509Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-5] o.s.web.servlet.DispatcherServlet        : GET "/api/v1/coupons/WELCOME10/usage-history", parameters={}
+2025-12-10T04:39:05.509Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-5] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#getCouponUsageHistory(String)
+2025-12-10T04:39:05.515Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-5] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:39:05.516Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-5] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [[CouponUsageResponse(id=1, couponCode=WELCOME10, userId=user123, orderId=order123, discountAmount=10 (truncated)...]
+2025-12-10T04:39:05.517Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-5] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:39:05.533Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-6] o.s.web.servlet.DispatcherServlet        : GET "/api/v1/coupons/expired", parameters={}
+2025-12-10T04:39:05.534Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-6] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#getExpiredCoupons()
+2025-12-10T04:39:05.541Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:39:05.542Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [[]]
+2025-12-10T04:39:05.543Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-6] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:39:05.559Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] o.s.web.servlet.DispatcherServlet        : GET "/api/v1/coupons/expiring?days=30", parameters={masked}
+2025-12-10T04:39:05.559Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#getCouponsExpiringIn(int)
+2025-12-10T04:39:05.574Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:39:05.574Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [[CouponResponse(id=3, code=FLASH50, description=50% off flash sale, discountType=PERCENTAGE, discoun (truncated)...]
+2025-12-10T04:39:05.575Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:39:05.587Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-8] o.s.web.servlet.DispatcherServlet        : PUT "/api/v1/coupons/TEST15/deactivate", parameters={}
+2025-12-10T04:39:05.588Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-8] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#deactivateCoupon(String)
+2025-12-10T04:39:05.593Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-8] o.s.web.servlet.DispatcherServlet        : Failed to complete request: java.lang.RuntimeException: Coupon not found: TEST15
+2025-12-10T04:39:05.594Z ERROR 51295 --- [coupon-service] [nio-8088-exec-8] o.a.c.c.C.[.[.[/].[dispatcherServlet]    : Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: java.lang.RuntimeException: Coupon not found: TEST15] with root cause
+
+java.lang.RuntimeException: Coupon not found: TEST15
+	at com.rudraksha.shopsphere.coupon.service.impl.CouponServiceImpl.lambda$deactivateCoupon$2(CouponServiceImpl.java:150) ~[!/:1.0.0]
+	at java.base/java.util.Optional.orElseThrow(Optional.java:403) ~[na:na]
+	at com.rudraksha.shopsphere.coupon.service.impl.CouponServiceImpl.deactivateCoupon(CouponServiceImpl.java:150) ~[!/:1.0.0]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:352) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:123) ~[spring-tx-6.1.1.jar!/:6.1.1]
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:385) ~[spring-tx-6.1.1.jar!/:6.1.1]
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119) ~[spring-tx-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:717) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at com.rudraksha.shopsphere.coupon.service.impl.CouponServiceImpl$$SpringCGLIB$$0.deactivateCoupon(<generated>) ~[!/:1.0.0]
+	at com.rudraksha.shopsphere.coupon.controller.CouponController.deactivateCoupon(CouponController.java:49) ~[!/:1.0.0]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:254) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:182) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:917) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:829) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.FrameworkServlet.doPut(FrameworkServlet.java:925) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:593) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51) ~[tomcat-embed-websocket-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:109) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+
+2025-12-10T04:39:05.595Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-8] o.s.web.servlet.DispatcherServlet        : "ERROR" dispatch for PUT "/error", parameters={}
+2025-12-10T04:39:05.595Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-8] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+2025-12-10T04:39:05.596Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-8] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:39:05.596Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-8] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Wed Dec 10 04:39:05 UTC 2025, status=500, error=Internal Server Error, path=/api/v1/coupo (truncated)...]
+2025-12-10T04:39:05.597Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-8] o.s.web.servlet.DispatcherServlet        : Exiting from "ERROR" dispatch, status 500
+2025-12-10T04:39:23.032Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:39:23.032Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:39:23.036Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:39:23.036Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:39:23.041Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:39:23.042Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:39:23.045Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:39:53.038Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:39:53.039Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:39:53.043Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:39:53.043Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:39:53.046Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:39:53.047Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:39:53.050Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:40:23.046Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:40:23.046Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:40:23.050Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:40:23.050Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:40:23.053Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:40:23.053Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:40:23.056Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:40:53.052Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:40:53.053Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:40:53.056Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:40:53.056Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:40:53.057Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:40:53.057Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:40:53.060Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:41:23.059Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:41:23.059Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:41:23.061Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:41:23.061Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:41:23.064Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:41:23.064Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:41:23.065Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:41:53.067Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:41:53.067Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:41:53.067Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:41:53.067Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:41:53.070Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:41:53.071Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:41:53.071Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:42:23.073Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:42:23.073Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:42:23.073Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:42:23.073Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:42:23.077Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:42:23.078Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:42:23.078Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:42:53.079Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:42:53.079Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:42:53.080Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:42:53.080Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:42:53.084Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:42:53.086Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:42:53.086Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:43:22.479Z  INFO 51295 --- [coupon-service] [trap-executor-0] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2025-12-10T04:43:23.085Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:43:23.085Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:43:23.089Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:43:23.090Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:43:23.090Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:43:23.092Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:43:23.093Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:43:53.091Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:43:53.092Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:43:53.095Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:43:53.095Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:43:53.097Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:43:53.098Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:43:53.098Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:44:23.099Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:44:23.099Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:44:23.100Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:44:23.100Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:44:23.103Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:44:23.104Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:44:23.104Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:44:53.106Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:44:53.106Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:44:53.107Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:44:53.108Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:44:53.110Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:44:53.111Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:44:53.112Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:45:23.112Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:45:23.112Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:45:23.114Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:45:23.114Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:45:23.116Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:45:23.118Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:45:23.118Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:45:53.117Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:45:53.119Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:45:53.119Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:45:53.119Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:45:53.123Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:45:53.123Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:45:53.123Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:46:23.125Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:46:23.125Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:46:23.126Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:46:23.126Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:46:23.133Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:46:23.132Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:46:23.134Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:46:53.135Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:46:53.135Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:46:53.137Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:46:53.137Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:46:53.139Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:46:53.141Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:46:53.141Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:47:23.140Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:47:23.141Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:47:23.143Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:47:23.146Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:47:23.147Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:47:23.149Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:47:23.149Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:47:53.148Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:47:53.149Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:47:53.151Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:47:53.152Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:47:53.152Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:47:53.155Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:47:53.155Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:48:22.480Z  INFO 51295 --- [coupon-service] [trap-executor-0] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2025-12-10T04:48:23.153Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:48:23.154Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:48:23.156Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:48:23.157Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:48:23.157Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:48:23.160Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:48:23.160Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:48:53.160Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:48:53.161Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:48:53.164Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:48:53.164Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:48:53.168Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:48:53.169Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:48:53.169Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:49:23.170Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:49:23.170Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:49:23.173Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:49:23.174Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:49:23.174Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:49:23.176Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:49:23.177Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:49:53.175Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:49:53.177Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:49:53.178Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:49:53.178Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:49:53.180Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:49:53.181Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:49:53.181Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:50:23.182Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:50:23.182Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:50:23.187Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:50:23.195Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:50:23.215Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:50:23.220Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:50:23.222Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:50:53.191Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:50:53.192Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:50:53.197Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:50:53.225Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:50:53.225Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:50:53.229Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:50:53.230Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:51:23.199Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:51:23.200Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:51:23.203Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:51:23.234Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:51:23.235Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:51:23.238Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:51:23.239Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:51:53.207Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:51:53.208Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:51:53.219Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:51:53.241Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:51:53.242Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:51:53.246Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:51:53.247Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:52:23.223Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:52:23.224Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:52:23.233Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:52:23.250Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:52:23.251Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:52:23.255Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:52:23.256Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:52:44.913Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.web.servlet.DispatcherServlet        : GET "/actuator/health", parameters={}
+2025-12-10T04:52:44.914Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] m.m.a.RequestResponseBodyMethodProcessor : Read "application/octet-stream" to []
+2025-12-10T04:52:44.917Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/vnd.spring-boot.actuator.v3+json', given [*/*] and supported [application/vnd.spring-boot.actuator.v3+json, application/vnd.spring-boot.actuator.v2+json, application/json]
+2025-12-10T04:52:44.917Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [org.springframework.boot.actuate.health.SystemHealth@6d7c179b]
+2025-12-10T04:52:44.918Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:52:53.234Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:52:53.234Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:52:53.238Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:52:53.260Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:52:53.261Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:52:53.264Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:52:53.264Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:53:22.481Z  INFO 51295 --- [coupon-service] [trap-executor-0] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2025-12-10T04:53:23.239Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:53:23.239Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:53:23.243Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:53:23.266Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:53:23.266Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:53:23.269Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:53:23.270Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:53:53.244Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:53:53.244Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:53:53.247Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:53:53.271Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:53:53.272Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:53:53.275Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:53:53.275Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:54:23.248Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:54:23.249Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:54:23.253Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:54:23.277Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:54:23.277Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:54:23.280Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:54:23.280Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:54:53.254Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:54:53.254Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:54:53.259Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:54:53.282Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:54:53.282Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:54:53.285Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:54:53.285Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:55:23.265Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:55:23.269Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:55:23.274Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:55:23.289Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:55:23.289Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:55:23.295Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:55:23.295Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:55:53.277Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:55:53.277Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:55:53.280Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:55:53.300Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:55:53.301Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:55:53.304Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:55:53.305Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:55:57.731Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : GET "/actuator/metrics", parameters={}
+2025-12-10T04:55:57.732Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] m.m.a.RequestResponseBodyMethodProcessor : Read "application/octet-stream" to []
+2025-12-10T04:55:57.734Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/vnd.spring-boot.actuator.v3+json;q=0.8', given [text/html, application/xhtml+xml, image/avif, image/webp, image/apng, application/xml;q=0.9, */*;q=0.8, application/signed-exchange;v=b3;q=0.7] and supported [application/vnd.spring-boot.actuator.v3+json, application/vnd.spring-boot.actuator.v2+json, application/json]
+2025-12-10T04:55:57.735Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] m.m.a.RequestResponseBodyMethodProcessor : Writing [org.springframework.boot.actuate.metrics.MetricsEndpoint$MetricNamesDescriptor@198b142b]
+2025-12-10T04:55:57.737Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:55:58.043Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.web.servlet.DispatcherServlet        : GET "/favicon.ico", parameters={}
+2025-12-10T04:55:58.045Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/], classpath [resources/], classpath [static/], classpath [public/], ServletContext [/]]
+2025-12-10T04:55:58.048Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.w.s.r.ResourceHttpRequestHandler     : Resource not found
+2025-12-10T04:55:58.048Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource favicon.ico.]
+2025-12-10T04:55:58.048Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.web.servlet.DispatcherServlet        : Completed 404 NOT_FOUND
+2025-12-10T04:55:58.049Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.web.servlet.DispatcherServlet        : "ERROR" dispatch for GET "/error", parameters={}
+2025-12-10T04:55:58.049Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+2025-12-10T04:55:58.050Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json;q=0.8', given [image/avif, image/webp, image/apng, image/svg+xml, image/*, */*;q=0.8] and supported [application/json, application/*+json]
+2025-12-10T04:55:58.050Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Wed Dec 10 04:55:58 UTC 2025, status=404, error=Not Found, path=/favicon.ico}]
+2025-12-10T04:55:58.053Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.web.servlet.DispatcherServlet        : Exiting from "ERROR" dispatch, status 404
+2025-12-10T04:56:14.263Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.web.servlet.DispatcherServlet        : GET "/actuator/health", parameters={}
+2025-12-10T04:56:14.264Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] m.m.a.RequestResponseBodyMethodProcessor : Read "application/octet-stream" to []
+2025-12-10T04:56:14.266Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/vnd.spring-boot.actuator.v3+json;q=0.8', given [text/html, application/xhtml+xml, image/avif, image/webp, image/apng, application/xml;q=0.9, */*;q=0.8, application/signed-exchange;v=b3;q=0.7] and supported [application/vnd.spring-boot.actuator.v3+json, application/vnd.spring-boot.actuator.v2+json, application/json]
+2025-12-10T04:56:14.266Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [org.springframework.boot.actuate.health.SystemHealth@5cc13321]
+2025-12-10T04:56:14.267Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:56:23.282Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:56:23.282Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:56:23.286Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:56:23.306Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:56:23.306Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:56:23.310Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:56:23.310Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:56:53.288Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:56:53.288Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:56:53.291Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:56:53.312Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:56:53.312Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:56:53.316Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:56:53.316Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:57:23.292Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:57:23.293Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:57:23.297Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:57:23.317Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:57:23.317Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:57:23.321Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:57:23.321Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:57:53.297Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:57:53.298Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:57:53.301Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:57:53.323Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:57:53.323Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:57:53.326Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:57:53.326Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:58:19.547Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] o.s.web.servlet.DispatcherServlet        : GET "/actuator/health", parameters={}
+2025-12-10T04:58:19.548Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] m.m.a.RequestResponseBodyMethodProcessor : Read "application/octet-stream" to []
+2025-12-10T04:58:19.551Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/vnd.spring-boot.actuator.v3+json', given [*/*] and supported [application/vnd.spring-boot.actuator.v3+json, application/vnd.spring-boot.actuator.v2+json, application/json]
+2025-12-10T04:58:19.551Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [org.springframework.boot.actuate.health.SystemHealth@66c036b7]
+2025-12-10T04:58:19.552Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:58:22.482Z  INFO 51295 --- [coupon-service] [trap-executor-0] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2025-12-10T04:58:23.302Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:58:23.303Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:58:23.307Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:58:23.328Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:58:23.328Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:58:23.333Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:58:23.334Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:58:25.696Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.web.servlet.DispatcherServlet        : GET "/api/v1/coupons", parameters={}
+2025-12-10T04:58:25.697Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#getAllActiveCoupons()
+2025-12-10T04:58:25.709Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:58:25.710Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [[CouponResponse(id=2, code=SAVE20, description=Save $20 on orders over $100, discountType=FIXED_AMOU (truncated)...]
+2025-12-10T04:58:25.711Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:58:32.439Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : GET "/api/v1/coupons/WELCOME10", parameters={}
+2025-12-10T04:58:32.441Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#getCoupon(String)
+2025-12-10T04:58:32.453Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:58:32.454Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [CouponResponse(id=1, code=WELCOME10, description=10% off for new customers, discountType=PERCENTAGE, (truncated)...]
+2025-12-10T04:58:32.459Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:58:32.474Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.web.servlet.DispatcherServlet        : POST "/api/v1/coupons/validate", parameters={}
+2025-12-10T04:58:32.475Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#validateCoupon(ValidateCouponRequest)
+2025-12-10T04:58:32.476Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [ValidateCouponRequest(couponCode=WELCOME10, userId=user123, orderAmount=100.00)]
+2025-12-10T04:58:32.483Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:58:32.483Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [CouponValidationResponse(valid=true, message=Coupon is valid, discountAmount=10.00, finalAmount=90.0 (truncated)...]
+2025-12-10T04:58:32.485Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:58:32.502Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.web.servlet.DispatcherServlet        : POST "/api/v1/coupons/apply", parameters={}
+2025-12-10T04:58:32.503Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#applyCoupon(ApplyCouponRequest)
+2025-12-10T04:58:32.504Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [ApplyCouponRequest(couponCode=WELCOME10, userId=user123, orderId=order456, orderAmount=100.00)]
+2025-12-10T04:58:32.522Z  INFO 51295 --- [coupon-service] [nio-8088-exec-3] c.r.s.c.service.impl.CouponServiceImpl   : Applied coupon WELCOME10 for user user123 on order order456, discount: 10.00
+2025-12-10T04:58:32.531Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:58:32.532Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [CouponValidationResponse(valid=true, message=Coupon applied successfully, discountAmount=10.00, fina (truncated)...]
+2025-12-10T04:58:32.533Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:58:39.938Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] o.s.web.servlet.DispatcherServlet        : GET "/api/v1/coupons/users/user123/history", parameters={}
+2025-12-10T04:58:39.939Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#getUserCouponHistory(String)
+2025-12-10T04:58:39.946Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:58:39.946Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [[CouponUsageResponse(id=1, couponCode=WELCOME10, userId=user123, orderId=order123, discountAmount=10 (truncated)...]
+2025-12-10T04:58:39.947Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:58:39.962Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-6] o.s.web.servlet.DispatcherServlet        : GET "/api/v1/coupons/WELCOME10/usage-history", parameters={}
+2025-12-10T04:58:39.965Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-6] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#getCouponUsageHistory(String)
+2025-12-10T04:58:39.970Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:58:39.970Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [[CouponUsageResponse(id=1, couponCode=WELCOME10, userId=user123, orderId=order123, discountAmount=10 (truncated)...]
+2025-12-10T04:58:39.971Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-6] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:58:39.986Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] o.s.web.servlet.DispatcherServlet        : GET "/api/v1/coupons/expired", parameters={}
+2025-12-10T04:58:39.987Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#getExpiredCoupons()
+2025-12-10T04:58:39.997Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:58:39.997Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [[]]
+2025-12-10T04:58:39.999Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-7] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:58:40.015Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.web.servlet.DispatcherServlet        : GET "/api/v1/coupons/expiring?days=10", parameters={masked}
+2025-12-10T04:58:40.018Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#getCouponsExpiringIn(int)
+2025-12-10T04:58:40.027Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:58:40.027Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [[CouponResponse(id=3, code=FLASH50, description=50% off flash sale, discountType=PERCENTAGE, discoun (truncated)...]
+2025-12-10T04:58:40.029Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-9] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-12-10T04:58:47.874Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] o.s.web.servlet.DispatcherServlet        : POST "/api/v1/coupons", parameters={}
+2025-12-10T04:58:47.874Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#createCoupon(CreateCouponRequest)
+2025-12-10T04:58:47.875Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [CreateCouponRequest(code=NEWYEAR25, description=New Year 25% discount, discountType=PERCENTAGE, disc (truncated)...]
+2025-12-10T04:58:47.878Z  WARN 51295 --- [coupon-service] [io-8088-exec-10] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<com.rudraksha.shopsphere.coupon.dto.response.CouponResponse> com.rudraksha.shopsphere.coupon.controller.CouponController.createCoupon(com.rudraksha.shopsphere.coupon.dto.request.CreateCouponRequest): [Field error in object 'createCouponRequest' on field 'validFrom': rejected value [2025-12-10T00:00]; codes [Future.createCouponRequest.validFrom,Future.validFrom,Future.java.time.LocalDateTime,Future]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [createCouponRequest.validFrom,validFrom]; arguments []; default message [validFrom]]; default message [Valid from date must be in the future]] ]
+2025-12-10T04:58:47.878Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] o.s.web.servlet.DispatcherServlet        : Completed 400 BAD_REQUEST
+2025-12-10T04:58:47.879Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] o.s.web.servlet.DispatcherServlet        : "ERROR" dispatch for POST "/error", parameters={}
+2025-12-10T04:58:47.883Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+2025-12-10T04:58:47.885Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:58:47.885Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Wed Dec 10 04:58:47 UTC 2025, status=400, error=Bad Request, path=/api/v1/coupons}]
+2025-12-10T04:58:47.886Z DEBUG 51295 --- [coupon-service] [io-8088-exec-10] o.s.web.servlet.DispatcherServlet        : Exiting from "ERROR" dispatch, status 400
+2025-12-10T04:58:47.896Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : PUT "/api/v1/coupons/NEWYEAR25", parameters={}
+2025-12-10T04:58:47.896Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#updateCoupon(String, UpdateCouponRequest)
+2025-12-10T04:58:47.898Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [UpdateCouponRequest(description=New Year 30% discount, discountValue=30.00, minimumOrderAmount=null, (truncated)...]
+2025-12-10T04:58:47.906Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : Failed to complete request: java.lang.RuntimeException: Coupon not found: NEWYEAR25
+2025-12-10T04:58:47.906Z ERROR 51295 --- [coupon-service] [nio-8088-exec-1] o.a.c.c.C.[.[.[/].[dispatcherServlet]    : Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: java.lang.RuntimeException: Coupon not found: NEWYEAR25] with root cause
+
+java.lang.RuntimeException: Coupon not found: NEWYEAR25
+	at com.rudraksha.shopsphere.coupon.service.impl.CouponServiceImpl.lambda$updateCoupon$3(CouponServiceImpl.java:162) ~[!/:1.0.0]
+	at java.base/java.util.Optional.orElseThrow(Optional.java:403) ~[na:na]
+	at com.rudraksha.shopsphere.coupon.service.impl.CouponServiceImpl.updateCoupon(CouponServiceImpl.java:162) ~[!/:1.0.0]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:352) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:123) ~[spring-tx-6.1.1.jar!/:6.1.1]
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:385) ~[spring-tx-6.1.1.jar!/:6.1.1]
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119) ~[spring-tx-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:717) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at com.rudraksha.shopsphere.coupon.service.impl.CouponServiceImpl$$SpringCGLIB$$0.updateCoupon(<generated>) ~[!/:1.0.0]
+	at com.rudraksha.shopsphere.coupon.controller.CouponController.updateCoupon(CouponController.java:56) ~[!/:1.0.0]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:254) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:182) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:917) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:829) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.FrameworkServlet.doPut(FrameworkServlet.java:925) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:593) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51) ~[tomcat-embed-websocket-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:109) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+
+2025-12-10T04:58:47.907Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : "ERROR" dispatch for PUT "/error", parameters={}
+2025-12-10T04:58:47.908Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+2025-12-10T04:58:47.908Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:58:47.908Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Wed Dec 10 04:58:47 UTC 2025, status=500, error=Internal Server Error, path=/api/v1/coupo (truncated)...]
+2025-12-10T04:58:47.909Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : Exiting from "ERROR" dispatch, status 500
+2025-12-10T04:58:47.920Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.web.servlet.DispatcherServlet        : GET "/api/v1/coupons/NEWYEAR25", parameters={}
+2025-12-10T04:58:47.921Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#getCoupon(String)
+2025-12-10T04:58:47.929Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.web.servlet.DispatcherServlet        : Failed to complete request: java.lang.RuntimeException: Coupon not found: NEWYEAR25
+2025-12-10T04:58:47.929Z ERROR 51295 --- [coupon-service] [nio-8088-exec-2] o.a.c.c.C.[.[.[/].[dispatcherServlet]    : Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: java.lang.RuntimeException: Coupon not found: NEWYEAR25] with root cause
+
+java.lang.RuntimeException: Coupon not found: NEWYEAR25
+	at com.rudraksha.shopsphere.coupon.service.impl.CouponServiceImpl.lambda$getCoupon$0(CouponServiceImpl.java:57) ~[!/:1.0.0]
+	at java.base/java.util.Optional.orElseThrow(Optional.java:403) ~[na:na]
+	at com.rudraksha.shopsphere.coupon.service.impl.CouponServiceImpl.getCoupon(CouponServiceImpl.java:57) ~[!/:1.0.0]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:352) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:123) ~[spring-tx-6.1.1.jar!/:6.1.1]
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:385) ~[spring-tx-6.1.1.jar!/:6.1.1]
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119) ~[spring-tx-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:717) ~[spring-aop-6.1.1.jar!/:6.1.1]
+	at com.rudraksha.shopsphere.coupon.service.impl.CouponServiceImpl$$SpringCGLIB$$0.getCoupon(<generated>) ~[!/:1.0.0]
+	at com.rudraksha.shopsphere.coupon.controller.CouponController.getCoupon(CouponController.java:29) ~[!/:1.0.0]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:254) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:182) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:917) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:829) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885) ~[spring-webmvc-6.1.1.jar!/:6.1.1]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51) ~[tomcat-embed-websocket-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:109) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.1.jar!/:6.1.1]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61) ~[tomcat-embed-core-10.1.16.jar!/:na]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+
+2025-12-10T04:58:47.930Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.web.servlet.DispatcherServlet        : "ERROR" dispatch for GET "/error", parameters={}
+2025-12-10T04:58:47.930Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+2025-12-10T04:58:47.931Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:58:47.931Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Wed Dec 10 04:58:47 UTC 2025, status=500, error=Internal Server Error, path=/api/v1/coupo (truncated)...]
+2025-12-10T04:58:47.932Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-2] o.s.web.servlet.DispatcherServlet        : Exiting from "ERROR" dispatch, status 500
+2025-12-10T04:58:53.308Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:58:53.308Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:58:53.312Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:58:53.335Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:58:53.335Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:58:53.339Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:58:53.339Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:59:03.178Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.web.servlet.DispatcherServlet        : POST "/api/v1/coupons", parameters={}
+2025-12-10T04:59:03.179Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#createCoupon(CreateCouponRequest)
+2025-12-10T04:59:03.180Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [CreateCouponRequest(code=NEWYEAR25, description=New Year 25% discount, discountType=PERCENTAGE, disc (truncated)...]
+2025-12-10T04:59:03.181Z  WARN 51295 --- [coupon-service] [nio-8088-exec-3] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<com.rudraksha.shopsphere.coupon.dto.response.CouponResponse> com.rudraksha.shopsphere.coupon.controller.CouponController.createCoupon(com.rudraksha.shopsphere.coupon.dto.request.CreateCouponRequest): [Field error in object 'createCouponRequest' on field 'validFrom': rejected value [2025-12-10T00:00]; codes [Future.createCouponRequest.validFrom,Future.validFrom,Future.java.time.LocalDateTime,Future]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [createCouponRequest.validFrom,validFrom]; arguments []; default message [validFrom]]; default message [Valid from date must be in the future]] ]
+2025-12-10T04:59:03.182Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.web.servlet.DispatcherServlet        : Completed 400 BAD_REQUEST
+2025-12-10T04:59:03.182Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.web.servlet.DispatcherServlet        : "ERROR" dispatch for POST "/error", parameters={}
+2025-12-10T04:59:03.183Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+2025-12-10T04:59:03.183Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:59:03.184Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Wed Dec 10 04:59:03 UTC 2025, status=400, error=Bad Request, path=/api/v1/coupons}]
+2025-12-10T04:59:03.190Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-3] o.s.web.servlet.DispatcherServlet        : Exiting from "ERROR" dispatch, status 400
+2025-12-10T04:59:16.648Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-5] o.s.web.servlet.DispatcherServlet        : POST "/api/v1/coupons", parameters={}
+2025-12-10T04:59:16.648Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-5] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#createCoupon(CreateCouponRequest)
+2025-12-10T04:59:16.651Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-5] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [CreateCouponRequest(code=NEWYEAR25, description=New Year 25% discount, discountType=PERCENTAGE, disc (truncated)...]
+2025-12-10T04:59:16.652Z  WARN 51295 --- [coupon-service] [nio-8088-exec-5] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<com.rudraksha.shopsphere.coupon.dto.response.CouponResponse> com.rudraksha.shopsphere.coupon.controller.CouponController.createCoupon(com.rudraksha.shopsphere.coupon.dto.request.CreateCouponRequest): [Field error in object 'createCouponRequest' on field 'validFrom': rejected value [2025-01-01T00:00]; codes [Future.createCouponRequest.validFrom,Future.validFrom,Future.java.time.LocalDateTime,Future]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [createCouponRequest.validFrom,validFrom]; arguments []; default message [validFrom]]; default message [Valid from date must be in the future]] ]
+2025-12-10T04:59:16.652Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-5] o.s.web.servlet.DispatcherServlet        : Completed 400 BAD_REQUEST
+2025-12-10T04:59:16.655Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-5] o.s.web.servlet.DispatcherServlet        : "ERROR" dispatch for POST "/error", parameters={}
+2025-12-10T04:59:16.655Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-5] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+2025-12-10T04:59:16.656Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-5] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:59:16.656Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-5] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Wed Dec 10 04:59:16 UTC 2025, status=400, error=Bad Request, path=/api/v1/coupons}]
+2025-12-10T04:59:16.659Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-5] o.s.web.servlet.DispatcherServlet        : Exiting from "ERROR" dispatch, status 400
+2025-12-10T04:59:23.158Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] o.s.web.servlet.DispatcherServlet        : POST "/api/v1/coupons", parameters={}
+2025-12-10T04:59:23.159Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.rudraksha.shopsphere.coupon.controller.CouponController#createCoupon(CreateCouponRequest)
+2025-12-10T04:59:23.163Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [CreateCouponRequest(code=TEST99, description=Test coupon, discountType=PERCENTAGE, discountValue=15. (truncated)...]
+2025-12-10T04:59:23.165Z  WARN 51295 --- [coupon-service] [nio-8088-exec-4] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<com.rudraksha.shopsphere.coupon.dto.response.CouponResponse> com.rudraksha.shopsphere.coupon.controller.CouponController.createCoupon(com.rudraksha.shopsphere.coupon.dto.request.CreateCouponRequest): [Field error in object 'createCouponRequest' on field 'validFrom': rejected value [2025-01-01T00:00]; codes [Future.createCouponRequest.validFrom,Future.validFrom,Future.java.time.LocalDateTime,Future]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [createCouponRequest.validFrom,validFrom]; arguments []; default message [validFrom]]; default message [Valid from date must be in the future]] ]
+2025-12-10T04:59:23.165Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] o.s.web.servlet.DispatcherServlet        : Completed 400 BAD_REQUEST
+2025-12-10T04:59:23.165Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] o.s.web.servlet.DispatcherServlet        : "ERROR" dispatch for POST "/error", parameters={}
+2025-12-10T04:59:23.166Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+2025-12-10T04:59:23.166Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-12-10T04:59:23.167Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Wed Dec 10 04:59:23 UTC 2025, status=400, error=Bad Request, path=/api/v1/coupons}]
+2025-12-10T04:59:23.167Z DEBUG 51295 --- [coupon-service] [nio-8088-exec-4] o.s.web.servlet.DispatcherServlet        : Exiting from "ERROR" dispatch, status 400
+2025-12-10T04:59:23.313Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:59:23.313Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:59:23.317Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:59:23.340Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:59:23.341Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:59:23.345Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:59:23.345Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T04:59:53.318Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T04:59:53.318Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:59:53.321Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:59:53.348Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T04:59:53.348Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T04:59:53.351Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T04:59:53.351Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T05:00:23.322Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088?status=UP&lastDirtyTimestamp=1765341503029
+2025-12-10T05:00:23.323Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T05:00:23.326Z DEBUG 51295 --- [coupon-service] [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T05:00:23.353Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2025-12-10T05:00:23.353Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T05:00:23.356Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T05:00:23.356Z DEBUG 51295 --- [coupon-service] [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-12-10T05:00:44.330Z  INFO 51295 --- [coupon-service] [ionShutdownHook] o.s.c.n.e.s.EurekaServiceRegistry        : Unregistering application COUPON-SERVICE with eureka with status DOWN
+2025-12-10T05:00:44.330Z  INFO 51295 --- [coupon-service] [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Saw local status change event StatusChangeEvent [timestamp=1765342844330, current=DOWN, previous=UP]
+2025-12-10T05:00:44.331Z  INFO 51295 --- [coupon-service] [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088: registering service...
+2025-12-10T05:00:44.331Z DEBUG 51295 --- [coupon-service] [nfoReplicator-0] o.s.web.client.RestTemplate              : HTTP POST http://localhost:8761/eureka/apps/COUPON-SERVICE
+2025-12-10T05:00:44.332Z DEBUG 51295 --- [coupon-service] [nfoReplicator-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T05:00:44.332Z DEBUG 51295 --- [coupon-service] [nfoReplicator-0] o.s.web.client.RestTemplate              : Writing [InstanceInfo [instanceId = ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088, appName = COUPON-SERVICE, hostName = 172.31.47.17, status = DOWN, ipAddr = 172.31.47.17, port = 8088, securePort = 443, dataCenterInfo = com.netflix.appinfo.MyDataCenterInfo@a1cac17] as "application/json"
+2025-12-10T05:00:44.340Z DEBUG 51295 --- [coupon-service] [nfoReplicator-0] o.s.web.client.RestTemplate              : Response 204 NO_CONTENT
+2025-12-10T05:00:44.340Z  INFO 51295 --- [coupon-service] [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088 - registration status: 204
+2025-12-10T05:00:44.351Z  INFO 51295 --- [coupon-service] [ionShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-12-10T05:00:44.354Z  INFO 51295 --- [coupon-service] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-12-10T05:00:44.356Z  INFO 51295 --- [coupon-service] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-12-10T05:00:44.357Z  INFO 51295 --- [coupon-service] [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Shutting down DiscoveryClient ...
+2025-12-10T05:00:47.359Z  INFO 51295 --- [coupon-service] [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Unregistering ...
+2025-12-10T05:00:47.360Z DEBUG 51295 --- [coupon-service] [ionShutdownHook] o.s.web.client.RestTemplate              : HTTP DELETE http://localhost:8761/eureka/apps/COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088
+2025-12-10T05:00:47.361Z DEBUG 51295 --- [coupon-service] [ionShutdownHook] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-12-10T05:00:47.365Z DEBUG 51295 --- [coupon-service] [ionShutdownHook] o.s.web.client.RestTemplate              : Response 200 OK
+2025-12-10T05:00:47.365Z  INFO 51295 --- [coupon-service] [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_COUPON-SERVICE/ip-172-31-47-17.eu-north-1.compute.internal:coupon-service:8088 - deregister  status: 200
+2025-12-10T05:00:47.372Z  INFO 51295 --- [coupon-service] [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Completed shut down of DiscoveryClient
