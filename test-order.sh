@@ -1,6 +1,7 @@
 #!/bin/bash
+IP="51.20.189.129"
 
-BASE_URL="http://localhost:8080/order"
+BASE_URL="http://$IP:8080/order"
 
 echo "=== Testing Order Service ==="
 

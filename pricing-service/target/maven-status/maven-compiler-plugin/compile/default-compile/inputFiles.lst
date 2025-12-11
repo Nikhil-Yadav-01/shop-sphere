@@ -1,3 +1,4 @@
+/home/ubuntu/shop-sphere/pricing-service/src/main/java/com/rudraksha/shopsphere/pricing/controller/WelcomeController.java
 /home/ubuntu/shop-sphere/pricing-service/src/main/java/com/rudraksha/shopsphere/pricing/dto/request/CalculatePriceRequest.java
 /home/ubuntu/shop-sphere/pricing-service/src/main/java/com/rudraksha/shopsphere/pricing/service/PricingService.java
 /home/ubuntu/shop-sphere/pricing-service/src/main/java/com/rudraksha/shopsphere/pricing/controller/PricingController.java

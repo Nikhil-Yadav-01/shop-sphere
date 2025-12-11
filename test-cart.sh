@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-IP="16.171.12.89"
+IP="51.20.188.129"
 USER_ID="cart-test-$(date +%s)"
 
 echo "=== Testing Cart Service Comprehensively ==="

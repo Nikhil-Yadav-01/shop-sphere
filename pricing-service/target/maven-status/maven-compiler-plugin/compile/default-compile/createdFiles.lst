@@ -32,5 +32,6 @@ com/rudraksha/shopsphere/pricing/dto/response/ProductPriceResponse$ProductPriceR
 com/rudraksha/shopsphere/pricing/dto/response/PricingRuleResponse.class
 com/rudraksha/shopsphere/pricing/dto/response/PriceCalculationResponse$PriceCalculationResponseBuilder.class
 com/rudraksha/shopsphere/pricing/repository/PricingRuleRepository.class
+com/rudraksha/shopsphere/pricing/controller/WelcomeController.class
 com/rudraksha/shopsphere/pricing/entity/PricingRule.class
 com/rudraksha/shopsphere/pricing/dto/request/CreatePricingRuleRequest$CreatePricingRuleRequestBuilder.class

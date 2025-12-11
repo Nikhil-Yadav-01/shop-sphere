@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-IP="16.171.12.89"
+IP="51.20.189.129"
 echo "=== Testing Batch Service ==="
 echo ""
 

@@ -1,18 +1,19 @@
 #!/bin/bash
 set -e
-IP="16.171.12.89"
+IP="51.20.188.129"
 echo "=== Testing All Services ==="
 echo ""
 echo "1. Discovery Service (8761):"
 curl -s http://$IP:8761/actuator/health | grep -o '"status":"[^"]*"' || echo "FAILED"
 echo ""
 echo "2. Auth Service - Register (8081):"
-REGISTER=$(curl -s -X POST http://$IP:8081/auth/register -H "Content-Type: application/json" -d '{"email":"test'$(date +%s)'@test.com","password":"Test@123","firstName":"Test","lastName":"User"}')
+TOKEN_EMAIL="test$(date +%s)@test.com"
+REGISTER=$(curl -s -X POST http://$IP:8081/auth/register -H "Content-Type: application/json" -d "{\"email\":\"$TOKEN_EMAIL\",\"password\":\"Test@123\",\"firstName\":\"Test\",\"lastName\":\"User\"}")
 echo $REGISTER | grep -o '"accessToken":"[^"]*"' | head -c 50 || echo "FAILED"
 TOKEN=$(echo $REGISTER | grep -o '"accessToken":"[^"]*' | cut -d'"' -f4)
 echo ""
 echo "3. Auth Service - Login (8081):"
-curl -s -X POST http://$IP:8081/auth/login -H "Content-Type: application/json" -d '{"email":"admin2@shopsphere.com","password":"Admin@123"}' | grep -o '"role":"[^"]*"' || echo "FAILED"
+curl -s -X POST http://$IP:8081/auth/login -H "Content-Type: application/json" -d "{\"email\":\"$TOKEN_EMAIL\",\"password\":\"Test@123\"}" | grep -o '"accessToken":"[^"]*"' | head -c 50 || echo "FAILED"
 echo ""
 echo "4. Auth Service - Validate (8081):"
 curl -s -X POST http://$IP:8081/auth/validate -H "Authorization: Bearer $TOKEN" | head -c 100 || echo "FAILED"
@@ -21,11 +22,11 @@ echo "5. Admin Service Direct (8089):"
 curl -s http://$IP:8089/admin/api/v1/dashboard/overview | grep -o '"serviceStatus":"[^"]*"' || echo "FAILED"
 echo ""
 echo "6. API Gateway - Auth Route (8080):"
-curl -s -X POST http://$IP:8080/auth/login -H "Content-Type: application/json" -d '{"email":"admin2@shopsphere.com","password":"Admin@123"}' | grep -o '"role":"[^"]*"' || echo "FAILED"
+curl -s -X POST http://$IP:8080/auth/login -H "Content-Type: application/json" -d "{\"email\":\"$TOKEN_EMAIL\",\"password\":\"Test@123\"}" | grep -o '"accessToken":"[^"]*"' | head -c 50 || echo "FAILED"
 echo ""
 echo "7. API Gateway - Admin Route (8080):"
-docker exec -i auth-db psql -U postgres -d shopsphere_auth -c "UPDATE users SET role = 'ADMIN' WHERE email = 'admin2@shopsphere.com';" > /dev/null
-LOGIN=$(curl -s -X POST http://$IP:8080/auth/login -H "Content-Type: application/json" -d '{"email":"admin2@shopsphere.com","password":"Admin@123"}')
+docker exec -i auth-db psql -U postgres -d shopsphere_auth -c "UPDATE users SET role = 'ADMIN' WHERE email = '$TOKEN_EMAIL';" > /dev/null
+LOGIN=$(curl -s -X POST http://$IP:8080/auth/login -H "Content-Type: application/json" -d "{\"email\":\"$TOKEN_EMAIL\",\"password\":\"Test@123\"}")
 ADMIN_TOKEN=$(echo $LOGIN | grep -o '"accessToken":"[^"]*' | cut -d'"' -f4)
 curl -s http://$IP:8080/admin/api/v1/dashboard/overview -H "Authorization: Bearer $ADMIN_TOKEN" | grep -o '"serviceStatus":"[^"]*"' || echo "FAILED"
 echo ""
