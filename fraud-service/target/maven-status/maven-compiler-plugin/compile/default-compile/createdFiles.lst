@@ -6,6 +6,8 @@ com/rudraksha/shopsphere/fraud/dto/FraudCheckRequest$FraudCheckRequestBuilder.cl
 com/rudraksha/shopsphere/fraud/service/FraudRuleService.class
 com/rudraksha/shopsphere/fraud/dto/FraudCheckResponse$FraudCheckResponseBuilder.class
 com/rudraksha/shopsphere/fraud/entity/FraudDetection$TransactionType.class
+com/rudraksha/shopsphere/fraud/config/KafkaProducerConfig.class
+com/rudraksha/shopsphere/fraud/service/FraudEventPublisher.class
 com/rudraksha/shopsphere/fraud/entity/FraudRule$RuleType.class
 com/rudraksha/shopsphere/fraud/repository/FraudDetectionRepository.class
 com/rudraksha/shopsphere/fraud/entity/FraudDetection$FraudDetectionBuilder.class

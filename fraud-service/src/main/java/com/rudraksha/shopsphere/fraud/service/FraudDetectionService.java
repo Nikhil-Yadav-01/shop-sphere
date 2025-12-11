@@ -21,6 +21,7 @@ public class FraudDetectionService {
     
     private final FraudDetectionRepository fraudDetectionRepository;
     private final FraudRuleService fraudRuleService;
+    private final FraudEventPublisher fraudEventPublisher;
     
     public FraudCheckResponse checkFraud(FraudCheckRequest request) {
         log.info("Starting fraud check for transaction: {}", request.getTransactionId());
@@ -59,10 +60,20 @@ public class FraudDetectionService {
                 .build();
         
         var saved = fraudDetectionRepository.save(fraudDetection);
+        FraudCheckResponse response = mapToResponse(saved);
+        
+        // Publish events to Kafka
+        fraudEventPublisher.publishFraudDetectionEvent(response);
+        if (isFraudulent) {
+            fraudEventPublisher.publishFraudAlert(response);
+        } else {
+            fraudEventPublisher.publishTransactionApprovedEvent(response);
+        }
+        
         log.info("Fraud check completed for transaction: {} - Risk Score: {}, Fraudulent: {}", 
                 request.getTransactionId(), riskScore, isFraudulent);
         
-        return mapToResponse(saved);
+        return response;
     }
     
     private BigDecimal calculateRiskScore(FraudCheckRequest request) {
