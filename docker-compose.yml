@@ -455,6 +455,26 @@ services:
       timeout: 5s
       retries: 5
 
+  # PostgreSQL for Fraud Service
+  fraud-db:
+    image: postgres:15-alpine
+    container_name: fraud-db
+    environment:
+      POSTGRES_DB: shopsphere_fraud
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5441:5432"
+    volumes:
+      - fraud-db-data:/var/lib/postgresql/data
+    networks:
+      - shopsphere-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 
   # Checkout Service
   checkout-service:
@@ -647,6 +667,39 @@ services:
       retries: 5
       start_period: 60s
 
+  # Fraud Service
+  fraud-service:
+    build:
+      context: .
+      dockerfile: fraud-service/Dockerfile
+    container_name: fraud-service
+    environment:
+      DB_HOST: fraud-db
+      DB_PORT: 5432
+      DB_NAME: shopsphere_fraud
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      EUREKA_URI: http://discovery-service:8761/eureka
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SERVER_PORT: 8010
+    ports:
+      - "8010:8010"
+    depends_on:
+      fraud-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - shopsphere-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
 networks:
   shopsphere-network:
     driver: bridge
@@ -662,4 +715,5 @@ volumes:
    order-db-data:
    payment-db-data:
    inventory-db-data:
+   fraud-db-data:
    kafka-data:
