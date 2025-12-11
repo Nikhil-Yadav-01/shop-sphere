@@ -14,7 +14,6 @@ com/rudraksha/shopsphere/shared/utils/CsvUtil$CsvParseException.class
 com/rudraksha/shopsphere/shared/utils/IdGenerator.class
 com/rudraksha/shopsphere/shared/security/RolesAndAuthorities.class
 com/rudraksha/shopsphere/shared/security/SecurityConstants.class
-com/rudraksha/shopsphere/admin/controller/RootController.class
 com/rudraksha/shopsphere/shared/models/dto/PriceDTO$PriceDTOBuilder.class
 com/rudraksha/shopsphere/shared/models/enums/OrderStatus.class
 com/rudraksha/shopsphere/admin/dto/response/AuditLogResponse$AuditLogResponseBuilder.class
@@ -70,6 +69,7 @@ com/rudraksha/shopsphere/admin/entity/AdminAuditLog.class
 com/rudraksha/shopsphere/admin/service/AdminService.class
 com/rudraksha/shopsphere/shared/models/dto/OrderDTO$OrderItemDTO$OrderItemDTOBuilder.class
 com/rudraksha/shopsphere/shared/models/events/SchemaVersion.class
+com/rudraksha/shopsphere/admin/controller/WelcomeController.class
 com/rudraksha/shopsphere/shared/kafka/serialization/JsonSerde$JsonSerializer.class
 com/rudraksha/shopsphere/shared/models/events/EventEnvelope$EventEnvelopeBuilder.class
 com/rudraksha/shopsphere/shared/models/dto/PriceDTO.class

@@ -1,4 +1,3 @@
-com/rudraksha/shopsphere/auth/controller/RootController.class
 com/rudraksha/shopsphere/auth/exception/UserAlreadyExistsException.class
 com/rudraksha/shopsphere/shared/db/PaginationUtils.class
 com/rudraksha/shopsphere/auth/service/impl/AuthServiceImpl.class
@@ -24,6 +23,7 @@ com/rudraksha/shopsphere/auth/controller/AuthController.class
 com/rudraksha/shopsphere/auth/repository/RefreshTokenRepository.class
 com/rudraksha/shopsphere/auth/dto/request/LoginRequest.class
 com/rudraksha/shopsphere/shared/models/dto/OrderDTO$OrderItemDTO.class
+com/rudraksha/shopsphere/auth/controller/WelcomeController.class
 com/rudraksha/shopsphere/shared/models/dto/OrderDTO$OrderDTOBuilder.class
 com/rudraksha/shopsphere/shared/security/JwtTokenProvider.class
 com/rudraksha/shopsphere/shared/models/dto/ProductDTO$ProductDTOBuilder.class

@@ -9,4 +9,5 @@ com/rudraksha/shopsphere/batch/BatchApplication.class
 com/rudraksha/shopsphere/batch/entity/BatchJob.class
 com/rudraksha/shopsphere/batch/dto/BatchJobResponse$BatchJobResponseBuilder.class
 com/rudraksha/shopsphere/batch/models/ApiResponse$ApiResponseBuilder.class
+com/rudraksha/shopsphere/batch/controller/WelcomeController.class
 com/rudraksha/shopsphere/batch/models/ApiResponse.class

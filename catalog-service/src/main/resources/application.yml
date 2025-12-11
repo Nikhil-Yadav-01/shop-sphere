@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: catalog-service
+  web:
+    resources:
+      add-mappings: false
   data:
     mongodb:
       uri: ${MONGO_URI:mongodb://localhost:27017/shopsphere_catalog}

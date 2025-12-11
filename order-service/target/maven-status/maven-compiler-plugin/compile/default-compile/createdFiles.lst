@@ -8,6 +8,7 @@ com/rudraksha/shopsphere/order/exception/GlobalExceptionHandler.class
 com/rudraksha/shopsphere/order/OrderApplication.class
 com/rudraksha/shopsphere/order/dto/request/OrderItemRequest.class
 com/rudraksha/shopsphere/order/exception/ErrorResponse$ErrorResponseBuilder.class
+com/rudraksha/shopsphere/order/controller/WelcomeController.class
 com/rudraksha/shopsphere/order/entity/OrderItem.class
 com/rudraksha/shopsphere/order/exception/OrderException.class
 com/rudraksha/shopsphere/order/config/DatabaseConfig.class

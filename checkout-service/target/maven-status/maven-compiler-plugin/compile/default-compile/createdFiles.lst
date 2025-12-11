@@ -16,6 +16,7 @@ com/rudraksha/shopsphere/checkout/service/impl/CheckoutServiceImpl.class
 com/rudraksha/shopsphere/checkout/repository/OrderRepository.class
 com/rudraksha/shopsphere/checkout/entity/PaymentDetails$PaymentMethod.class
 com/rudraksha/shopsphere/checkout/dto/response/PaymentDetailsResponse$PaymentDetailsResponseBuilder.class
+com/rudraksha/shopsphere/checkout/controller/WelcomeController.class
 com/rudraksha/shopsphere/checkout/entity/ShippingAddress$ShippingAddressBuilder.class
 com/rudraksha/shopsphere/checkout/controller/CheckoutController.class
 com/rudraksha/shopsphere/checkout/dto/response/PaymentDetailsResponse.class

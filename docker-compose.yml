@@ -415,6 +415,26 @@ services:
       timeout: 5s
       retries: 5
 
+  # PostgreSQL for Inventory Service
+  inventory-db:
+    image: postgres:15-alpine
+    container_name: inventory-db
+    environment:
+      POSTGRES_DB: shopsphere_inventory
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5440:5432"
+    volumes:
+      - inventory-db-data:/var/lib/postgresql/data
+    networks:
+      - shopsphere-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # PostgreSQL for Payment Service
   payment-db:
     image: postgres:15-alpine
@@ -559,15 +579,16 @@ services:
       retries: 5
       start_period: 60s
 
-  # Payment Service
-  payment-service:
+  # Inventory Service
+  inventory-service:
     build:
       context: .
-      dockerfile: payment-service/Dockerfile
-    container_name: payment-service
+      dockerfile: inventory-service/Dockerfile
+    container_name: inventory-service
     environment:
-      DB_HOST: payment-db
+      DB_HOST: inventory-db
       DB_PORT: 5432
+      DB_NAME: shopsphere_inventory
       DB_USERNAME: postgres
       DB_PASSWORD: password
       EUREKA_URI: http://discovery-service:8761/eureka
@@ -576,7 +597,7 @@ services:
     ports:
       - "8092:8092"
     depends_on:
-      payment-db:
+      inventory-db:
         condition: service_healthy
       discovery-service:
         condition: service_healthy
@@ -591,17 +612,51 @@ services:
       retries: 5
       start_period: 60s
 
-networks:
-  shopsphere-network:
-    driver: bridge
+  # Payment Service
+  payment-service:
+    build:
+      context: .
+      dockerfile: payment-service/Dockerfile
+    container_name: payment-service
+    environment:
+      DB_HOST: payment-db
+      DB_PORT: 5432
+      POSTGRES_DB: shopsphere_payment
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      EUREKA_URI: http://discovery-service:8761/eureka
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SERVER_PORT: 8093
+    ports:
+      - "8093:8093"
+    depends_on:
+      payment-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - shopsphere-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8093/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
-volumes:
-   auth-db-data:
-   admin-db-data:
-   analytics-db-data:
-   catalog-db-data:
-   checkout-db-data:
-   coupon-db-data:
-   pricing-db-data:
-   order-db-data:
-   payment-db-data:
+      networks:
+      shopsphere-network:
+      driver: bridge
+
+      volumes:
+      auth-db-data:
+      admin-db-data:
+      analytics-db-data:
+      catalog-db-data:
+      checkout-db-data:
+      coupon-db-data:
+      pricing-db-data:
+      inventory-db-data:
+      order-db-data:
+      payment-db-data:

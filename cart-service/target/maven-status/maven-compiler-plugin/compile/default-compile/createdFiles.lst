@@ -1,4 +1,5 @@
 com/rudraksha/shopsphere/cart/controller/CartController.class
+com/rudraksha/shopsphere/cart/controller/WelcomeController.class
 com/rudraksha/shopsphere/cart/dto/request/AddToCartRequest$AddToCartRequestBuilder.class
 com/rudraksha/shopsphere/cart/service/impl/CartServiceImpl.class
 com/rudraksha/shopsphere/cart/dto/response/CartResponse.class

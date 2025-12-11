@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: batch-service
+  web:
+    resources:
+      add-mappings: false
   batch:
     jdbc:
       initialize-schema: always

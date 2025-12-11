@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: cart-service
+  
+  web:
+    resources:
+      add-mappings: false
 
   data:
     redis:

@@ -9,6 +9,7 @@
 /home/ubuntu/shop-sphere/order-service/src/main/java/com/rudraksha/shopsphere/order/dto/response/OrderItemResponse.java
 /home/ubuntu/shop-sphere/order-service/src/main/java/com/rudraksha/shopsphere/order/OrderApplication.java
 /home/ubuntu/shop-sphere/order-service/src/main/java/com/rudraksha/shopsphere/order/dto/request/OrderItemRequest.java
+/home/ubuntu/shop-sphere/order-service/src/main/java/com/rudraksha/shopsphere/order/controller/WelcomeController.java
 /home/ubuntu/shop-sphere/order-service/src/main/java/com/rudraksha/shopsphere/order/service/OrderService.java
 /home/ubuntu/shop-sphere/order-service/src/main/java/com/rudraksha/shopsphere/order/exception/OrderException.java
 /home/ubuntu/shop-sphere/order-service/src/main/java/com/rudraksha/shopsphere/order/entity/Order.java

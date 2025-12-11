@@ -9,6 +9,7 @@ com/rudraksha/shopsphere/inventory/service/InventoryService.class
 com/rudraksha/shopsphere/inventory/dto/request/CreateInventoryRequest.class
 com/rudraksha/shopsphere/inventory/dto/request/UpdateInventoryRequest.class
 com/rudraksha/shopsphere/inventory/dto/request/ReserveInventoryRequest.class
+com/rudraksha/shopsphere/inventory/controller/WelcomeController.class
 com/rudraksha/shopsphere/inventory/dto/response/InventoryResponse.class
 com/rudraksha/shopsphere/inventory/controller/InventoryController.class
 com/rudraksha/shopsphere/inventory/entity/InventoryItem$InventoryItemBuilder.class

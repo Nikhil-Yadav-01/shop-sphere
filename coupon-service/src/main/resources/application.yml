@@ -10,6 +10,10 @@ spring:
   application:
     name: coupon-service
   
+  web:
+    resources:
+      add-mappings: false
+  
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:coupon_db}
     username: ${DB_USERNAME:postgres}

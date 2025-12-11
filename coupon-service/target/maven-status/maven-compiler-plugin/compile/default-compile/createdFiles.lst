@@ -22,6 +22,7 @@ com/rudraksha/shopsphere/coupon/repository/CouponRepository.class
 com/rudraksha/shopsphere/coupon/controller/CouponController.class
 com/rudraksha/shopsphere/coupon/dto/request/ValidateCouponRequest$ValidateCouponRequestBuilder.class
 com/rudraksha/shopsphere/coupon/exception/ErrorResponse.class
+com/rudraksha/shopsphere/coupon/controller/WelcomeController.class
 com/rudraksha/shopsphere/coupon/dto/response/CouponUsageResponse$CouponUsageResponseBuilder.class
 com/rudraksha/shopsphere/coupon/dto/request/UpdateCouponRequest$UpdateCouponRequestBuilder.class
 com/rudraksha/shopsphere/coupon/service/CouponService.class
