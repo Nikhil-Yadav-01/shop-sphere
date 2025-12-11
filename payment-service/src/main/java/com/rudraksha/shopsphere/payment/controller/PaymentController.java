@@ -26,12 +26,6 @@ public class PaymentController {
         return new ResponseEntity<>(payment, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PaymentResponse> getPaymentById(@PathVariable Long id) {
-        PaymentResponse payment = paymentService.getPaymentById(id);
-        return ResponseEntity.ok(payment);
-    }
-
     @GetMapping("/transaction/{transactionId}")
     public ResponseEntity<PaymentResponse> getPaymentByTransactionId(@PathVariable String transactionId) {
         PaymentResponse payment = paymentService.getPaymentByTransactionId(transactionId);
@@ -54,6 +48,12 @@ public class PaymentController {
     public ResponseEntity<List<PaymentResponse>> getPaymentsByStatus(@PathVariable Payment.PaymentStatus status) {
         List<PaymentResponse> payments = paymentService.getPaymentsByStatus(status);
         return ResponseEntity.ok(payments);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PaymentResponse> getPaymentById(@PathVariable Long id) {
+        PaymentResponse payment = paymentService.getPaymentById(id);
+        return ResponseEntity.ok(payment);
     }
 
     @PostMapping("/refund")

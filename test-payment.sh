@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASE_URL="http://localhost:8092/payment"
+BASE_URL="http://localhost:8093/payment"
 
 echo "=== Testing Payment Service ==="
 
