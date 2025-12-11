@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-IP="16.171.12.89"
+IP="51.20.188.129"
 echo "=== Testing All Services ==="
 echo ""
 echo "1. Discovery Service (8761):"
