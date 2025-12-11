@@ -1,0 +1,17 @@
+com/rudraksha/shopsphere/fraud/entity/FraudRule.class
+com/rudraksha/shopsphere/fraud/dto/FraudCheckRequest.class
+com/rudraksha/shopsphere/fraud/dto/FraudCheckResponse.class
+com/rudraksha/shopsphere/fraud/entity/FraudDetection.class
+com/rudraksha/shopsphere/fraud/dto/FraudCheckRequest$FraudCheckRequestBuilder.class
+com/rudraksha/shopsphere/fraud/service/FraudRuleService.class
+com/rudraksha/shopsphere/fraud/dto/FraudCheckResponse$FraudCheckResponseBuilder.class
+com/rudraksha/shopsphere/fraud/entity/FraudDetection$TransactionType.class
+com/rudraksha/shopsphere/fraud/entity/FraudRule$RuleType.class
+com/rudraksha/shopsphere/fraud/repository/FraudDetectionRepository.class
+com/rudraksha/shopsphere/fraud/entity/FraudDetection$FraudDetectionBuilder.class
+com/rudraksha/shopsphere/fraud/service/FraudDetectionService.class
+com/rudraksha/shopsphere/fraud/controller/FraudDetectionController.class
+com/rudraksha/shopsphere/fraud/entity/FraudDetection$FraudStatus.class
+com/rudraksha/shopsphere/fraud/FraudApplication.class
+com/rudraksha/shopsphere/fraud/entity/FraudRule$FraudRuleBuilder.class
+com/rudraksha/shopsphere/fraud/repository/FraudRuleRepository.class

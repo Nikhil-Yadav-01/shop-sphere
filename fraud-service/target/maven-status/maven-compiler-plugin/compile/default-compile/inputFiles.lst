@@ -1,0 +1,10 @@
+/home/ubuntu/shop-sphere/fraud-service/src/main/java/com/rudraksha/shopsphere/fraud/service/FraudDetectionService.java
+/home/ubuntu/shop-sphere/fraud-service/src/main/java/com/rudraksha/shopsphere/fraud/repository/FraudDetectionRepository.java
+/home/ubuntu/shop-sphere/fraud-service/src/main/java/com/rudraksha/shopsphere/fraud/entity/FraudRule.java
+/home/ubuntu/shop-sphere/fraud-service/src/main/java/com/rudraksha/shopsphere/fraud/dto/FraudCheckRequest.java
+/home/ubuntu/shop-sphere/fraud-service/src/main/java/com/rudraksha/shopsphere/fraud/service/FraudRuleService.java
+/home/ubuntu/shop-sphere/fraud-service/src/main/java/com/rudraksha/shopsphere/fraud/entity/FraudDetection.java
+/home/ubuntu/shop-sphere/fraud-service/src/main/java/com/rudraksha/shopsphere/fraud/FraudApplication.java
+/home/ubuntu/shop-sphere/fraud-service/src/main/java/com/rudraksha/shopsphere/fraud/repository/FraudRuleRepository.java
+/home/ubuntu/shop-sphere/fraud-service/src/main/java/com/rudraksha/shopsphere/fraud/controller/FraudDetectionController.java
+/home/ubuntu/shop-sphere/fraud-service/src/main/java/com/rudraksha/shopsphere/fraud/dto/FraudCheckResponse.java
