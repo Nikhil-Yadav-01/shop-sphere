@@ -90,6 +90,26 @@ services:
       retries: 5
       start_period: 60s
 
+  # PostgreSQL for Media Service
+  media-db:
+    image: postgres:15-alpine
+    container_name: media-db
+    environment:
+      POSTGRES_DB: shopsphere_media
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5435:5432"
+    volumes:
+      - media-db-data:/var/lib/postgresql/data
+    networks:
+      - shopsphere-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Admin Service
   admin-service:
     build:
@@ -238,6 +258,41 @@ services:
       - shopsphere-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8090/analytics/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Media Service
+  media-service:
+    build:
+      context: .
+      dockerfile: media-service/Dockerfile
+    container_name: media-service
+    environment:
+      DB_HOST: media-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      EUREKA_HOST: discovery-service
+      EUREKA_PORT: 8761
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      MEDIA_UPLOAD_DIR: /app/uploads
+    ports:
+      - "8091:8091"
+    depends_on:
+      media-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - shopsphere-network
+    volumes:
+      - media-uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8091/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -769,4 +824,6 @@ volumes:
    inventory-db-data:
    fraud-db-data:
    notification-db-data:
+   media-db-data:
+   media-uploads:
    kafka-data:
