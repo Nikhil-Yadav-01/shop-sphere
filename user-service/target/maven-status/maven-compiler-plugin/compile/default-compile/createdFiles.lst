@@ -1,6 +1,8 @@
 com/rudraksha/shopsphere/user/service/AddressService.class
 com/rudraksha/shopsphere/user/service/impl/UserServiceImpl.class
+com/rudraksha/shopsphere/user/security/JwtAuthenticationFilter.class
 com/rudraksha/shopsphere/user/controller/UserController.class
+com/rudraksha/shopsphere/user/security/JwtTokenProvider.class
 com/rudraksha/shopsphere/user/entity/UserProfile.class
 com/rudraksha/shopsphere/user/config/SecurityConfig.class
 com/rudraksha/shopsphere/user/mapper/UserMapper.class
@@ -17,6 +19,7 @@ com/rudraksha/shopsphere/user/service/UserService.class
 com/rudraksha/shopsphere/user/dto/request/UpdateUserRequest.class
 com/rudraksha/shopsphere/user/repository/AddressRepository.class
 com/rudraksha/shopsphere/user/dto/request/CreateAddressRequest$CreateAddressRequestBuilder.class
+com/rudraksha/shopsphere/user/security/SecurityConstants.class
 com/rudraksha/shopsphere/user/dto/request/UpdateUserRequest$UpdateUserRequestBuilder.class
 com/rudraksha/shopsphere/user/dto/response/UserResponse$UserResponseBuilder.class
 com/rudraksha/shopsphere/user/dto/response/AddressResponse$AddressResponseBuilder.class

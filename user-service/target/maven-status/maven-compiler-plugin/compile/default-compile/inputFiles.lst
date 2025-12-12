@@ -1,10 +1,12 @@
 /home/ubuntu/shop-sphere/user-service/src/main/java/com/rudraksha/shopsphere/user/dto/response/AddressResponse.java
+/home/ubuntu/shop-sphere/user-service/src/main/java/com/rudraksha/shopsphere/user/security/JwtTokenProvider.java
 /home/ubuntu/shop-sphere/user-service/src/main/java/com/rudraksha/shopsphere/user/controller/AddressController.java
 /home/ubuntu/shop-sphere/user-service/src/main/java/com/rudraksha/shopsphere/user/service/impl/AddressServiceImpl.java
 /home/ubuntu/shop-sphere/user-service/src/main/java/com/rudraksha/shopsphere/user/repository/AddressRepository.java
 /home/ubuntu/shop-sphere/user-service/src/main/java/com/rudraksha/shopsphere/user/service/AddressService.java
 /home/ubuntu/shop-sphere/user-service/src/main/java/com/rudraksha/shopsphere/user/dto/request/CreateAddressRequest.java
 /home/ubuntu/shop-sphere/user-service/src/main/java/com/rudraksha/shopsphere/user/service/impl/UserServiceImpl.java
+/home/ubuntu/shop-sphere/user-service/src/main/java/com/rudraksha/shopsphere/user/security/JwtAuthenticationFilter.java
 /home/ubuntu/shop-sphere/user-service/src/main/java/com/rudraksha/shopsphere/user/config/SecurityConfig.java
 /home/ubuntu/shop-sphere/user-service/src/main/java/com/rudraksha/shopsphere/user/service/UserService.java
 /home/ubuntu/shop-sphere/user-service/src/main/java/com/rudraksha/shopsphere/user/dto/request/UpdateUserRequest.java
@@ -14,4 +16,5 @@
 /home/ubuntu/shop-sphere/user-service/src/main/java/com/rudraksha/shopsphere/user/UserApplication.java
 /home/ubuntu/shop-sphere/user-service/src/main/java/com/rudraksha/shopsphere/user/dto/response/UserResponse.java
 /home/ubuntu/shop-sphere/user-service/src/main/java/com/rudraksha/shopsphere/user/mapper/UserMapper.java
+/home/ubuntu/shop-sphere/user-service/src/main/java/com/rudraksha/shopsphere/user/security/SecurityConstants.java
 /home/ubuntu/shop-sphere/user-service/src/main/java/com/rudraksha/shopsphere/user/repository/UserProfileRepository.java
