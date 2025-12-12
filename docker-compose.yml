@@ -1,7 +1,5 @@
 version: '3.8'
-
 services:
-  # PostgreSQL for Auth Service
   auth-db:
     image: postgres:15-alpine
     container_name: auth-db
@@ -10,18 +8,18 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5433:5432"
+    - 5433:5432
     volumes:
-      - auth-db-data:/var/lib/postgresql/data
+    - auth-db-data:/var/lib/postgresql/data
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # PostgreSQL for Admin Service
   admin-db:
     image: postgres:15-alpine
     container_name: admin-db
@@ -30,35 +28,38 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5434:5432"
+    - 5434:5432
     volumes:
-      - admin-db-data:/var/lib/postgresql/data
+    - admin-db-data:/var/lib/postgresql/data
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # Discovery Service (Eureka)
   discovery-service:
     build:
       context: .
       dockerfile: discovery-service/Dockerfile
     container_name: discovery-service
     ports:
-      - "8761:8761"
+    - 8761:8761
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8761/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 40s
-
-  # Auth Service
+      
   auth-service:
     build:
       context: .
@@ -75,22 +76,56 @@ services:
       JWT_EXPIRATION_MS: 3600000
       JWT_REFRESH_EXPIRATION_MS: 604800000
     ports:
-      - "8081:8081"
+    - 8081:8081
     depends_on:
       auth-db:
         condition: service_healthy
       discovery-service:
         condition: service_healthy
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8081/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
 
-  # PostgreSQL for Media Service
+  user-service:
+    build:
+      context: .
+      dockerfile: user-service/Dockerfile
+    container_name: user-service
+    environment:
+      DB_HOST: user-db
+      DB_PORT: 5432
+      DB_NAME: shopsphere_users
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      EUREKA_URI: http://discovery-service:8761/eureka
+    ports:
+    - 8082:8082
+    depends_on:
+      user-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    networks:
+    - shopsphere-network
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8082/actuator/health
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
   media-db:
     image: postgres:15-alpine
     container_name: media-db
@@ -99,18 +134,18 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5435:5432"
+    - 5435:5432
     volumes:
-      - media-db-data:/var/lib/postgresql/data
+    - media-db-data:/var/lib/postgresql/data
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # Admin Service
   admin-service:
     build:
       context: .
@@ -126,7 +161,7 @@ services:
       EUREKA_PORT: 8761
       SERVER_PORT: 8089
     ports:
-      - "8089:8089"
+    - 8089:8089
     depends_on:
       admin-db:
         condition: service_healthy
@@ -135,15 +170,17 @@ services:
       auth-service:
         condition: service_healthy
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8089/admin/actuator/health"]
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8089/admin/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-
-  # API Gateway
   api-gateway:
     build:
       context: .
@@ -153,7 +190,7 @@ services:
       EUREKA_URI: http://discovery-service:8761/eureka
       AUTH_SERVICE_URL: http://auth-service:8081
     ports:
-      - "8080:8080"
+    - 8080:8080
     depends_on:
       discovery-service:
         condition: service_healthy
@@ -162,15 +199,17 @@ services:
       admin-service:
         condition: service_healthy
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8080/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-
-  # Kafka (KRaft mode - no Zookeeper)
   kafka:
     image: apache/kafka:latest
     container_name: kafka
@@ -183,58 +222,63 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_NUM_PARTITIONS: 1
     ports:
-      - "9092:9092"
-      - "9093:9093"
-      - "9094:9094"
+    - 9092:9092
+    - 9093:9093
+    - 9094:9094
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1"]
+      test:
+      - CMD-SHELL
+      - /opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092
+        || exit 1
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 20s
-
-  # MongoDB for Analytics Service
   analytics-db:
     image: mongo:7.0
     container_name: analytics-db
     ports:
-      - "27017:27017"
+    - 27017:27017
     volumes:
-      - analytics-db-data:/data/db
+    - analytics-db-data:/data/db
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test:
+      - CMD
+      - mongosh
+      - --eval
+      - db.adminCommand('ping')
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # MongoDB for Catalog Service
   catalog-db:
     image: mongo:7.0
     container_name: catalog-db
     ports:
-      - "27018:27017"
+    - 27018:27017
     volumes:
-      - catalog-db-data:/data/db
+    - catalog-db-data:/data/db
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test:
+      - CMD
+      - mongosh
+      - --eval
+      - db.adminCommand('ping')
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # Analytics Service
   analytics-service:
     build:
       context: .
@@ -246,7 +290,7 @@ services:
       EUREKA_PORT: 8761
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     ports:
-      - "8090:8090"
+    - 8090:8090
     depends_on:
       analytics-db:
         condition: service_healthy
@@ -255,15 +299,17 @@ services:
       kafka:
         condition: service_healthy
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8090/analytics/actuator/health"]
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8090/analytics/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-
-  # Media Service
   media-service:
     build:
       context: .
@@ -279,7 +325,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       MEDIA_UPLOAD_DIR: /app/uploads
     ports:
-      - "8091:8091"
+    - 8091:8091
     depends_on:
       media-db:
         condition: service_healthy
@@ -288,17 +334,19 @@ services:
       kafka:
         condition: service_healthy
     networks:
-      - shopsphere-network
+    - shopsphere-network
     volumes:
-      - media-uploads:/app/uploads
+    - media-uploads:/app/uploads
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8091/actuator/health"]
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8091/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-
-  # Batch Service
   batch-service:
     build:
       context: .
@@ -308,20 +356,22 @@ services:
       EUREKA_HOST: discovery-service
       EUREKA_PORT: 8761
     ports:
-      - "8091:8091"
+    - 8091:8091
     depends_on:
       discovery-service:
         condition: service_healthy
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8091/actuator/health"]
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8091/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-
-  # Catalog Service
   catalog-service:
     build:
       context: .
@@ -333,36 +383,39 @@ services:
       EUREKA_PORT: 8761
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     ports:
-      - "8083:8083"
+    - 8083:8083
     depends_on:
       catalog-db:
         condition: service_healthy
       discovery-service:
         condition: service_healthy
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8083/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-
-  # Redis for Cart Service
   redis:
     image: redis:7-alpine
     container_name: redis
     ports:
-      - "6379:6379"
+    - 6379:6379
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test:
+      - CMD
+      - redis-cli
+      - ping
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # Cart Service
   cart-service:
     build:
       context: .
@@ -373,7 +426,7 @@ services:
       REDIS_PORT: 6379
       EUREKA_URI: http://discovery-service:8761/eureka
     ports:
-      - "8085:8085"
+    - 8085:8085
     depends_on:
       redis:
         condition: service_healthy
@@ -382,15 +435,17 @@ services:
       catalog-service:
         condition: service_healthy
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8085/actuator/health"]
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8085/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-
-  # PostgreSQL for Checkout Service
   checkout-db:
     image: postgres:15-alpine
     container_name: checkout-db
@@ -399,18 +454,18 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5435:5432"
+    - 5435:5432
     volumes:
-      - checkout-db-data:/var/lib/postgresql/data
+    - checkout-db-data:/var/lib/postgresql/data
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # PostgreSQL for Coupon Service
   coupon-db:
     image: postgres:15-alpine
     container_name: coupon-db
@@ -419,18 +474,18 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5436:5432"
+    - 5436:5432
     volumes:
-      - coupon-db-data:/var/lib/postgresql/data
+    - coupon-db-data:/var/lib/postgresql/data
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # PostgreSQL for Pricing Service
   pricing-db:
     image: postgres:15-alpine
     container_name: pricing-db
@@ -439,18 +494,18 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5437:5432"
+    - 5437:5432
     volumes:
-      - pricing-db-data:/var/lib/postgresql/data
+    - pricing-db-data:/var/lib/postgresql/data
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # PostgreSQL for Order Service
   order-db:
     image: postgres:15-alpine
     container_name: order-db
@@ -459,18 +514,18 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5438:5432"
+    - 5438:5432
     volumes:
-      - order-db-data:/var/lib/postgresql/data
+    - order-db-data:/var/lib/postgresql/data
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # PostgreSQL for Payment Service
   payment-db:
     image: postgres:15-alpine
     container_name: payment-db
@@ -479,18 +534,18 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5439:5432"
+    - 5439:5432
     volumes:
-      - payment-db-data:/var/lib/postgresql/data
+    - payment-db-data:/var/lib/postgresql/data
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # PostgreSQL for Notification Service
   notification-db:
     image: postgres:15-alpine
     container_name: notification-db
@@ -499,18 +554,18 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5442:5432"
+    - 5442:5432
     volumes:
-      - notification-db-data:/var/lib/postgresql/data
+    - notification-db-data:/var/lib/postgresql/data
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # PostgreSQL for Inventory Service
   inventory-db:
     image: postgres:15-alpine
     container_name: inventory-db
@@ -519,18 +574,18 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5440:5432"
+    - 5440:5432
     volumes:
-      - inventory-db-data:/var/lib/postgresql/data
+    - inventory-db-data:/var/lib/postgresql/data
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # PostgreSQL for Fraud Service
   fraud-db:
     image: postgres:15-alpine
     container_name: fraud-db
@@ -539,19 +594,18 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5441:5432"
+    - 5441:5432
     volumes:
-      - fraud-db-data:/var/lib/postgresql/data
+    - fraud-db-data:/var/lib/postgresql/data
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres
       interval: 10s
       timeout: 5s
       retries: 5
-
-
-  # Checkout Service
   checkout-service:
     build:
       context: .
@@ -567,7 +621,7 @@ services:
       PAYMENT_PROVIDER: mock
       PAYMENT_API_KEY: mock-api-key
     ports:
-      - "8086:8086"
+    - 8086:8086
     depends_on:
       checkout-db:
         condition: service_healthy
@@ -576,15 +630,17 @@ services:
       cart-service:
         condition: service_healthy
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8086/actuator/health"]
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8086/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-
-  # Coupon Service
   coupon-service:
     build:
       context: .
@@ -598,22 +654,24 @@ services:
       DB_PASSWORD: password
       EUREKA_URI: http://discovery-service:8761/eureka
     ports:
-      - "8088:8088"
+    - 8088:8088
     depends_on:
       coupon-db:
         condition: service_healthy
       discovery-service:
         condition: service_healthy
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8088/actuator/health"]
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8088/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-
-  # Pricing Service
   pricing-service:
     build:
       context: .
@@ -627,22 +685,24 @@ services:
       DB_PASSWORD: password
       EUREKA_URI: http://discovery-service:8761/eureka
     ports:
-      - "8087:8087"
+    - 8087:8087
     depends_on:
       pricing-db:
         condition: service_healthy
       discovery-service:
         condition: service_healthy
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8087/actuator/health"]
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8087/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-
-  # Order Service
   order-service:
     build:
       context: .
@@ -658,7 +718,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SERVER_PORT: 8084
     ports:
-      - "8084:8084"
+    - 8084:8084
     depends_on:
       order-db:
         condition: service_healthy
@@ -667,16 +727,17 @@ services:
       kafka:
         condition: service_healthy
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8084/actuator/health"]
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8084/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-
-
-  # Payment Service
   payment-service:
     build:
       context: .
@@ -692,7 +753,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SERVER_PORT: 8093
     ports:
-      - "8093:8093"
+    - 8093:8093
     depends_on:
       payment-db:
         condition: service_healthy
@@ -701,15 +762,17 @@ services:
       kafka:
         condition: service_healthy
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8093/actuator/health"]
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8093/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-
-  # Inventory Service
   inventory-service:
     build:
       context: .
@@ -725,7 +788,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SERVER_PORT: 8092
     ports:
-      - "8092:8092"
+    - 8092:8092
     depends_on:
       inventory-db:
         condition: service_healthy
@@ -734,15 +797,17 @@ services:
       kafka:
         condition: service_healthy
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8092/actuator/health"]
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8092/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-
-  # Fraud Service
   fraud-service:
     build:
       context: .
@@ -758,7 +823,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SERVER_PORT: 8010
     ports:
-      - "8010:8010"
+    - 8010:8010
     depends_on:
       fraud-db:
         condition: service_healthy
@@ -767,15 +832,17 @@ services:
       kafka:
         condition: service_healthy
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8010/actuator/health"]
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8010/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-
-  # Notification Service
   notification-service:
     build:
       context: .
@@ -790,7 +857,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SERVER_PORT: 8095
     ports:
-      - "8095:8095"
+    - 8095:8095
     depends_on:
       notification-db:
         condition: service_healthy
@@ -799,31 +866,54 @@ services:
       kafka:
         condition: service_healthy
     networks:
-      - shopsphere-network
+    - shopsphere-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8095/actuator/health"]
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8095/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-
+  user-db:
+    image: postgres:15-alpine
+    container_name: user-db
+    environment:
+      POSTGRES_DB: shopsphere_users
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+    - 5444:5432
+    volumes:
+    - user-db-data:/var/lib/postgresql/data
+    networks:
+    - shopsphere-network
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres
+      interval: 10s
+      timeout: 5s
+      retries: 5
 networks:
   shopsphere-network:
     driver: bridge
-
 volumes:
-   auth-db-data:
-   admin-db-data:
-   analytics-db-data:
-   catalog-db-data:
-   checkout-db-data:
-   coupon-db-data:
-   pricing-db-data:
-   order-db-data:
-   payment-db-data:
-   inventory-db-data:
-   fraud-db-data:
-   notification-db-data:
-   media-db-data:
-   media-uploads:
-   kafka-data:
+  auth-db-data: null
+  admin-db-data: null
+  analytics-db-data: null
+  catalog-db-data: null
+  checkout-db-data: null
+  coupon-db-data: null
+  pricing-db-data: null
+  order-db-data: null
+  payment-db-data: null
+  inventory-db-data: null
+  fraud-db-data: null
+  notification-db-data: null
+  media-db-data: null
+  media-uploads: null
+  kafka-data: null
+  user-db-data: null
