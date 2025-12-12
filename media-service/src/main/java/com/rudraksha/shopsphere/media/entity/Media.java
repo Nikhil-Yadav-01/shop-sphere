@@ -1,45 +1,49 @@
 package com.rudraksha.shopsphere.media.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "media")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Media {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    // original file name as uploaded
+    @Column(name = "file_name", nullable = false)
     private String fileName;
 
-    @Column(nullable = false)
-    private String fileType;
-
-    @Column(nullable = false)
-    private Long fileSize;
-
-    @Column(nullable = false)
+    // stored file path on disk
+    @Column(name = "file_path", nullable = false, length = 1024)
     private String filePath;
 
-    @Column(nullable = false)
-    private String entityType; // product, category, user, etc.
+    @Column(name = "file_type")
+    private String fileType;
 
-    @Column(nullable = false)
+    @Column(name = "file_size")
+    private Long fileSize;
+
+    @Column(name = "entity_type", nullable = false)
+    private String entityType;
+
+    @Column(name = "entity_id", nullable = false)
     private Long entityId;
 
-    @Column(nullable = false)
-    private LocalDateTime uploadedAt;
-
-    @Column
+    @Column(name = "uploaded_by")
     private String uploadedBy;
 
-    @Column(nullable = false, columnDefinition = "boolean default true")
-    private Boolean isActive = true;
+    @Column(name = "uploaded_at")
+    private LocalDateTime uploadedAt;
+
+    @Column(name = "is_active")
+    private Boolean isActive;
 }
