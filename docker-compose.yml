@@ -962,6 +962,55 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  recommendation-db:
+    image: mongo:7.0
+    container_name: recommendation-db
+    ports:
+    - 27021:27017
+    volumes:
+    - recommendation-db-data:/data/db
+    networks:
+    - shopsphere-network
+    healthcheck:
+      test:
+      - CMD
+      - mongosh
+      - --eval
+      - db.adminCommand('ping')
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  recommendation-service:
+    build:
+      context: .
+      dockerfile: recommendation-service/Dockerfile
+    container_name: recommendation-service
+    environment:
+      MONGO_URI: mongodb://recommendation-db:27017/shopsphere_recommendation
+      EUREKA_HOST: discovery-service
+      EUREKA_PORT: 8761
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+    - 8089:8089
+    depends_on:
+      recommendation-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+    - shopsphere-network
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8089/actuator/health
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
   returns-service:
     build:
       context: .
@@ -1015,3 +1064,4 @@ volumes:
   user-db-data: null
   review-db-data: null
   returns-db-data: null
+  recommendation-db-data: null
