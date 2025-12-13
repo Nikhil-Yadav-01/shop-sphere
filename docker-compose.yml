@@ -944,6 +944,55 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
+  returns-db:
+    image: mongo:7.0
+    container_name: returns-db
+    ports:
+    - 27020:27017
+    volumes:
+    - returns-db-data:/data/db
+    networks:
+    - shopsphere-network
+    healthcheck:
+      test:
+      - CMD
+      - mongosh
+      - --eval
+      - db.adminCommand('ping')
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  returns-service:
+    build:
+      context: .
+      dockerfile: returns-service/Dockerfile
+    container_name: returns-service
+    environment:
+      MONGO_URI: mongodb://returns-db:27017/shopsphere_returns
+      EUREKA_HOST: discovery-service
+      EUREKA_PORT: 8761
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+    - 8097:8090
+    depends_on:
+      returns-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+    - shopsphere-network
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8090/actuator/health
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 networks:
   shopsphere-network:
     driver: bridge
@@ -965,3 +1014,4 @@ volumes:
   kafka-data: null
   user-db-data: null
   review-db-data: null
+  returns-db-data: null
