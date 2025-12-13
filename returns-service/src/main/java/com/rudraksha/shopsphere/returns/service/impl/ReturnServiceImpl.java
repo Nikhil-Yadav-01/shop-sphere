@@ -4,6 +4,7 @@ import com.rudraksha.shopsphere.returns.dto.request.CreateReturnRequest;
 import com.rudraksha.shopsphere.returns.dto.request.UpdateReturnRequest;
 import com.rudraksha.shopsphere.returns.dto.response.ReturnResponse;
 import com.rudraksha.shopsphere.returns.entity.Return;
+import com.rudraksha.shopsphere.returns.exception.InvalidReturnException;
 import com.rudraksha.shopsphere.returns.kafka.ReturnEventProducer;
 import com.rudraksha.shopsphere.returns.repository.ReturnRepository;
 import com.rudraksha.shopsphere.returns.service.ReturnService;
@@ -11,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +24,13 @@ public class ReturnServiceImpl implements ReturnService {
 
     @Override
     public ReturnResponse createReturn(CreateReturnRequest request) {
+        // Validate refund amount
+        if (request.getRefundAmount() == null) {
+            throw new InvalidReturnException("Refund amount is required");
+        }
+        if (request.getRefundAmount().compareTo(BigDecimal.ZERO) < 0) {
+            throw new InvalidReturnException("Refund amount must be greater than or equal to 0");
+        }
         Return returnEntity = Return.builder()
                 .orderId(request.getOrderId())
                 .customerId(request.getCustomerId())

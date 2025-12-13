@@ -1,4 +1,6 @@
 com/rudraksha/shopsphere/returns/config/SecurityConfig.class
+com/rudraksha/shopsphere/returns/exception/GlobalExceptionHandler.class
+com/rudraksha/shopsphere/returns/exception/InvalidReturnException.class
 com/rudraksha/shopsphere/returns/entity/Return$ReturnBuilder.class
 com/rudraksha/shopsphere/returns/service/ReturnService.class
 com/rudraksha/shopsphere/returns/controller/WelcomeController.class
