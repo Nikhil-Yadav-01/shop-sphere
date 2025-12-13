@@ -23,9 +23,8 @@ public class SecurityConfig {
                 .and()
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/api/v1/welcome").permitAll()
-                        .requestMatchers("/api/v1/reviews/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/v1/**").permitAll()
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
