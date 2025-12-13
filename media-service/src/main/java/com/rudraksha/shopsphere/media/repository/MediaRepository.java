@@ -10,7 +10,9 @@ import java.util.Optional;
 @Repository
 public interface MediaRepository extends JpaRepository<Media, Long> {
     List<Media> findByEntityTypeAndEntityId(String entityType, Long entityId);
+    List<Media> findByEntityTypeAndEntityIdAndIsActiveTrue(String entityType, Long entityId);
     List<Media> findByEntityType(String entityType);
+    List<Media> findByEntityTypeAndIsActiveTrue(String entityType);
     Optional<Media> findByFileNameAndEntityTypeAndEntityId(String fileName, String entityType, Long entityId);
     List<Media> findByIsActiveTrue();
 }

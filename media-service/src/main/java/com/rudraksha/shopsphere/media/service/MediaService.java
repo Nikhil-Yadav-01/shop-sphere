@@ -109,16 +109,22 @@ public class MediaService {
     }
 
     public List<Media> getMediaByEntity(String entityType, Long entityId) {
-        return mediaRepository.findByEntityTypeAndEntityId(entityType, entityId);
+        return mediaRepository.findByEntityTypeAndEntityIdAndIsActiveTrue(entityType, entityId);
     }
 
     public List<Media> getAllMediaByType(String entityType) {
-        return mediaRepository.findByEntityType(entityType);
+        return mediaRepository.findByEntityTypeAndIsActiveTrue(entityType);
     }
 
     public Media getMediaById(Long id) {
-        return mediaRepository.findById(id)
+        Media media = mediaRepository.findById(id)
                 .orElseThrow(() -> new MediaNotFoundException("Media not found with id: " + id));
+
+        if (media.getIsActive() != null && !media.getIsActive()) {
+            throw new MediaNotFoundException("Media not found with id: " + id);
+        }
+
+        return media;
     }
 
     @Transactional
