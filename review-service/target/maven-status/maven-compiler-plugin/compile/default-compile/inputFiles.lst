@@ -1,0 +1,12 @@
+/home/ubuntu/shop-sphere/review-service/src/main/java/com/rudraksha/shopsphere/review/service/ReviewService.java
+/home/ubuntu/shop-sphere/review-service/src/main/java/com/rudraksha/shopsphere/review/controller/WelcomeController.java
+/home/ubuntu/shop-sphere/review-service/src/main/java/com/rudraksha/shopsphere/review/dto/response/ReviewResponse.java
+/home/ubuntu/shop-sphere/review-service/src/main/java/com/rudraksha/shopsphere/review/ReviewApplication.java
+/home/ubuntu/shop-sphere/review-service/src/main/java/com/rudraksha/shopsphere/review/config/SecurityConfig.java
+/home/ubuntu/shop-sphere/review-service/src/main/java/com/rudraksha/shopsphere/review/repository/ReviewRepository.java
+/home/ubuntu/shop-sphere/review-service/src/main/java/com/rudraksha/shopsphere/review/entity/Review.java
+/home/ubuntu/shop-sphere/review-service/src/main/java/com/rudraksha/shopsphere/review/service/impl/ReviewServiceImpl.java
+/home/ubuntu/shop-sphere/review-service/src/main/java/com/rudraksha/shopsphere/review/dto/request/CreateReviewRequest.java
+/home/ubuntu/shop-sphere/review-service/src/main/java/com/rudraksha/shopsphere/review/kafka/ReviewEventProducer.java
+/home/ubuntu/shop-sphere/review-service/src/main/java/com/rudraksha/shopsphere/review/dto/request/UpdateReviewRequest.java
+/home/ubuntu/shop-sphere/review-service/src/main/java/com/rudraksha/shopsphere/review/controller/ReviewController.java
