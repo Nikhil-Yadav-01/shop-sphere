@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: api-gateway-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - shopsphere
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api-gateway:
+    image: shopsphere/api-gateway:1.0.0
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      AUTH_SERVICE_URL: http://auth-service:8081
+      EUREKA_URI: http://discovery-service:8761/eureka
+      JWT_SECRET: your-secret-key-change-in-production
+      RATE_LIMIT_RPM: 100
+      CORS_ALLOWED_ORIGINS: "*"
+      CSRF_PROTECTION_ENABLED: "true"
+      IP_FILTER_ENABLED: "false"
+      GATEWAY_MAX_CONTENT_LENGTH: 10485760
+      GATEWAY_REQUEST_TIMEOUT: 30000
+      LOG_LEVEL: DEBUG
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - shopsphere
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  shopsphere:
+    driver: bridge
+
+volumes:
+  redis_data:

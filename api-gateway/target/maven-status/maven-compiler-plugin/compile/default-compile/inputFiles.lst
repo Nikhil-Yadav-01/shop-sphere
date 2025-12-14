@@ -1,6 +1,11 @@
 /home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/config/GatewayConfig.java
 /home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/filter/JwtClaimsFilter.java
+/home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/filter/RequestBodySizeLimitFilter.java
+/home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/filter/IpFilterFilter.java
+/home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/filter/CorsFilter.java
 /home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/config/GatewayRouteProperties.java
+/home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/config/MtlsConfig.java
+/home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/filter/RequestValidationFilter.java
 /home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/GatewayApplication.java
 /home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/filter/CorrelationIdFilter.java
 /home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/filter/RoleBasedAccessFilter.java
@@ -9,6 +14,7 @@
 /home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/filter/LoggingFilter.java
 /home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/filter/AuthenticationFilter.java
 /home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/filter/RequestTimeoutFilter.java
+/home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/filter/CsrfProtectionFilter.java
 /home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/filter/HealthCheckFilter.java
 /home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/config/WebClientConfig.java
 /home/ubuntu/shop-sphere/api-gateway/src/main/java/com/rudraksha/shopsphere/gateway/exception/GlobalErrorHandler.java

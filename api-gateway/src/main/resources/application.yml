@@ -37,7 +37,31 @@ jwt:
 rate-limiting:
   requests-per-minute: ${RATE_LIMIT_RPM:100}
 
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:*}
+  allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS,PATCH}
+  allowed-headers: ${CORS_ALLOWED_HEADERS:*}
+  exposed-headers: X-Correlation-ID,X-Trace-ID,X-Rate-Limit-Remaining,X-Rate-Limit-Reset
+  max-age: ${CORS_MAX_AGE:3600}
+  allow-credentials: ${CORS_ALLOW_CREDENTIALS:true}
+
 gateway:
+  max-content-length: ${GATEWAY_MAX_CONTENT_LENGTH:10485760}
+  request:
+    timeout: ${GATEWAY_REQUEST_TIMEOUT:30000}
+  ip-filter-enabled: ${IP_FILTER_ENABLED:false}
+  ip-whitelist: ${IP_WHITELIST:}
+  ip-blacklist: ${IP_BLACKLIST:}
+
+csrf:
+  protection-enabled: ${CSRF_PROTECTION_ENABLED:true}
+
+mtls:
+  enabled: ${MTLS_ENABLED:false}
+  keyStorePath: ${MTLS_KEYSTORE_PATH:}
+  keyStorePassword: ${MTLS_KEYSTORE_PASSWORD:}
+  trustStorePath: ${MTLS_TRUSTSTORE_PATH:}
+  trustStorePassword: ${MTLS_TRUSTSTORE_PASSWORD:}
   routes:
     # Auth Service - Public routes
     - name: auth-service
