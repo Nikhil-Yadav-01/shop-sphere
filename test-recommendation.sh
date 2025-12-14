@@ -3,8 +3,8 @@
 # Recommendation Service Test Script
 
 set -e
-
-BASE_URL="http://localhost:8089/api/v1"
+IP="51.20.12.72"
+BASE_URL="http://$IP:8089/api/v1"
 SERVICE_NAME="Recommendation Service"
 
 echo "================================"
@@ -29,7 +29,7 @@ echo ""
 
 # Test 2: Actuator Health
 echo "Test 2: Actuator Health"
-response=$(curl -s -w "\n%{http_code}" "$BASE_URL/../actuator/health")
+response=$(curl -s -w "\n%{http_code}" "$IP:8089/../actuator/health")
 http_code=$(echo "$response" | tail -1)
 
 if [ "$http_code" = "200" ]; then
