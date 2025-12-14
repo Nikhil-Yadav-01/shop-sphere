@@ -9,6 +9,12 @@ spring:
       discovery:
         locator:
           enabled: false
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000
 
 eureka:
   client:
@@ -22,12 +28,152 @@ eureka:
 auth:
   service:
     url: ${AUTH_SERVICE_URL:http://localhost:8081}
+  request:
+    timeout: ${AUTH_REQUEST_TIMEOUT:5000}
+
+jwt:
+  secret: ${JWT_SECRET:your-secret-key-change-in-production}
+
+rate-limiting:
+  requests-per-minute: ${RATE_LIMIT_RPM:100}
+
+gateway:
+  routes:
+    # Auth Service - Public routes
+    - name: auth-service
+      path: /auth/**
+      uri: lb://auth-service
+      authenticated: false
+      stripPrefix: false
+
+    # Catalog Service - Public routes
+    - name: catalog-service
+      path: /catalog/**
+      uri: lb://catalog-service
+      authenticated: false
+      stripPrefix: true
+
+    # Admin Service - Protected routes
+    - name: admin-service
+      path: /admin/**
+      uri: lb://admin-service
+      authenticated: true
+      stripPrefix: false
+      roles:
+        - ADMIN
+
+    # Cart Service - Public routes
+    - name: cart-service
+      path: /cart/**
+      uri: lb://cart-service
+      authenticated: false
+      stripPrefix: true
+
+    # Checkout Service - Protected routes
+    - name: checkout-service
+      path: /checkout/**
+      uri: lb://checkout-service
+      authenticated: true
+      stripPrefix: true
+
+    # Order Service - Protected routes
+    - name: order-service
+      path: /order/**
+      uri: lb://order-service
+      authenticated: true
+      stripPrefix: true
+
+    # Pricing Service - Public routes
+    - name: pricing-service
+      path: /pricing/**
+      uri: lb://pricing-service
+      authenticated: false
+      stripPrefix: true
+
+    # User Service - Protected routes
+    - name: user-service
+      path: /user/**
+      uri: lb://user-service
+      authenticated: true
+      stripPrefix: true
+
+    # Review Service - Public routes (read), protected (write)
+    - name: review-service
+      path: /review/**
+      uri: lb://review-service
+      authenticated: false
+      stripPrefix: true
+
+    # Search Service - Public routes
+    - name: search-service
+      path: /search/**
+      uri: lb://search-service
+      authenticated: false
+      stripPrefix: true
+
+    # Recommendation Service - Public routes
+    - name: recommendation-service
+      path: /recommendation/**
+      uri: lb://recommendation-service
+      authenticated: false
+      stripPrefix: true
+
+    # Notification Service - Protected routes
+    - name: notification-service
+      path: /notification/**
+      uri: lb://notification-service
+      authenticated: true
+      stripPrefix: true
+
+    # Returns Service - Protected routes
+    - name: returns-service
+      path: /returns/**
+      uri: lb://returns-service
+      authenticated: true
+      stripPrefix: true
+
+    # Media Service - Public routes (read), protected (write)
+    - name: media-service
+      path: /media/**
+      uri: lb://media-service
+      authenticated: false
+      stripPrefix: true
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,gateway,routes
+        include: health,info,gateway,routes,metrics,prometheus
   endpoint:
     gateway:
       enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  level:
+    com.rudraksha.shopsphere.gateway: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web.server: DEBUG
+  pattern:
+    console: "[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] %-5level %logger{36} - %msg%n"
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        waitDurationInOpenState: 30000
+        slowCallDurationThreshold: 5000
+        permittedNumberOfCallsInHalfOpenState: 3
+        minimumNumberOfCalls: 10
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+    instances:
+      auth-service:
+        baseConfig: default
+      catalog-service:
+        baseConfig: default
