@@ -1,5 +1,7 @@
 package com.rudraksha.shopsphere.gateway.filter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -13,6 +15,7 @@ import java.util.UUID;
 @Component
 public class CorrelationIdFilter implements GlobalFilter, Ordered {
 
+    private static final Logger logger = LoggerFactory.getLogger(CorrelationIdFilter.class);
     private static final String CORRELATION_ID_HEADER = "X-Correlation-ID";
     private static final String TRACE_ID_HEADER = "X-Trace-ID";
     private static final String CORRELATION_ID_MDC = "correlationId";
@@ -33,15 +36,25 @@ public class CorrelationIdFilter implements GlobalFilter, Ordered {
         final String finalCorrelationId = correlationId;
         final String finalTraceId = traceId;
 
+        logger.debug("Generated correlation ID: {}, trace ID: {}", finalCorrelationId, finalTraceId);
+
+        // Add headers to RESPONSE - must be done before response is committed
         exchange.getResponse().getHeaders().add(CORRELATION_ID_HEADER, finalCorrelationId);
         exchange.getResponse().getHeaders().add(TRACE_ID_HEADER, finalTraceId);
 
-        return chain.filter(exchange.mutate()
+        // Mutate request to include headers for downstream services
+        ServerWebExchange mutatedExchange = exchange.mutate()
                 .request(exchange.getRequest().mutate()
                         .header(CORRELATION_ID_HEADER, finalCorrelationId)
                         .header(TRACE_ID_HEADER, finalTraceId)
                         .build())
-                .build())
+                .build();
+
+        // Put in reactive context for logging
+        return chain.filter(mutatedExchange)
+                .doFinally(signalType -> {
+                    logger.debug("Request completed for correlation ID: {}", finalCorrelationId);
+                })
                 .contextWrite(ctx -> ctx.put(CORRELATION_ID_MDC, finalCorrelationId));
     }
 

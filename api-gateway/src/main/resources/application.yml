@@ -52,6 +52,22 @@ gateway:
   ip-filter-enabled: ${IP_FILTER_ENABLED:false}
   ip-whitelist: ${IP_WHITELIST:}
   ip-blacklist: ${IP_BLACKLIST:}
+  # Per-service timeout configuration (ms)
+  service-timeouts:
+    auth-service: 5000        # 5s for auth (quick)
+    catalog-service: 10000    # 10s for catalog (read-heavy)
+    cart-service: 8000        # 8s
+    order-service: 12000      # 12s (might do async work)
+    user-service: 8000        # 8s
+    search-service: 15000     # 15s (can be slow with large datasets)
+    review-service: 10000     # 10s
+    pricing-service: 8000     # 8s
+    recommendation-service: 15000  # 15s (ML recommendations)
+    notification-service: 10000    # 10s
+    returns-service: 10000    # 10s
+    checkout-service: 15000   # 15s (complex processing)
+    admin-service: 10000      # 10s
+    media-service: 20000      # 20s (large file uploads)
 
 csrf:
   protection-enabled: ${CSRF_PROTECTION_ENABLED:true}
@@ -70,12 +86,24 @@ mtls:
       authenticated: false
       stripPrefix: false
 
-    # Catalog Service - Public routes
-    - name: catalog-service
+    # Catalog Service - Public READ routes only
+    - name: catalog-service-read
       path: /catalog/**
       uri: lb://catalog-service
       authenticated: false
       stripPrefix: true
+      # Note: Only GET requests handled here (configured in routing logic)
+      # POST/PUT/DELETE require authentication (see catalog-service-write below)
+
+    # Catalog Service - Protected WRITE routes
+    - name: catalog-service-write
+      path: /catalog/**
+      uri: lb://catalog-service
+      authenticated: true
+      stripPrefix: true
+      roles:
+        - ADMIN
+        - SELLER
 
     # Admin Service - Protected routes
     - name: admin-service

@@ -49,7 +49,24 @@ public class GlobalErrorHandler extends ResponseStatusExceptionHandler {
         errorResponse.put("error", httpStatus.getReasonPhrase());
         errorResponse.put("message", ex.getMessage() != null ? ex.getMessage() : "An error occurred");
         errorResponse.put("path", exchange.getRequest().getPath().toString());
-        errorResponse.put("correlationId", exchange.getRequest().getHeaders().getFirst("X-Correlation-ID"));
+        
+        // Add tracing headers for request tracking
+        String correlationId = exchange.getRequest().getHeaders().getFirst("X-Correlation-ID");
+        String traceId = exchange.getRequest().getHeaders().getFirst("X-Trace-ID");
+        String requestId = exchange.getRequest().getId();
+        
+        if (correlationId != null) {
+            errorResponse.put("correlationId", correlationId);
+        }
+        if (traceId != null) {
+            errorResponse.put("traceId", traceId);
+        }
+        if (requestId != null) {
+            errorResponse.put("requestId", requestId);
+        }
+        
+        logger.error("Error Response - Status: {}, CorrelationId: {}, Message: {}", 
+                    httpStatus.value(), correlationId, ex.getMessage());
 
         try {
             byte[] bytes = objectMapper.writeValueAsBytes(errorResponse);

@@ -44,13 +44,14 @@ public class RateLimitingFilter extends AbstractGatewayFilterFactory<RateLimitin
                 if (currentCount > requestsPerMinute) {
                     logger.warn("Rate limit exceeded for client: {}", identifier);
                     exchange.getResponse().setStatusCode(HttpStatus.TOO_MANY_REQUESTS);
+                    exchange.getResponse().getHeaders().add("X-Rate-Limit-Remaining", "0");
+                    exchange.getResponse().getHeaders().add("X-Rate-Limit-Reset", String.valueOf(System.currentTimeMillis() + 60000));
                     return exchange.getResponse().setComplete();
                 }
 
-                exchange.getRequest().mutate()
-                        .header("X-Rate-Limit-Remaining", String.valueOf(requestsPerMinute - currentCount))
-                        .header("X-Rate-Limit-Reset", String.valueOf(System.currentTimeMillis() + 60000))
-                        .build();
+                // Add rate limit headers to RESPONSE (not request)
+                exchange.getResponse().getHeaders().add("X-Rate-Limit-Remaining", String.valueOf(requestsPerMinute - currentCount));
+                exchange.getResponse().getHeaders().add("X-Rate-Limit-Reset", String.valueOf(System.currentTimeMillis() + 60000));
 
                 return chain.filter(exchange);
             } catch (Exception e) {

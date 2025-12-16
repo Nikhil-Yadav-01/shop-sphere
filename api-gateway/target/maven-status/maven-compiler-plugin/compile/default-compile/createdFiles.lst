@@ -6,9 +6,11 @@ com/rudraksha/shopsphere/gateway/filter/RateLimitingFilter$Config.class
 com/rudraksha/shopsphere/gateway/config/GatewayRouteProperties$RouteConfig.class
 com/rudraksha/shopsphere/gateway/exception/GlobalErrorHandler.class
 com/rudraksha/shopsphere/gateway/config/RedisConfig.class
+com/rudraksha/shopsphere/gateway/filter/MethodBasedRoutingFilter.class
 com/rudraksha/shopsphere/gateway/filter/MetricsFilter.class
 com/rudraksha/shopsphere/gateway/filter/CsrfProtectionFilter.class
 com/rudraksha/shopsphere/gateway/config/MtlsProperties.class
+com/rudraksha/shopsphere/gateway/config/TimeoutConfig.class
 com/rudraksha/shopsphere/gateway/filter/RequestValidationFilter.class
 com/rudraksha/shopsphere/gateway/filter/LoggingFilter.class
 com/rudraksha/shopsphere/gateway/config/WebClientConfig.class
