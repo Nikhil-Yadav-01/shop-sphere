@@ -26,6 +26,16 @@ public class Category {
 
     private String description;
 
+    @Indexed
+    private String parentId; // For hierarchy support
+
+    private int level; // 0 = root, 1 = first level, etc.
+
+    private String path; // /electronics/phones for breadcrumbs
+
+    @Indexed
+    private boolean active;
+
     @CreatedDate
     private LocalDateTime createdAt;
 

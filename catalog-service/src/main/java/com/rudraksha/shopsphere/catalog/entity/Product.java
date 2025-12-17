@@ -31,8 +31,6 @@ public class Product {
 
     private String description;
 
-    private BigDecimal price;
-
     @Indexed
     private String categoryId;
 

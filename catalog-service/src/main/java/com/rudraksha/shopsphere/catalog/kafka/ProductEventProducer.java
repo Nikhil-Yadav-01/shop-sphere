@@ -14,33 +14,35 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ProductEventProducer {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void publishProductCreated(Product product) {
-        Map<String, Object> event = new HashMap<>();
-        event.put("eventType", "PRODUCT_CREATED");
-        event.put("productId", product.getId());
-        event.put("sku", product.getSku());
-        event.put("name", product.getName());
-        event.put("price", product.getPrice());
-        event.put("categoryId", product.getCategoryId());
-        event.put("status", product.getStatus().name());
+        Map<String, Object> event = Map.of(
+            "eventType", "PRODUCT_CREATED",
+            "productId", product.getId(),
+            "sku", product.getSku(),
+            "name", product.getName(),
+            "categoryId", product.getCategoryId(),
+            "status", product.getStatus().name(),
+            "timestamp", java.time.LocalDateTime.now().toString()
+        );
         
-        kafkaTemplate.send("product-events", product.getId(), event.toString());
+        kafkaTemplate.send("product.created", product.getId(), event);
         log.info("Published product created event for product ID: {}", product.getId());
     }
 
     public void publishProductUpdated(Product product) {
-        Map<String, Object> event = new HashMap<>();
-        event.put("eventType", "PRODUCT_UPDATED");
-        event.put("productId", product.getId());
-        event.put("sku", product.getSku());
-        event.put("name", product.getName());
-        event.put("price", product.getPrice());
-        event.put("categoryId", product.getCategoryId());
-        event.put("status", product.getStatus().name());
+        Map<String, Object> event = Map.of(
+            "eventType", "PRODUCT_UPDATED",
+            "productId", product.getId(),
+            "sku", product.getSku(),
+            "name", product.getName(),
+            "categoryId", product.getCategoryId(),
+            "status", product.getStatus().name(),
+            "timestamp", java.time.LocalDateTime.now().toString()
+        );
         
-        kafkaTemplate.send("product-events", product.getId(), event.toString());
+        kafkaTemplate.send("product.updated", product.getId(), event);
         log.info("Published product updated event for product ID: {}", product.getId());
     }
 }
