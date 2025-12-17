@@ -1,0 +1,402 @@
+Perfect.
+I will now give you a **clear, repeatable, service-by-service audit framework** that you can use **exactly as you described**:
+
+> You give **one service at a time** to an AI (or to me),
+> and the AI can **verify whether that service is fully implemented, partially implemented, or wrong**.
+
+This is **not theory**.
+This is a **practical audit process + checklist** you can reuse for *every single service* in ShopSphere.
+
+---
+
+# 🧠 HOW THIS AUDIT WORKS (READ ONCE)
+
+For **each microservice**, the audit will answer **only these questions**:
+
+1. ❓ *Is this service doing ONLY what it should do?*
+2. ❓ *Is anything missing that this service MUST have?*
+3. ❓ *Is it depending on something it SHOULD NOT depend on?*
+4. ❓ *Is the data flow correct (API vs Kafka)?*
+5. ❓ *Is the database usage correct for this service?*
+6. ❓ *Is it production-ready or only demo-ready?*
+
+To do that consistently, we use the **same audit template for every service**.
+
+---
+
+# ✅ UNIVERSAL AUDIT TEMPLATE (USE THIS EVERY TIME)
+
+When you want to audit a service, provide:
+
+### 🔹 Input you give to the AI
+
+```
+Service Name:
+GitHub Repo / Folder:
+Controller files:
+Service files:
+Kafka config (if any):
+DB config:
+Dockerfile (if exists):
+```
+
+### 🔹 Output the AI must give you
+
+```
+1. Purpose correctness
+2. Missing responsibilities
+3. Wrong responsibilities
+4. API completeness
+5. Kafka usage correctness
+6. Database correctness
+7. Security gaps
+8. Scalability gaps
+9. DevOps readiness
+10. Final verdict
+```
+
+---
+
+# 🧩 NOW: SERVICE-BY-SERVICE AUDIT CHECKLISTS
+
+(THIS IS WHAT YOU COMPARE YOUR CODE AGAINST)
+
+Below, for **each service**, I list **EXACT things that MUST exist**.
+If something is missing → **that service is incomplete**.
+
+---
+
+## 🔷 1. API-GATEWAY — AUDIT CHECKLIST
+
+### MUST HAVE
+
+* JWT validation filter
+* Call to **Auth-Service** for token verification
+* Rate limiting using Redis
+* Route configuration per service
+* Global exception handler
+* Request/response logging
+* Correlation ID / trace ID
+
+### MUST NOT HAVE
+
+* Database connection
+* Business logic
+* Kafka producers/consumers
+
+### COMMON MISTAKES
+
+* Token validation logic inside gateway code
+* Hardcoded service URLs
+* No rate limiting
+
+---
+
+## 🔷 2. AUTH-SERVICE — AUDIT CHECKLIST
+
+### MUST HAVE
+
+* User registration
+* Login
+* JWT + refresh tokens
+* Password hashing (bcrypt/argon2)
+* Token revocation
+* Role & permission model
+* OTP / email verification
+* Emits `user.created` event
+
+### MUST NOT HAVE
+
+* Address tables
+* Profile fields
+* Cart/order logic
+
+### RED FLAGS
+
+* Other services accessing auth DB
+* Profile data stored here
+
+---
+
+## 🔷 3. USER-SERVICE — AUDIT CHECKLIST
+
+### MUST HAVE
+
+* Listener for `user.created`
+* Profile CRUD APIs
+* Address CRUD
+* Preferences
+* Emits `user.profile.updated`
+
+### MUST NOT HAVE
+
+* Passwords
+* Tokens
+* Authentication logic
+
+### COMMON GAPS
+
+* Profile created synchronously during signup
+* Missing Kafka listener
+
+---
+
+## 🔷 4. CATALOG-SERVICE — AUDIT CHECKLIST
+
+### MUST HAVE
+
+* Product CRUD
+* Variant handling
+* Category hierarchy
+* Emits `product.created`, `product.updated`
+* Media URL integration (NOT file storage)
+
+### MUST NOT HAVE
+
+* Pricing tables
+* Stock quantities
+
+### COMMON GAPS
+
+* Search indexing done synchronously
+* Images stored locally
+
+---
+
+## 🔷 5. MEDIA-SERVICE — AUDIT CHECKLIST
+
+### MUST HAVE
+
+* File upload API
+* Object storage integration (S3/MinIO)
+* Thumbnail processing
+* Emits `media.processed`
+
+### MUST NOT HAVE
+
+* Product tables
+* Pricing logic
+
+---
+
+## 🔷 6. INVENTORY-SERVICE — AUDIT CHECKLIST
+
+### MUST HAVE
+
+* Stock table
+* Reservation table
+* Redis locks
+* Listens to `order.placed`
+* Emits `inventory.reserved`, `inventory.released`
+
+### MUST NOT HAVE
+
+* Product details
+* Order totals
+
+### COMMON MISTAKE
+
+* Inventory updated via REST instead of events
+
+---
+
+## 🔷 7. PRICING-SERVICE — AUDIT CHECKLIST
+
+### MUST HAVE
+
+* Price history
+* Promotion rules
+* Emits `price.updated`
+* Listens to `product.updated`
+
+### MUST NOT HAVE
+
+* Product metadata
+* Inventory logic
+
+---
+
+## 🔷 8. CART-SERVICE — AUDIT CHECKLIST
+
+### MUST HAVE
+
+* Redis as primary store
+* Cart item add/remove
+* Price refresh logic
+* Emits `cart.updated`
+
+### MUST NOT HAVE
+
+* Checkout orchestration
+* Payment logic
+
+---
+
+## 🔷 9. CHECKOUT-SERVICE — AUDIT CHECKLIST (VERY IMPORTANT)
+
+### MUST HAVE
+
+* Saga orchestration
+* Compensation logic
+* Checkout session persistence
+* Emits `checkout.started`
+* Consumes `payment.confirmed`
+
+### MUST NOT HAVE
+
+* Order DB tables
+* Payment gateway logic
+
+### RED FLAG
+
+* Checkout directly writing orders
+
+---
+
+## 🔷 10. ORDER-SERVICE — AUDIT CHECKLIST
+
+### MUST HAVE
+
+* Order table
+* Order status history
+* Consumes inventory & payment events
+* Emits order lifecycle events
+
+### MUST NOT HAVE
+
+* Cart logic
+* Payment gateway calls
+
+---
+
+## 🔷 11. PAYMENT-SERVICE — AUDIT CHECKLIST
+
+### MUST HAVE
+
+* Payment intent
+* Webhook handling
+* Refund logic
+* Emits `payment.confirmed`
+
+### MUST NOT HAVE
+
+* Order tables
+* Inventory logic
+
+---
+
+## 🔷 12. SHIPPING-SERVICE — AUDIT CHECKLIST
+
+### MUST HAVE
+
+* Shipment creation
+* Carrier API integration
+* Tracking updates
+* Emits `shipment.created`
+
+---
+
+## 🔷 13. NOTIFICATION-SERVICE — AUDIT CHECKLIST
+
+### MUST HAVE
+
+* Kafka consumers
+* Email/SMS/Push adapters
+* Template system
+* MongoDB logs
+
+### MUST NOT HAVE
+
+* User authentication logic
+
+---
+
+## 🔷 14. REVIEW-SERVICE — AUDIT CHECKLIST
+
+### MUST HAVE
+
+* Consume `order.delivered`
+* Review CRUD
+* Moderation flags
+
+---
+
+## 🔷 15. SEARCH-SERVICE — AUDIT CHECKLIST
+
+### MUST HAVE
+
+* Elasticsearch index
+* Kafka consumer
+* Search APIs
+
+### MUST NOT HAVE
+
+* Product DB writes
+
+---
+
+## 🔷 16. ANALYTICS-SERVICE — AUDIT CHECKLIST
+
+### MUST HAVE
+
+* Kafka consumers for ALL events
+* Event persistence
+* No synchronous APIs used by other services
+
+---
+
+## 🔷 17. ADMIN-SERVICE — AUDIT CHECKLIST
+
+### MUST HAVE
+
+* Read-only APIs to other services
+* Audit logs
+
+### MUST NOT HAVE
+
+* Core business ownership
+
+---
+
+## 🔷 18. MONITORING — AUDIT CHECKLIST
+
+### MUST HAVE
+
+* /metrics endpoints
+* Prometheus scrape config
+* Alerts
+
+---
+
+# 🧪 HOW YOU USE THIS PRACTICALLY (IMPORTANT)
+
+### Step-by-step:
+
+1. Pick **one service**
+2. Copy its repo/folder
+3. Paste it here and say:
+
+   > “Audit my `cart-service` using ShopSphere checklist”
+4. I will return:
+
+   * Missing items
+   * Wrong dependencies
+   * Architectural violations
+   * Production readiness score
+
+---
+
+# ✅ FINAL PROMISE
+
+You can now:
+
+* Audit **every service independently**
+* Detect **hidden coupling**
+* Find **missing Kafka flows**
+* Ensure **true microservice purity**
+* Avoid “it works locally” disasters
+
+Whenever you are ready, **send the first service**
+(auth-service, cart-service, checkout-service, anything).
+
+I will audit it **line by line conceptually**.
