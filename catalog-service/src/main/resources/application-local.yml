@@ -6,8 +6,8 @@ spring:
     name: catalog-service
   data:
     mongodb:
-      uri: mongodb://localhost:0/embedded
-      auto-index-creation: false
+      database: embedded
+      auto-index-creation: true
   mongodb:
     embedded:
       version: 4.4.18
