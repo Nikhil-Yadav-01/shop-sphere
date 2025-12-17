@@ -1,8 +1,6 @@
 package com.rudraksha.shopsphere.auth.controller;
 
-import com.rudraksha.shopsphere.auth.dto.request.LoginRequest;
-import com.rudraksha.shopsphere.auth.dto.request.RefreshTokenRequest;
-import com.rudraksha.shopsphere.auth.dto.request.RegisterRequest;
+import com.rudraksha.shopsphere.auth.dto.request.*;
 import com.rudraksha.shopsphere.auth.dto.response.AuthResponse;
 import com.rudraksha.shopsphere.auth.dto.response.TokenResponse;
 import com.rudraksha.shopsphere.auth.service.AuthService;
@@ -50,5 +48,29 @@ public class AuthController {
         String token = authHeader.replace("Bearer ", "");
         com.rudraksha.shopsphere.auth.dto.response.TokenValidationResponse response = authService.validateToken(token);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<Void> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+        authService.verifyEmail(request.getToken());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<Void> resendVerificationEmail(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.resendVerificationEmail(request.getEmail());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request.getEmail());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok().build();
     }
 }
