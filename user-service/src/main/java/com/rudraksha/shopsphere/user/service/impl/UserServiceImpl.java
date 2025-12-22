@@ -3,6 +3,8 @@ package com.rudraksha.shopsphere.user.service.impl;
 import com.rudraksha.shopsphere.user.dto.request.UpdateUserRequest;
 import com.rudraksha.shopsphere.user.dto.response.UserResponse;
 import com.rudraksha.shopsphere.user.entity.UserProfile;
+import com.rudraksha.shopsphere.user.event.UserProfileUpdatedEvent;
+import com.rudraksha.shopsphere.user.kafka.UserEventPublisher;
 import com.rudraksha.shopsphere.user.mapper.UserMapper;
 import com.rudraksha.shopsphere.user.repository.UserProfileRepository;
 import com.rudraksha.shopsphere.user.service.UserService;
@@ -21,6 +23,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserProfileRepository userProfileRepository;
     private final UserMapper userMapper;
+    private final UserEventPublisher userEventPublisher;
 
     @Override
     @Transactional(readOnly = true)
@@ -66,6 +69,17 @@ public class UserServiceImpl implements UserService {
 
         UserProfile updatedProfile = userProfileRepository.save(userProfile);
         log.info("User profile updated with id: {}", updatedProfile.getId());
+
+        // Publish user profile updated event
+        UserProfileUpdatedEvent event = UserProfileUpdatedEvent.builder()
+                .userId(updatedProfile.getAuthUserId())
+                .profileId(updatedProfile.getId())
+                .phone(updatedProfile.getPhone())
+                .avatarUrl(updatedProfile.getAvatarUrl())
+                .updatedAt(updatedProfile.getUpdatedAt())
+                .build();
+        userEventPublisher.publishUserProfileUpdated(event);
+
         return userMapper.toUserResponse(updatedProfile);
     }
 

@@ -26,18 +26,8 @@ To do that consistently, we use the **same audit template for every service**.
 
 # ✅ UNIVERSAL AUDIT TEMPLATE (USE THIS EVERY TIME)
 
-When you want to audit a service, provide:
+If file need any changes create a github branch for auditing, make the changes, write test script and test it. Do not commit or push or merge until I say.
 
-### 🔹 Input you give to the AI
-
-```
-Service Name:
-GitHub Repo / Folder:
-Controller files:
-Service files:
-Kafka config (if any):
-DB config:
-Dockerfile (if exists):
 ```
 
 ### 🔹 Output the AI must give you
@@ -60,6 +50,7 @@ Dockerfile (if exists):
 # 🧩 NOW: SERVICE-BY-SERVICE AUDIT CHECKLISTS
 
 (THIS IS WHAT YOU COMPARE YOUR CODE AGAINST)
+Service dependencies are in dependency.txt file
 
 Below, for **each service**, I list **EXACT things that MUST exist**.
 If something is missing → **that service is incomplete**.
@@ -395,8 +386,3 @@ You can now:
 * Find **missing Kafka flows**
 * Ensure **true microservice purity**
 * Avoid “it works locally” disasters
-
-Whenever you are ready, **send the first service**
-(auth-service, cart-service, checkout-service, anything).
-
-I will audit it **line by line conceptually**.

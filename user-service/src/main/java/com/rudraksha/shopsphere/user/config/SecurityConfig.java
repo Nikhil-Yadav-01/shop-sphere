@@ -1,6 +1,5 @@
 package com.rudraksha.shopsphere.user.config;
 
-import com.rudraksha.shopsphere.user.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,8 +9,16 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Security configuration for User Service.
+ * 
+ * JWT validation is handled by the API Gateway, not here.
+ * User-service acts as a backend service and does not perform authentication.
+ * Authentication and token validation happens at the gateway level.
+ * 
+ * See auditing.txt - USER-SERVICE audit results for architecture details.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -20,12 +27,6 @@ public class SecurityConfig {
             "/actuator/**"
     };
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -33,10 +34,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers("/api/v1/**").authenticated()
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                        .requestMatchers("/api/v1/**").permitAll()  // Gateway handles auth
+                        .anyRequest().permitAll()  // Gateway is the sole entry point
+                );
 
         return http.build();
     }

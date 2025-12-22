@@ -48,6 +48,9 @@ public class UserProfile {
     @Builder.Default
     private List<Address> addresses = new ArrayList<>();
 
+    @OneToOne(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Preferences preferences;
+
     public void addAddress(Address address) {
         addresses.add(address);
         address.setUserProfile(this);

@@ -1,0 +1,7 @@
+These security classes have been removed during audit:
+- JwtTokenProvider.java
+- JwtAuthenticationFilter.java
+- SecurityConstants.java
+
+Reason: JWT validation belongs in the API Gateway, not in the user-service.
+Authentication is handled centrally by the gateway.
