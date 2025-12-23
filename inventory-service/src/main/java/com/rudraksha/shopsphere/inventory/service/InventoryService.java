@@ -30,4 +30,8 @@ public interface InventoryService {
     List<StockMovementResponse> getStockMovementHistory(Long inventoryItemId);
     
     boolean checkAvailability(String sku, Integer requiredQuantity);
+    
+    InventoryResponse reserveInventoryForOrder(String sku, Integer quantity, String orderId);
+    
+    void releaseReservationByOrder(String orderId);
 }

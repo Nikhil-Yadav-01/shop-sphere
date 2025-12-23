@@ -4,10 +4,13 @@ import com.rudraksha.shopsphere.inventory.dto.request.*;
 import com.rudraksha.shopsphere.inventory.dto.response.InventoryResponse;
 import com.rudraksha.shopsphere.inventory.dto.response.StockMovementResponse;
 import com.rudraksha.shopsphere.inventory.entity.InventoryItem;
+import com.rudraksha.shopsphere.inventory.entity.OrderReservation;
 import com.rudraksha.shopsphere.inventory.entity.StockMovement;
 import com.rudraksha.shopsphere.inventory.repository.InventoryItemRepository;
+import com.rudraksha.shopsphere.inventory.repository.OrderReservationRepository;
 import com.rudraksha.shopsphere.inventory.repository.StockMovementRepository;
 import com.rudraksha.shopsphere.inventory.service.InventoryService;
+import com.rudraksha.shopsphere.inventory.util.DistributedLockUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -23,7 +26,9 @@ import java.util.stream.Collectors;
 public class InventoryServiceImpl implements InventoryService {
     private final InventoryItemRepository inventoryRepository;
     private final StockMovementRepository movementRepository;
+    private final OrderReservationRepository orderReservationRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
+    private final DistributedLockUtil distributedLockUtil;
 
     @Override
     @Transactional
@@ -222,5 +227,89 @@ public class InventoryServiceImpl implements InventoryService {
         } catch (Exception e) {
             log.warn("Failed to publish event: {} for SKU: {}", topic, sku, e);
         }
+    }
+
+    @Override
+    @Transactional
+    public InventoryResponse reserveInventoryForOrder(String sku, Integer quantity, String orderId) {
+        log.info("Reserving inventory for order {} with SKU: {} and quantity: {}", orderId, sku, quantity);
+        
+        // Use distributed lock to prevent race conditions
+        return distributedLockUtil.executeWithLock(sku, () -> {
+            InventoryItem item = inventoryRepository.findBySku(sku)
+                .orElseThrow(() -> new IllegalArgumentException("Inventory not found for SKU: " + sku));
+            
+            if (item.getAvailableQuantity() < quantity) {
+                log.warn("Insufficient inventory for order {}: SKU {}", orderId, sku);
+                throw new IllegalArgumentException("Insufficient inventory available for SKU: " + sku);
+            }
+            
+            item.setReservedQuantity(item.getReservedQuantity() + quantity);
+            updateStatus(item);
+            
+            InventoryItem updated = inventoryRepository.save(item);
+            
+            // Track order-to-inventory mapping for later release
+            OrderReservation reservation = OrderReservation.builder()
+                .orderId(orderId)
+                .inventoryItemId(item.getId())
+                .quantityReserved(quantity)
+                .build();
+            orderReservationRepository.save(reservation);
+            
+            recordMovement(item.getId(), StockMovement.MovementType.RESERVATION, 
+                quantity, "Order: " + orderId, null);
+            
+            publishEvent("inventory.reserved", sku, quantity);
+            log.info("Inventory reserved for order {}: SKU {} x {}", orderId, sku, quantity);
+            
+            return InventoryResponse.fromEntity(updated);
+        });
+    }
+
+    @Override
+    @Transactional
+    public void releaseReservationByOrder(String orderId) {
+        log.info("Releasing all reservations for order: {}", orderId);
+        
+        List<OrderReservation> reservations = orderReservationRepository.findByOrderId(orderId);
+        
+        for (OrderReservation reservation : reservations) {
+            try {
+                InventoryItem item = inventoryRepository.findById(reservation.getInventoryItemId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                        "Inventory item not found: " + reservation.getInventoryItemId()));
+                
+                // Use lock for consistency
+                distributedLockUtil.executeWithLock(item.getSku(), () -> {
+                    InventoryItem currentItem = inventoryRepository.findById(item.getId())
+                        .orElseThrow();
+                    
+                    int newReserved = Math.max(0, 
+                        currentItem.getReservedQuantity() - reservation.getQuantityReserved());
+                    currentItem.setReservedQuantity(newReserved);
+                    updateStatus(currentItem);
+                    
+                    inventoryRepository.save(currentItem);
+                    
+                    recordMovement(item.getId(), StockMovement.MovementType.RESERVATION_RELEASE, 
+                        reservation.getQuantityReserved(), "Order cancelled: " + orderId, null);
+                    
+                    publishEvent("inventory.reservation.released", item.getSku(), 
+                        reservation.getQuantityReserved());
+                    
+                    log.info("Inventory released for order {}: {} x {}", orderId, item.getSku(), 
+                        reservation.getQuantityReserved());
+                    
+                    return null;
+                });
+            } catch (Exception e) {
+                log.error("Failed to release reservation for order {}", orderId, e);
+                // Continue with next reservation even if one fails
+            }
+        }
+        
+        // Clean up order reservations after releasing
+        orderReservationRepository.deleteByOrderId(orderId);
     }
 }
