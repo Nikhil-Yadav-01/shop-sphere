@@ -121,11 +121,20 @@ services:
       REDIS_PORT: 6379
       # Kafka (CI container)
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      # Mail → MailHog fake SMTP (no credentials needed)
+      # Mail → MailHog fake SMTP
+      # MailHog is plain-text SMTP only — it does NOT support STARTTLS or AUTH.
+      # application.yml sets smtp.auth=true and starttls.enable=true (for Gmail prod).
+      # We override those here so MailHog accepts the connection.
+      # We also disable MailHealthIndicator: Spring Boot's mail health check does a
+      # full STARTTLS handshake at startup — MailHog rejects it → health=DOWN → 503.
       MAIL_HOST: mailhog
       MAIL_PORT: 1025
       MAIL_USERNAME: ""
       MAIL_PASSWORD: ""
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "false"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "false"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED: "false"
+      MANAGEMENT_HEALTH_MAIL_ENABLED: "false"
       # Disable KafkaHealthIndicator — Kafka broker may not be ready when
       # actuator/health is first polled (we use service_started, not service_healthy).
       # Without this, health returns 503 → container marked unhealthy.
