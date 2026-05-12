@@ -13,8 +13,6 @@
 #   • Resource limits applied to stay within GitHub runner constraints (2 vCPU, 7 GB).
 # ─────────────────────────────────────────────────────────────────────────────
 
-version: '3.8'
-
 services:
 
   # ── Databases ────────────────────────────────────────────────────────────────
