@@ -11,7 +11,9 @@
 
 set -euo pipefail
 
-BASE_URL="http://localhost:8081"
+# All requests go through the API gateway (port 8080).
+# Direct access to auth-service (port 8081) is intentionally blocked in CI.
+BASE_URL="http://localhost:8080"
 TEST_EMAIL="ci-test-$(date +%s)@example.com"
 TEST_PASSWORD="CiPass!2024"
 PASS=0
@@ -98,12 +100,13 @@ green "Verification token obtained: ${VERIFICATION_TOKEN:0:8}…"
 # ─────────────────────────────────────────────────────────────────────────────
 echo ""
 echo "3. Verifying email..."
-VERIFY_RESPONSE=$(curl -sf -X GET "$BASE_URL/auth/verify-email?token=$VERIFICATION_TOKEN" \
+VERIFY_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+  -X POST "$BASE_URL/auth/verify-email" \
   -H "Content-Type: application/json" \
-  -w "\n%{http_code}") || { red "Verify-email request failed (curl error)"; FAIL=$((FAIL+1)); }
+  -d "{\"token\": \"$VERIFICATION_TOKEN\"}")
 
-HTTP_CODE=$(echo "$VERIFY_RESPONSE" | tail -1)
-yellow "Verify response (HTTP $HTTP_CODE): $(echo "$VERIFY_RESPONSE" | head -1)"
+HTTP_CODE="$VERIFY_RESPONSE"
+yellow "Verify response (HTTP $HTTP_CODE)"
 
 if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 204 ]; then
   green "Email verified (HTTP $HTTP_CODE)"
