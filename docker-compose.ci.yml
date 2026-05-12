@@ -77,6 +77,8 @@ services:
 
   # ── Discovery (Eureka) ───────────────────────────────────────────────────────
   discovery-service:
+    # No host port in CI — only the gateway is the public entry point
+    ports: []
     deploy:
       resources:
         limits:
@@ -85,6 +87,8 @@ services:
 
   # ── Auth Service ─────────────────────────────────────────────────────────────
   auth-service:
+    # No host port in CI — all traffic must go through the API gateway (:8080)
+    ports: []
     environment:
       # JWT
       JWT_SECRET: ${JWT_SECRET:-mySecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLong}

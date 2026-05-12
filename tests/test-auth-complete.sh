@@ -11,7 +11,9 @@
 
 set -euo pipefail
 
-BASE_URL="http://localhost:8081"
+# All requests go through the API gateway (port 8080).
+# Direct access to auth-service (port 8081) is intentionally blocked in CI.
+BASE_URL="http://localhost:8080"
 TEST_EMAIL="ci-test-$(date +%s)@example.com"
 TEST_PASSWORD="CiPass!2024"
 PASS=0
