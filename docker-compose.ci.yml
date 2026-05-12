@@ -125,11 +125,18 @@ services:
   api-gateway:
     environment:
       JWT_SECRET: ${JWT_SECRET:-mySecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLong}
+      # Redis for RequestRateLimiter (global default filter in application.yml)
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # Disable Redis health indicator — rate limiter connects lazily
+      MANAGEMENT_HEALTH_REDIS_ENABLED: "false"
     # Override depends_on to exclude admin-service from the minimal CI slice.
     depends_on:
       discovery-service:
         condition: service_healthy
       auth-service:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     deploy:
       resources:
