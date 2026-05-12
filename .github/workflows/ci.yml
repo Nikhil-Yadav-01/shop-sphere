@@ -69,6 +69,7 @@ jobs:
             -f docker-compose.yml \
             -f docker-compose.ci.yml \
             up -d \
+              --no-deps \
               auth-db discovery-service auth-service api-gateway
 
       # ──────────────────────────────────────────────────────────────
