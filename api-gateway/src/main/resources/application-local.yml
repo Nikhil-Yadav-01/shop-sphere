@@ -1,25 +1,21 @@
 server:
   port: 8080
+  shutdown: graceful
 
 spring:
   application:
     name: api-gateway
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
   cloud:
     gateway:
       discovery:
         locator:
           enabled: false
-      routes:
-        - id: auth-service
-          uri: http://localhost:8081
-          predicates:
-            - Path=/auth/**
-        - id: user-service
-          uri: http://localhost:8082
-          predicates:
-            - Path=/users/**
-          filters:
-            - name: AuthenticationFilter
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=60s
 
 eureka:
   client:
@@ -29,6 +25,9 @@ auth:
   service:
     url: http://localhost:8081
 
+jwt:
+  secret: ${JWT_SECRET:mySecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLong}
+
 management:
   endpoints:
     web:
@@ -37,7 +36,11 @@ management:
   endpoint:
     gateway:
       enabled: true
+  health:
+    redis:
+      enabled: false
 
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: DEBUG

@@ -4,11 +4,10 @@ import com.rudraksha.shopsphere.gateway.filter.AuthenticationFilter;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
-@Configuration
+@Component
 @Profile("local")
 public class LocalGatewayConfig {
 
@@ -19,20 +18,18 @@ public class LocalGatewayConfig {
     }
 
     @Bean
-    @Primary
     public RouteLocator localRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
-                // Auth Service - Direct URL for local testing
                 .route("auth-service", r -> r
                         .path("/auth/**")
                         .uri("http://localhost:8081"))
-                
-                // User Service - Protected routes
+
                 .route("user-service", r -> r
                         .path("/users/**")
-                        .filters(f -> f.filter(authenticationFilter.apply(new Object())))
+                        .filters(f -> f.filter(
+                                authenticationFilter.apply(new AuthenticationFilter.Config())))
                         .uri("http://localhost:8082"))
-                
+
                 .build();
     }
 }
