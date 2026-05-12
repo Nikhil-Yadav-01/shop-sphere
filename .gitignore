@@ -1,3 +1,6 @@
+# Local environment secrets (never commit — use .env.example as template)
+.env
+
 # Maven build artifacts
 */target/
 **/target/
