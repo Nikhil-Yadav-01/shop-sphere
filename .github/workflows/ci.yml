@@ -102,13 +102,13 @@ jobs:
       - name: Wait – kafka
         run: |
           echo "Waiting for kafka..."
-          for i in $(seq 1 36); do
+          for i in $(seq 1 60); do
             if docker exec kafka /opt/kafka/bin/kafka-broker-api-versions.sh \
                  --bootstrap-server localhost:9092 > /dev/null 2>&1; then
               echo "kafka ready after $((i*5))s"
               break
             fi
-            if [ $i -eq 36 ]; then echo "kafka timed out"; exit 1; fi
+            if [ $i -eq 60 ]; then echo "kafka timed out after 5 min"; exit 1; fi
             sleep 5
           done
 
