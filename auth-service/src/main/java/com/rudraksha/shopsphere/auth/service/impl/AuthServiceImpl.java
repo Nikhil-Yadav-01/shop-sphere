@@ -20,8 +20,7 @@ import com.rudraksha.shopsphere.auth.service.EmailService;
 import com.rudraksha.shopsphere.auth.service.TokenRevocationService;
 import com.rudraksha.shopsphere.auth.entity.EmailVerificationToken;
 import com.rudraksha.shopsphere.auth.entity.PasswordResetToken;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
+import com.rudraksha.shopsphere.shared.security.JwtTokenProvider;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,10 +28,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -48,9 +45,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserEventPublisher userEventPublisher;
     private final EmailService emailService;
     private final TokenRevocationService tokenRevocationService;
-
-    @Value("${jwt.secret}")
-    private String jwtSecret;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Value("${jwt.expiration-ms}")
     private long jwtExpirationMs;
@@ -61,11 +56,14 @@ public class AuthServiceImpl implements AuthService {
     @Value("${app.verification.token-expiry-minutes}")
     private int verificationTokenExpiryMinutes;
 
+    @Value("${app.verification.auto-verify:false}")
+    private boolean autoVerify;
+
     @Override
     @Transactional
     public AuthResponse login(LoginRequest request) {
         log.debug("Login attempt for email: {}", request.getEmail());
-        
+
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> {
                     log.warn("Login failed - user not found: {}", request.getEmail());
@@ -84,7 +82,7 @@ public class AuthServiceImpl implements AuthService {
 
         String accessToken = generateAccessToken(user);
         RefreshToken refreshToken = createRefreshToken(user);
-        
+
         log.info("User logged in successfully: {}", request.getEmail());
         return buildAuthResponse(user, accessToken, refreshToken.getToken());
     }
@@ -93,7 +91,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         log.debug("Registration attempt for email: {}", request.getEmail());
-        
+
         if (userRepository.existsByEmail(request.getEmail())) {
             log.warn("Registration failed - email already exists: {}", request.getEmail());
             throw new UserAlreadyExistsException("Email already registered");
@@ -105,26 +103,27 @@ public class AuthServiceImpl implements AuthService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .role(User.Role.CUSTOMER)
-                .enabled(false)
-                .emailVerified(false)
+                .enabled(autoVerify)
+                .emailVerified(autoVerify)
                 .build();
 
         user = userRepository.save(user);
         log.info("User registered successfully: {}", request.getEmail());
 
-        // Create and send verification token
-        String verificationToken = UUID.randomUUID().toString();
-        EmailVerificationToken emailToken = EmailVerificationToken.builder()
-                .token(verificationToken)
-                .user(user)
-                .expiresAt(LocalDateTime.now().plusMinutes(verificationTokenExpiryMinutes))
-                .used(false)
-                .build();
-        emailVerificationTokenRepository.save(emailToken);
-        
-        emailService.sendVerificationEmail(user.getEmail(), verificationToken);
-        
-        // Publish user created event
+        if (!autoVerify) {
+            String verificationToken = UUID.randomUUID().toString();
+            EmailVerificationToken emailToken = EmailVerificationToken.builder()
+                    .token(verificationToken)
+                    .user(user)
+                    .expiresAt(LocalDateTime.now().plusMinutes(verificationTokenExpiryMinutes))
+                    .used(false)
+                    .build();
+            emailVerificationTokenRepository.save(emailToken);
+
+            log.info("[{}] VERIFICATION_TOKEN: {}", user.getEmail(), verificationToken);
+            emailService.sendVerificationEmail(user.getEmail(), verificationToken);
+        }
+
         userEventPublisher.publishUserCreatedEvent(user);
 
         String accessToken = generateAccessToken(user);
@@ -137,7 +136,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public TokenResponse refreshToken(RefreshTokenRequest request) {
         log.debug("Refresh token request received");
-        
+
         RefreshToken refreshToken = refreshTokenRepository.findByToken(request.getRefreshToken())
                 .orElseThrow(() -> {
                     log.warn("Refresh token failed - token not found");
@@ -155,7 +154,7 @@ public class AuthServiceImpl implements AuthService {
 
         String newAccessToken = generateAccessToken(user);
         RefreshToken newRefreshToken = createRefreshToken(user);
-        
+
         log.info("Token refreshed successfully for user: {}", user.getEmail());
 
         return TokenResponse.builder()
@@ -170,40 +169,35 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public void logout(String token) {
         log.debug("Logout request received");
-        
-        // Revoke access token
+
         tokenRevocationService.revokeToken(token, jwtExpirationMs / 1000);
-        
-        // Revoke refresh token if provided
+
         refreshTokenRepository.findByToken(token)
                 .ifPresent(rt -> {
                     rt.setRevoked(true);
                     refreshTokenRepository.save(rt);
                 });
-                
+
         log.info("User logged out successfully");
     }
 
     @Override
     public TokenValidationResponse validateToken(String token) {
         try {
-            // Check if token is revoked
             if (tokenRevocationService.isTokenRevoked(token)) {
                 log.warn("Token validation failed: token is revoked");
                 return new TokenValidationResponse(false, null, null);
             }
-            
-            SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-            var claims = Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-            
-            String userId = claims.getSubject();
-            String role = claims.get("role", String.class);
-            
-            return new TokenValidationResponse(true, userId, java.util.List.of(role));
+
+            if (!jwtTokenProvider.validateToken(token)) {
+                log.warn("Token validation failed: invalid token");
+                return new TokenValidationResponse(false, null, null);
+            }
+
+            String userId = jwtTokenProvider.getUserIdFromToken(token);
+            List<String> roles = jwtTokenProvider.getRolesFromToken(token);
+
+            return new TokenValidationResponse(true, userId, roles);
         } catch (Exception e) {
             log.warn("Token validation failed: {}", e.getMessage());
             return new TokenValidationResponse(false, null, null);
@@ -211,18 +205,11 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private String generateAccessToken(User user) {
-        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + jwtExpirationMs);
-
-        return Jwts.builder()
-                .subject(user.getId().toString())
-                .claim("email", user.getEmail())
-                .claim("role", user.getRole().name())
-                .issuedAt(now)
-                .expiration(expiry)
-                .signWith(key)
-                .compact();
+        return jwtTokenProvider.generateToken(
+                user.getId().toString(),
+                user.getEmail(),
+                List.of(user.getRole().name())
+        );
     }
 
     private RefreshToken createRefreshToken(User user) {
@@ -267,10 +254,8 @@ public class AuthServiceImpl implements AuthService {
             throw new AuthException("Email is already verified");
         }
 
-        // Delete existing tokens
         emailVerificationTokenRepository.deleteByUser(user);
 
-        // Create new token
         String verificationToken = UUID.randomUUID().toString();
         EmailVerificationToken emailToken = EmailVerificationToken.builder()
                 .token(verificationToken)
@@ -290,10 +275,8 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AuthException("User not found"));
 
-        // Delete existing password reset tokens
         passwordResetTokenRepository.deleteByUser(user);
 
-        // Create new reset token
         String resetToken = UUID.randomUUID().toString();
         PasswordResetToken passwordResetToken = PasswordResetToken.builder()
                 .token(resetToken)

@@ -1,0 +1,90 @@
+# docker-compose.ci.yml
+# ─────────────────────────────────────────────────────────────────────────────
+# Override file for GitHub Actions CI (used with -f docker-compose.ci.yml).
+# Scoped to: auth-db, discovery-service, auth-service, api-gateway.
+#
+# Key changes vs docker-compose.yml:
+#   • JWT_SECRET injected from the JWT_SECRET env var (GitHub secret).
+#   • APP_VERIFICATION_AUTO_VERIFY=false → full email-verification flow.
+#   • Port conflicts resolved (checkout-db, review-service, recommendation-service,
+#     batch-service) — kept here for reference even though those services are not
+#     started in the minimal slice, so the file is safe to compose-up with the
+#     full stack too.
+#   • Resource limits applied to stay within GitHub runner constraints (2 vCPU, 7 GB).
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: '3.8'
+
+services:
+
+  # ── Databases ────────────────────────────────────────────────────────────────
+  auth-db:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: 256M
+
+  # ── Discovery (Eureka) ───────────────────────────────────────────────────────
+  discovery-service:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.40'
+          memory: 512M
+
+  # ── Auth Service ─────────────────────────────────────────────────────────────
+  auth-service:
+    environment:
+      # Hardcoded for dev/CI; rotate before making the repo public
+      JWT_SECRET: ${JWT_SECRET:-mySecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLong}
+      # Full production-like flow: email must be verified before login
+      APP_VERIFICATION_AUTO_VERIFY: "false"
+      APP_VERIFICATION_TOKEN_EXPIRY_MINUTES: "30"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+
+  # ── API Gateway ──────────────────────────────────────────────────────────────
+  api-gateway:
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-mySecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLong}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Port-conflict fixes (safe to include even when not starting these services).
+  # Original docker-compose.yml conflicts:
+  #   media-service  8091:8091  ──┐  both map host:8091
+  #   batch-service  8091:8091  ──┘
+  #   admin-service  8089:8089  ──┐
+  #   review-service 8089:8089  ──┤  all map host:8089
+  #   recommendation 8089:8089  ──┘
+  #   media-db       5435:5432  ──┐  both map host:5435
+  #   checkout-db    5435:5432  ──┘
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # checkout-db: was 5435 → 5436 (conflicts with media-db)
+  checkout-db:
+    ports:
+      - "5436:5432"
+
+  # batch-service: was 8091 → 8100 (conflicts with media-service)
+  batch-service:
+    ports:
+      - "8100:8091"
+
+  # review-service: was 8089 → 8096 (conflicts with admin-service)
+  review-service:
+    ports:
+      - "8096:8089"
+
+  # recommendation-service: was 8089 → 8099 (conflicts with admin-service)
+  recommendation-service:
+    ports:
+      - "8099:8089"

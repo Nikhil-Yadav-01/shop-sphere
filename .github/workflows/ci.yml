@@ -1,0 +1,175 @@
+name: CI – Gateway & Auth Slice
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  COMPOSE_PROJECT_NAME: shopsphere-ci
+  COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
+  JWT_SECRET: mySecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLong
+
+jobs:
+  build-and-test:
+    name: Build → Start Stack → Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      # ──────────────────────────────────────────────────────────────
+      # 1. Source
+      # ──────────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ──────────────────────────────────────────────────────────────
+      # 2. Java + Maven cache
+      # ──────────────────────────────────────────────────────────────
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      # ──────────────────────────────────────────────────────────────
+      # 3. Build JARs for services that use pre-built JARs in Docker
+      #    (auth-service, discovery-service pattern: COPY target/*.jar)
+      # ──────────────────────────────────────────────────────────────
+      - name: Build auth-service JAR
+        run: mvn -f auth-service/pom.xml clean package -DskipTests -B -q
+
+      - name: Build discovery-service JAR
+        run: mvn -f discovery-service/pom.xml clean package -DskipTests -B -q
+
+      # api-gateway builds inside Docker (multi-stage Dockerfile) – no host build needed
+
+      # ──────────────────────────────────────────────────────────────
+      # 4. Build Docker images
+      # ──────────────────────────────────────────────────────────────
+      - name: Build Docker images (CI subset)
+        run: |
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.ci.yml \
+            build \
+              --no-cache \
+              --parallel \
+              discovery-service auth-service api-gateway
+
+      # ──────────────────────────────────────────────────────────────
+      # 5. Start the CI subset stack
+      # ──────────────────────────────────────────────────────────────
+      - name: Start CI stack (discovery → auth-db → auth → api-gateway)
+        run: |
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.ci.yml \
+            up -d \
+              auth-db discovery-service auth-service api-gateway
+
+      # ──────────────────────────────────────────────────────────────
+      # 6. Wait for all required services to be healthy
+      # ──────────────────────────────────────────────────────────────
+      - name: Wait – auth-db (postgres)
+        run: |
+          echo "Waiting for auth-db..."
+          for i in $(seq 1 30); do
+            if docker exec auth-db pg_isready -U postgres -q 2>/dev/null; then
+              echo "auth-db is ready after $((i*5))s"
+              break
+            fi
+            if [ $i -eq 30 ]; then echo "auth-db timed out"; exit 1; fi
+            sleep 5
+          done
+
+      - name: Wait – discovery-service (Eureka)
+        run: |
+          echo "Waiting for discovery-service..."
+          for i in $(seq 1 36); do
+            if curl -sf http://localhost:8761/actuator/health > /dev/null 2>&1; then
+              echo "discovery-service healthy after $((i*5))s"
+              break
+            fi
+            if [ $i -eq 36 ]; then echo "discovery-service timed out"; exit 1; fi
+            sleep 5
+          done
+
+      - name: Wait – auth-service
+        run: |
+          echo "Waiting for auth-service..."
+          for i in $(seq 1 48); do
+            if curl -sf http://localhost:8081/actuator/health > /dev/null 2>&1; then
+              echo "auth-service healthy after $((i*5))s"
+              break
+            fi
+            if [ $i -eq 48 ]; then echo "auth-service timed out"; exit 1; fi
+            sleep 5
+          done
+
+      - name: Wait – api-gateway
+        run: |
+          echo "Waiting for api-gateway..."
+          for i in $(seq 1 48); do
+            if curl -sf http://localhost:8080/actuator/health > /dev/null 2>&1; then
+              echo "api-gateway healthy after $((i*5))s"
+              break
+            fi
+            if [ $i -eq 48 ]; then echo "api-gateway timed out"; exit 1; fi
+            sleep 5
+          done
+
+      # ──────────────────────────────────────────────────────────────
+      # 7. Print container status for debugging
+      # ──────────────────────────────────────────────────────────────
+      - name: Show container health status
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml ps
+
+      # ──────────────────────────────────────────────────────────────
+      # 8. Run tests
+      # ──────────────────────────────────────────────────────────────
+      - name: Make test scripts executable
+        run: chmod +x tests/*.sh
+
+      - name: Test – auth service (full flow with email verification)
+        run: bash tests/test-auth-complete.sh
+
+      - name: Test – API gateway routes
+        run: bash tests/test-gateway-routes.sh
+
+      # ──────────────────────────────────────────────────────────────
+      # 9. Always: collect logs on failure
+      # ──────────────────────────────────────────────────────────────
+      - name: Dump container logs on failure
+        if: failure()
+        run: |
+          echo "==== discovery-service logs ===="
+          docker logs discovery-service --tail=200 2>&1 || true
+          echo "==== auth-db logs ===="
+          docker logs auth-db --tail=50 2>&1 || true
+          echo "==== auth-service logs ===="
+          docker logs auth-service --tail=200 2>&1 || true
+          echo "==== api-gateway logs ===="
+          docker logs api-gateway --tail=200 2>&1 || true
+
+      - name: Upload logs as artifact
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: container-logs-${{ github.run_id }}
+          path: /tmp/container-logs/
+          retention-days: 7
+
+      # ──────────────────────────────────────────────────────────────
+      # 10. Teardown
+      # ──────────────────────────────────────────────────────────────
+      - name: Teardown stack
+        if: always()
+        run: |
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.ci.yml \
+            down -v --remove-orphans

@@ -1,8 +1,10 @@
 # Maven build artifacts
 */target/
+**/target/
 *.jar
 *.war
 *.ear
+*.class
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -37,6 +39,8 @@ npm-debug.log
 # Logs
 *.log
 logs/
+*-output.txt
+*-error.txt
 
 # OS
 Thumbs.db
