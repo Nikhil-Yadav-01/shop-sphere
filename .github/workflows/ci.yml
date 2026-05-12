@@ -11,6 +11,10 @@ env:
   COMPOSE_PROJECT_NAME: shopsphere-ci
   COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
   JWT_SECRET: mySecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLong
+  # MAIL_* vars are NOT needed here — docker-compose.ci.yml overrides
+  # auth-service to use MailHog (plain SMTP, no credentials, no STARTTLS).
+  # For staging/production deployments set MAIL_USERNAME and MAIL_PASSWORD
+  # as GitHub Actions Secrets and pass them through the deployment workflow.
 
 jobs:
   build-and-test:
