@@ -126,6 +126,12 @@ services:
       MAIL_PORT: 1025
       MAIL_USERNAME: ""
       MAIL_PASSWORD: ""
+      # Disable KafkaHealthIndicator — Kafka broker may not be ready when
+      # actuator/health is first polled (we use service_started, not service_healthy).
+      # Without this, health returns 503 → container marked unhealthy.
+      MANAGEMENT_HEALTH_KAFKA_ENABLED: "false"
+      # Show full health details in CI logs to make future failures self-diagnosing
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "always"
     depends_on:
       auth-db:
         condition: service_healthy

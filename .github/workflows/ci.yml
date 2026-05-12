@@ -161,10 +161,19 @@ jobs:
           done
 
       # ──────────────────────────────────────────────────────────────
-      # 7. Print container status for debugging
+      # 7. Print container status + full health details for debugging
       # ──────────────────────────────────────────────────────────────
       - name: Show container health status
         run: docker compose -f docker-compose.yml -f docker-compose.ci.yml ps
+
+      - name: Print actuator health details (all services)
+        run: |
+          echo "=== auth-service /actuator/health ==="
+          curl -s http://localhost:8081/actuator/health | python3 -m json.tool || true
+          echo "=== api-gateway /actuator/health ==="
+          curl -s http://localhost:8080/actuator/health | python3 -m json.tool || true
+          echo "=== discovery-service /actuator/health ==="
+          curl -s http://localhost:8761/actuator/health | python3 -m json.tool || true
 
       # ──────────────────────────────────────────────────────────────
       # 8. Run tests
