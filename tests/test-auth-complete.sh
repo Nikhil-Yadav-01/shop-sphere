@@ -47,17 +47,26 @@ echo ""
 # Step 1 – Register
 # ─────────────────────────────────────────────────────────────────────────────
 echo "1. Registering user..."
-REGISTER_RESPONSE=$(curl -k -sf -X POST "$BASE_URL/auth/register" \
+REGISTER_RESPONSE=$(curl -k -s -w "\nHTTP_STATUS:%{http_code}" -X POST "$BASE_URL/auth/register" \
   -H "Content-Type: application/json" \
   -d "{
     \"email\": \"$TEST_EMAIL\",
     \"password\": \"$TEST_PASSWORD\",
     \"firstName\": \"CI\",
     \"lastName\": \"Tester\"
-  }") || { red "Registration request failed (curl error)"; exit 1; }
+  }") || true
 
-yellow "Register response: $REGISTER_RESPONSE"
-assert_contains "Registration returns accessToken" "$REGISTER_RESPONSE" "accessToken"
+HTTP_STATUS=$(echo "$REGISTER_RESPONSE" | grep "HTTP_STATUS:" | cut -d':' -f2)
+REGISTER_BODY=$(echo "$REGISTER_RESPONSE" | sed '/HTTP_STATUS:/d')
+
+if [ "$HTTP_STATUS" != "201" ] && [ "$HTTP_STATUS" != "200" ]; then
+  red "Registration request failed with HTTP $HTTP_STATUS"
+  yellow "Response body: $REGISTER_BODY"
+  exit 1
+fi
+
+yellow "Register response: $REGISTER_BODY"
+assert_contains "Registration returns accessToken" "$REGISTER_BODY" "accessToken"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Step 2 – Extract verification token
