@@ -184,7 +184,7 @@ jobs:
         run: |
           echo "Waiting for nginx-proxy..."
           for i in $(seq 1 48); do
-            if curl -k -sf https://localhost > /dev/null 2>&1 || true; then
+            if curl -k -sf https://localhost/actuator/health > /dev/null 2>&1; then
               echo "nginx-proxy healthy after $((i*5))s"
               break
             fi
