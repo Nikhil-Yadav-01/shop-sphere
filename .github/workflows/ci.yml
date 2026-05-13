@@ -141,6 +141,18 @@ jobs:
             sleep 5
           done
 
+      - name: Wait – notification-service
+        run: |
+          echo "Waiting for notification-service..."
+          for i in $(seq 1 48); do
+            if curl -sf http://localhost:8095/actuator/health > /dev/null 2>&1; then
+              echo "notification-service healthy after $((i*5))s"
+              break
+            fi
+            if [ $i -eq 48 ]; then echo "notification-service timed out"; exit 1; fi
+            sleep 5
+          done
+
       - name: Wait – api-gateway
         run: |
           echo "Waiting for api-gateway..."

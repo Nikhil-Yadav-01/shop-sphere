@@ -73,11 +73,6 @@ services:
       JWT_SECRET: mySecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLong
       JWT_EXPIRATION_MS: 3600000
       JWT_REFRESH_EXPIRATION_MS: 604800000
-      # Gmail SMTP — set these in your .env file (see .env.example)
-      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
-      MAIL_PORT: ${MAIL_PORT:-587}
-      MAIL_USERNAME: ${MAIL_USERNAME:-}
-      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
       # Frontend Base URL (for email links)
       APP_BASE_URL: ${APP_BASE_URL:-http://localhost:8080}
     ports:
@@ -860,6 +855,11 @@ services:
       EUREKA_URI: http://discovery-service:8761/eureka
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SERVER_PORT: 8095
+      # Gmail SMTP
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
     ports:
     - 8095:8095
     depends_on:

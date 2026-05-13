@@ -75,6 +75,13 @@ services:
           cpus: '0.30'
           memory: 256M
 
+  notification-db:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: 256M
+
   # ── Discovery (Eureka) ───────────────────────────────────────────────────────
   discovery-service:
     # No host port in CI — only the gateway is the public entry point
@@ -100,11 +107,6 @@ services:
       REDIS_PORT: 6379
       # Kafka (CI container — lazy producer, service_started is enough)
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      # Gmail SMTP — identical to production (injected from GitHub Secrets)
-      MAIL_HOST: smtp.gmail.com
-      MAIL_PORT: 587
-      MAIL_USERNAME: ${MAIL_USERNAME}
-      MAIL_PASSWORD: ${MAIL_PASSWORD}
       # Frontend Base URL (for email links)
       APP_BASE_URL: ${APP_BASE_URL:-http://localhost:8080}
       # Disable KafkaHealthIndicator only — Kafka uses service_started so broker
@@ -149,6 +151,29 @@ services:
         limits:
           cpus: '0.50'
           memory: 512M
+
+  # ── Notification Service ─────────────────────────────────────────────────────
+  notification-service:
+    ports: []
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      # Gmail SMTP
+      MAIL_HOST: smtp.gmail.com
+      MAIL_PORT: 587
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+    depends_on:
+      notification-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: 384M
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Port-conflict fixes (safe to include even when not starting these services).

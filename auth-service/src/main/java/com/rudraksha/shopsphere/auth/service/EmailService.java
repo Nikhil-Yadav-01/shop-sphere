@@ -1,10 +1,10 @@
 package com.rudraksha.shopsphere.auth.service;
 
+import com.rudraksha.shopsphere.auth.dto.kafka.EmailNotificationEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -12,45 +12,44 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailService {
 
-    private final JavaMailSender mailSender;
-
-    @Value("${spring.mail.username}")
-    private String fromEmail;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Value("${app.verification.base-url}")
     private String baseUrl;
 
     public void sendVerificationEmail(String toEmail, String token) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(toEmail);
-            message.setSubject("Email Verification - ShopSphere");
-            
             String verificationUrl = baseUrl + "/auth/verify-email?token=" + token;
-            message.setText("Please click the following link to verify your email: " + verificationUrl);
-            
-            mailSender.send(message);
-            log.info("Verification email sent to: {}", toEmail);
+            String text = "Please click the following link to verify your email: " + verificationUrl;
+
+            EmailNotificationEvent event = EmailNotificationEvent.builder()
+                    .to(toEmail)
+                    .subject("Email Verification - ShopSphere")
+                    .body(text)
+                    .build();
+
+            kafkaTemplate.send("notification.email.send", toEmail, event);
+            log.info("Published verification email event to Kafka for: {}", toEmail);
         } catch (Exception e) {
-            log.error("Failed to send verification email to: {}", toEmail, e);
+            log.error("Failed to publish verification email event for: {}", toEmail, e);
         }
     }
 
     public void sendPasswordResetEmail(String toEmail, String token) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(toEmail);
-            message.setSubject("Password Reset - ShopSphere");
-            
             String resetUrl = baseUrl + "/auth/reset-password?token=" + token;
-            message.setText("Please click the following link to reset your password: " + resetUrl);
-            
-            mailSender.send(message);
-            log.info("Password reset email sent to: {}", toEmail);
+            String text = "Please click the following link to reset your password: " + resetUrl;
+
+            EmailNotificationEvent event = EmailNotificationEvent.builder()
+                    .to(toEmail)
+                    .subject("Password Reset - ShopSphere")
+                    .body(text)
+                    .build();
+
+            kafkaTemplate.send("notification.email.send", toEmail, event);
+            log.info("Published password reset email event to Kafka for: {}", toEmail);
         } catch (Exception e) {
-            log.error("Failed to send password reset email to: {}", toEmail, e);
+            log.error("Failed to publish password reset email event for: {}", toEmail, e);
         }
     }
 }
