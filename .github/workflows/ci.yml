@@ -49,6 +49,9 @@ jobs:
       - name: Build discovery-service JAR
         run: mvn -f discovery-service/pom.xml clean package -DskipTests -B -q
 
+      - name: Build notification-service JAR
+        run: mvn -f notification-service/pom.xml clean package -DskipTests -B -q
+
       # api-gateway builds inside Docker (multi-stage Dockerfile) – no host build needed
 
       # ──────────────────────────────────────────────────────────────
@@ -62,7 +65,7 @@ jobs:
             build \
               --no-cache \
               --parallel \
-              discovery-service auth-service api-gateway
+              discovery-service auth-service notification-service api-gateway
 
       # ──────────────────────────────────────────────────────────────
       # 5. Start the CI subset stack
@@ -74,7 +77,7 @@ jobs:
             -f docker-compose.ci.yml \
             up -d \
               --no-deps \
-              auth-db redis kafka discovery-service auth-service api-gateway
+              auth-db notification-db redis kafka discovery-service auth-service notification-service api-gateway
 
       # ──────────────────────────────────────────────────────────────
       # 6. Wait for all required services to be healthy
@@ -88,6 +91,18 @@ jobs:
               break
             fi
             if [ $i -eq 30 ]; then echo "auth-db timed out"; exit 1; fi
+            sleep 5
+          done
+
+      - name: Wait – notification-db (postgres)
+        run: |
+          echo "Waiting for notification-db..."
+          for i in $(seq 1 30); do
+            if docker exec notification-db pg_isready -U postgres -q 2>/dev/null; then
+              echo "notification-db is ready after $((i*5))s"
+              break
+            fi
+            if [ $i -eq 30 ]; then echo "notification-db timed out"; exit 1; fi
             sleep 5
           done
 
