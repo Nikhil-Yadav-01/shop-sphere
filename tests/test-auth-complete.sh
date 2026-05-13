@@ -14,7 +14,10 @@ set -euo pipefail
 # All requests go through the API gateway (port 8080).
 # Direct access to auth-service (port 8081) is intentionally blocked in CI.
 BASE_URL="http://localhost:8080"
-TEST_EMAIL="ci-test-$(date +%s)@example.com"
+
+# Gmail + alias: each run gets a unique address (no DB conflict between runs)
+# but all emails are delivered to nikhilyadav.d3v@gmail.com — visible in real inbox.
+TEST_EMAIL="nikhilyadav.d3v+ci-$(date +%s)@gmail.com"
 TEST_PASSWORD="CiPass!2024"
 PASS=0
 FAIL=0
