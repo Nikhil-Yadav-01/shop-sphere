@@ -78,6 +78,8 @@ services:
       MAIL_PORT: ${MAIL_PORT:-587}
       MAIL_USERNAME: ${MAIL_USERNAME:-}
       MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      # Frontend Base URL (for email links)
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:8080}
     ports:
     - 8081:8081
     depends_on:

@@ -105,6 +105,8 @@ services:
       MAIL_PORT: 587
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
+      # Frontend Base URL (for email links)
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:8080}
       # Disable KafkaHealthIndicator only — Kafka uses service_started so broker
       # may not be ready when actuator/health is first polled.
       MANAGEMENT_HEALTH_KAFKA_ENABLED: "false"
