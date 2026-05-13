@@ -5,8 +5,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.ComponentScan;
 
+import org.springframework.scheduling.annotation.EnableScheduling;
+
 @SpringBootApplication
 @EnableDiscoveryClient
+@EnableScheduling
 @ComponentScan(basePackages = {
         "com.rudraksha.shopsphere.auth",
         "com.rudraksha.shopsphere.shared.security",

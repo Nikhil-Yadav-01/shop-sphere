@@ -70,7 +70,7 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: password
       EUREKA_URI: http://discovery-service:8761/eureka
-      JWT_SECRET: mySecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLong
+      JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_MS: 3600000
       JWT_REFRESH_EXPIRATION_MS: 604800000
       # Frontend Base URL (for email links)
@@ -1048,6 +1048,29 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
+  nginx-proxy:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    container_name: nginx-proxy
+    ports:
+    - 80:80
+    - 443:443
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    networks:
+    - shopsphere-network
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -k
+      - https://localhost
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
 networks:
   shopsphere-network:
     driver: bridge

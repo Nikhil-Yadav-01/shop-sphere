@@ -17,6 +17,7 @@ import com.rudraksha.shopsphere.auth.repository.RefreshTokenRepository;
 import com.rudraksha.shopsphere.auth.repository.UserRepository;
 import com.rudraksha.shopsphere.auth.service.AuthService;
 import com.rudraksha.shopsphere.auth.service.EmailService;
+import com.rudraksha.shopsphere.auth.service.LoginAttemptService;
 import com.rudraksha.shopsphere.auth.service.TokenRevocationService;
 import com.rudraksha.shopsphere.auth.entity.EmailVerificationToken;
 import com.rudraksha.shopsphere.auth.entity.PasswordResetToken;
@@ -46,6 +47,7 @@ public class AuthServiceImpl implements AuthService {
     private final EmailService emailService;
     private final TokenRevocationService tokenRevocationService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final LoginAttemptService loginAttemptService;
 
     @Value("${jwt.expiration-ms}")
     private long jwtExpirationMs;
@@ -63,15 +65,19 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public AuthResponse login(LoginRequest request) {
         log.debug("Login attempt for email: {}", request.getEmail());
+        
+        loginAttemptService.checkLockout(request.getEmail());
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> {
                     log.warn("Login failed - user not found: {}", request.getEmail());
+                    loginAttemptService.loginFailed(request.getEmail());
                     return new AuthException("Invalid email or password");
                 });
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             log.warn("Login failed - invalid password for user: {}", request.getEmail());
+            loginAttemptService.loginFailed(request.getEmail());
             throw new AuthException("Invalid email or password");
         }
 
@@ -79,6 +85,8 @@ public class AuthServiceImpl implements AuthService {
             log.warn("Login failed - account disabled for user: {}", request.getEmail());
             throw new AuthException("Account is disabled");
         }
+        
+        loginAttemptService.loginSucceeded(request.getEmail());
 
         String accessToken = generateAccessToken(user);
         RefreshToken refreshToken = createRefreshToken(user);

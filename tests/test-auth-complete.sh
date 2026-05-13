@@ -13,7 +13,7 @@ set -euo pipefail
 
 # All requests go through the API gateway (port 8080).
 # Direct access to auth-service (port 8081) is intentionally blocked in CI.
-BASE_URL="http://localhost:8080"
+BASE_URL="https://localhost"
 
 # Gmail + alias: each run gets a unique address (no DB conflict between runs)
 # but all emails are delivered to nikhilyadav.d3v@gmail.com — visible in real inbox.
@@ -47,7 +47,7 @@ echo ""
 # Step 1 – Register
 # ─────────────────────────────────────────────────────────────────────────────
 echo "1. Registering user..."
-REGISTER_RESPONSE=$(curl -sf -X POST "$BASE_URL/auth/register" \
+REGISTER_RESPONSE=$(curl -k -sf -X POST "$BASE_URL/auth/register" \
   -H "Content-Type: application/json" \
   -d "{
     \"email\": \"$TEST_EMAIL\",
@@ -103,7 +103,7 @@ green "Verification token obtained: ${VERIFICATION_TOKEN:0:8}…"
 # ─────────────────────────────────────────────────────────────────────────────
 echo ""
 echo "3. Verifying email..."
-VERIFY_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+VERIFY_RESPONSE=$(curl -k -s -o /dev/null -w "%{http_code}" \
   -X POST "$BASE_URL/auth/verify-email" \
   -H "Content-Type: application/json" \
   -d "{\"token\": \"$VERIFICATION_TOKEN\"}")
@@ -124,7 +124,7 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 echo ""
 echo "4. Logging in..."
-LOGIN_RESPONSE=$(curl -sf -X POST "$BASE_URL/auth/login" \
+LOGIN_RESPONSE=$(curl -k -sf -X POST "$BASE_URL/auth/login" \
   -H "Content-Type: application/json" \
   -d "{\"email\": \"$TEST_EMAIL\", \"password\": \"$TEST_PASSWORD\"}") \
   || { red "Login request failed (curl error)"; FAIL=$((FAIL+1)); }
@@ -140,7 +140,7 @@ REFRESH_TOKEN=$(echo "$LOGIN_RESPONSE" | grep -o '"refreshToken":"[^"]*' | cut -
 # ─────────────────────────────────────────────────────────────────────────────
 echo ""
 echo "5. Validating token..."
-VALIDATE_RESPONSE=$(curl -sf -X POST "$BASE_URL/auth/validate" \
+VALIDATE_RESPONSE=$(curl -k -sf -X POST "$BASE_URL/auth/validate" \
   -H "Authorization: Bearer $ACCESS_TOKEN") \
   || { red "Token validation request failed (curl error)"; FAIL=$((FAIL+1)); }
 
@@ -152,7 +152,7 @@ assert_contains "Token validation returns valid:true" "$VALIDATE_RESPONSE" "\"va
 # ─────────────────────────────────────────────────────────────────────────────
 echo ""
 echo "6. Refreshing token..."
-REFRESH_RESPONSE=$(curl -sf -X POST "$BASE_URL/auth/refresh" \
+REFRESH_RESPONSE=$(curl -k -sf -X POST "$BASE_URL/auth/refresh" \
   -H "Content-Type: application/json" \
   -d "{\"refreshToken\": \"$REFRESH_TOKEN\"}") \
   || { red "Refresh token request failed (curl error)"; FAIL=$((FAIL+1)); }
@@ -165,7 +165,7 @@ assert_contains "Refresh returns new accessToken" "$REFRESH_RESPONSE" "accessTok
 # ─────────────────────────────────────────────────────────────────────────────
 echo ""
 echo "7. Testing forgot-password..."
-FORGOT_RESPONSE=$(curl -sf -o /dev/null -w "%{http_code}" \
+FORGOT_RESPONSE=$(curl -k -sf -o /dev/null -w "%{http_code}" \
   -X POST "$BASE_URL/auth/forgot-password" \
   -H "Content-Type: application/json" \
   -d "{\"email\": \"$TEST_EMAIL\"}") \
@@ -184,7 +184,7 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 echo ""
 echo "8. Testing resend-verification (expect rejection for already-verified user)..."
-RESEND_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+RESEND_CODE=$(curl -k -s -o /dev/null -w "%{http_code}" \
   -X POST "$BASE_URL/auth/resend-verification" \
   -H "Content-Type: application/json" \
   -d "{\"email\": \"$TEST_EMAIL\"}")
@@ -201,7 +201,7 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 echo ""
 echo "9. Logging out..."
-LOGOUT_CODE=$(curl -sf -o /dev/null -w "%{http_code}" \
+LOGOUT_CODE=$(curl -k -sf -o /dev/null -w "%{http_code}" \
   -X POST "$BASE_URL/auth/logout" \
   -H "Authorization: Bearer $ACCESS_TOKEN") \
   || LOGOUT_CODE="000"
@@ -213,6 +213,27 @@ else
   red "Logout failed (HTTP $LOGOUT_CODE)"
   FAIL=$((FAIL + 1))
 fi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Step 10 – Brute Force Lockout
+# ─────────────────────────────────────────────────────────────────────────────
+echo ""
+echo "10. Testing brute-force lockout..."
+
+# 5 failed attempts
+for i in {1..5}; do
+  curl -k -sf -o /dev/null -X POST "$BASE_URL/auth/login" \
+    -H "Content-Type: application/json" \
+    -d "{\"email\": \"$TEST_EMAIL\", \"password\": \"WrongPass!$i\"}" || true
+done
+
+# 6th attempt should be locked out (even with correct password)
+LOCKOUT_RESPONSE=$(curl -k -s -X POST "$BASE_URL/auth/login" \
+  -H "Content-Type: application/json" \
+  -d "{\"email\": \"$TEST_EMAIL\", \"password\": \"$TEST_PASSWORD\"}")
+
+yellow "Lockout response: $LOCKOUT_RESPONSE"
+assert_contains "Account gets locked out after 5 attempts" "$LOCKOUT_RESPONSE" "locked"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Summary
