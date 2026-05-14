@@ -99,6 +99,8 @@ services:
     environment:
       # JWT
       JWT_SECRET: ${JWT_SECRET}
+      # OAuth
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       # Email verification: full production flow (token required before login)
       APP_VERIFICATION_AUTO_VERIFY: "false"
       APP_VERIFICATION_TOKEN_EXPIRY_MINUTES: "30"

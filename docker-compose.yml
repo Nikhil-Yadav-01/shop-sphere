@@ -73,6 +73,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_MS: 3600000
       JWT_REFRESH_EXPIRATION_MS: 604800000
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       # Frontend Base URL (for email links)
       APP_BASE_URL: ${APP_BASE_URL:-http://localhost:8080}
     ports:
