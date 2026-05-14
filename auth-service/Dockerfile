@@ -6,5 +6,5 @@ ARG JAR_FILE=auth-service/target/auth-service-*.jar
 ARG MACHINE_IP=127.0.0.1
 COPY ${JAR_FILE} app.jar
 EXPOSE 8081
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 CMD curl -f http://${MACHINE_IP}:8081/actuator/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 CMD curl -f http://${MACHINE_IP}:8081/ || exit 1
 ENTRYPOINT ["java", "-jar", "app.jar"]
