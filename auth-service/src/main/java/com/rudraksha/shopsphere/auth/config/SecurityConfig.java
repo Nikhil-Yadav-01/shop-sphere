@@ -28,8 +28,7 @@ public class SecurityConfig {
             "/auth/verify-email",
             "/auth/resend-verification",
             "/auth/forgot-password",
-            "/auth/reset-password",
-            "/actuator/**"
+            "/auth/reset-password"
     };
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -45,6 +44,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
