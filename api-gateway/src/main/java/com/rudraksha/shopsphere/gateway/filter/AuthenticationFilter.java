@@ -1,18 +1,13 @@
 package com.rudraksha.shopsphere.gateway.filter;
 
-import com.rudraksha.shopsphere.gateway.dto.TokenValidationResponse;
 import com.rudraksha.shopsphere.gateway.security.JwtTokenProvider;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -24,18 +19,15 @@ import java.util.List;
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final WebClient webClient;
-    private final CacheManager cacheManager;
+    private final ReactiveRedisTemplate<String, String> redisTemplate;
+    private static final String REVOKED_TOKEN_PREFIX = "revoked_token:";
 
     public AuthenticationFilter(
             JwtTokenProvider jwtTokenProvider,
-            @Qualifier("loadBalancedWebClientBuilder") WebClient.Builder webClientBuilder,
-            @Value("${auth.service.url}") String authServiceUrl,
-            CacheManager cacheManager) {
+            ReactiveRedisTemplate<String, String> redisTemplate) {
         super(Config.class);
         this.jwtTokenProvider = jwtTokenProvider;
-        this.webClient = webClientBuilder.baseUrl(authServiceUrl).build();
-        this.cacheManager = cacheManager;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -96,28 +88,11 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     }
 
     private Mono<RevocationResult> checkRevocation(String token) {
-        Cache cache = cacheManager.getCache("tokenValidation");
-        String cacheKey = "revoked:" + token.hashCode();
-
-        if (cache != null) {
-            Cache.ValueWrapper cached = cache.get(cacheKey);
-            if (cached != null) {
-                return Mono.just(new RevocationResult((Boolean) cached.get()));
-            }
-        }
-
-        return webClient.post()
-                .uri("/auth/validate")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .retrieve()
-                .bodyToMono(TokenValidationResponse.class)
-                .map(response -> {
-                    boolean revoked = !response.isValid();
-                    if (cache != null) {
-                        cache.put(cacheKey, revoked);
-                    }
-                    return new RevocationResult(revoked);
-                });
+        String key = REVOKED_TOKEN_PREFIX + token;
+        return redisTemplate.hasKey(key)
+                .map(hasKey -> new RevocationResult(Boolean.TRUE.equals(hasKey)))
+                .defaultIfEmpty(new RevocationResult(false))
+                .onErrorResume(e -> Mono.just(new RevocationResult(false)));
     }
 
     private Mono<Void> writeErrorResponse(ServerWebExchange exchange, HttpStatus status,
