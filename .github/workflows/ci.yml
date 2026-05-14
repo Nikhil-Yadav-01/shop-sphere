@@ -150,7 +150,7 @@ jobs:
         run: |
           echo "Waiting for auth-service..."
           for i in $(seq 1 48); do
-            if curl -sf http://localhost:8081/actuator/health > /dev/null 2>&1; then
+            if curl -sf http://localhost:8081/ > /dev/null 2>&1; then
               echo "auth-service healthy after $((i*5))s"
               break
             fi
