@@ -245,6 +245,42 @@ yellow "Lockout response: $LOCKOUT_RESPONSE"
 assert_contains "Account gets locked out after 5 attempts" "$LOCKOUT_RESPONSE" "locked"
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Step 11 – Google Login (Negative Test)
+# ─────────────────────────────────────────────────────────────────────────────
+echo ""
+echo "11. Testing Google login with invalid token..."
+GOOGLE_RESPONSE=$(curl -k -s -o /dev/null -w "%{http_code}" \
+  -X POST "$BASE_URL/auth/google" \
+  -H "Content-Type: application/json" \
+  -d "{\"idToken\": \"invalid-google-token\"}")
+
+if [ "$GOOGLE_RESPONSE" -eq 401 ]; then
+  green "Google login correctly rejected invalid token (HTTP 401)"
+  PASS=$((PASS + 1))
+else
+  red "Google login returned unexpected HTTP $GOOGLE_RESPONSE"
+  FAIL=$((FAIL + 1))
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Step 12 – Apple Login (Negative Test)
+# ─────────────────────────────────────────────────────────────────────────────
+echo ""
+echo "12. Testing Apple login with invalid token..."
+APPLE_RESPONSE=$(curl -k -s -o /dev/null -w "%{http_code}" \
+  -X POST "$BASE_URL/auth/apple" \
+  -H "Content-Type: application/json" \
+  -d "{\"idToken\": \"invalid-apple-token\"}")
+
+if [ "$APPLE_RESPONSE" -eq 401 ]; then
+  green "Apple login correctly rejected invalid token (HTTP 401)"
+  PASS=$((PASS + 1))
+else
+  red "Apple login returned unexpected HTTP $APPLE_RESPONSE"
+  FAIL=$((FAIL + 1))
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Summary
 # ─────────────────────────────────────────────────────────────────────────────
 echo ""

@@ -25,7 +25,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column
     private String password;
 
     @Column(name = "first_name", nullable = false)
@@ -37,6 +37,13 @@ public class User {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Column(name = "auth_provider", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private AuthProvider authProvider;
+
+    @Column(name = "provider_id")
+    private String providerId;
 
     @Column(nullable = false)
     private boolean enabled;
@@ -50,5 +57,9 @@ public class User {
 
     public enum Role {
         CUSTOMER, SELLER, ADMIN
+    }
+
+    public enum AuthProvider {
+        LOCAL, GOOGLE, APPLE
     }
 }

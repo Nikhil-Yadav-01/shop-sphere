@@ -29,6 +29,18 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PostMapping("/google")
+    public ResponseEntity<AuthResponse> googleLogin(@Valid @RequestBody GoogleLoginRequest request) {
+        AuthResponse response = authService.googleLogin(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/apple")
+    public ResponseEntity<AuthResponse> appleLogin(@Valid @RequestBody AppleLoginRequest request) {
+        AuthResponse response = authService.appleLogin(request);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/refresh")
     public ResponseEntity<TokenResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
         TokenResponse response = authService.refreshToken(request);

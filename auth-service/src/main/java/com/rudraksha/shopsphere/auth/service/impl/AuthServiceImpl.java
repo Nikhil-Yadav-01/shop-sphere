@@ -1,5 +1,8 @@
 package com.rudraksha.shopsphere.auth.service.impl;
 
+import com.rudraksha.shopsphere.auth.dto.SocialUserInfo;
+import com.rudraksha.shopsphere.auth.dto.request.AppleLoginRequest;
+import com.rudraksha.shopsphere.auth.dto.request.GoogleLoginRequest;
 import com.rudraksha.shopsphere.auth.dto.request.LoginRequest;
 import com.rudraksha.shopsphere.auth.dto.request.RefreshTokenRequest;
 import com.rudraksha.shopsphere.auth.dto.request.RegisterRequest;
@@ -15,8 +18,10 @@ import com.rudraksha.shopsphere.auth.repository.EmailVerificationTokenRepository
 import com.rudraksha.shopsphere.auth.repository.PasswordResetTokenRepository;
 import com.rudraksha.shopsphere.auth.repository.RefreshTokenRepository;
 import com.rudraksha.shopsphere.auth.repository.UserRepository;
+import com.rudraksha.shopsphere.auth.service.AppleAuthService;
 import com.rudraksha.shopsphere.auth.service.AuthService;
 import com.rudraksha.shopsphere.auth.service.EmailService;
+import com.rudraksha.shopsphere.auth.service.GoogleAuthService;
 import com.rudraksha.shopsphere.auth.service.LoginAttemptService;
 import com.rudraksha.shopsphere.auth.service.TokenRevocationService;
 import com.rudraksha.shopsphere.auth.entity.EmailVerificationToken;
@@ -31,6 +36,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -48,6 +54,8 @@ public class AuthServiceImpl implements AuthService {
     private final TokenRevocationService tokenRevocationService;
     private final JwtTokenProvider jwtTokenProvider;
     private final LoginAttemptService loginAttemptService;
+    private final GoogleAuthService googleAuthService;
+    private final AppleAuthService appleAuthService;
 
     @Value("${jwt.expiration-ms}")
     private long jwtExpirationMs;
@@ -74,6 +82,11 @@ public class AuthServiceImpl implements AuthService {
                     loginAttemptService.loginFailed(request.getEmail());
                     return new AuthException("Invalid email or password");
                 });
+
+        if (user.getAuthProvider() != User.AuthProvider.LOCAL) {
+            log.warn("Login failed - user is registered with {}: {}", user.getAuthProvider(), request.getEmail());
+            throw new AuthException("Please use " + user.getAuthProvider() + " login");
+        }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             log.warn("Login failed - invalid password for user: {}", request.getEmail());
@@ -111,6 +124,7 @@ public class AuthServiceImpl implements AuthService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .role(User.Role.CUSTOMER)
+                .authProvider(User.AuthProvider.LOCAL)
                 .enabled(autoVerify)
                 .emailVerified(autoVerify)
                 .build();
@@ -133,6 +147,73 @@ public class AuthServiceImpl implements AuthService {
         }
 
         userEventPublisher.publishUserCreatedEvent(user);
+
+        String accessToken = generateAccessToken(user);
+        RefreshToken refreshToken = createRefreshToken(user);
+
+        return buildAuthResponse(user, accessToken, refreshToken.getToken());
+    }
+
+    @Override
+    @Transactional
+    public AuthResponse googleLogin(GoogleLoginRequest request) {
+        log.debug("Google login attempt");
+        SocialUserInfo userInfo = googleAuthService.verify(request.getIdToken());
+        return processSocialLogin(userInfo, User.AuthProvider.GOOGLE);
+    }
+
+    @Override
+    @Transactional
+    public AuthResponse appleLogin(AppleLoginRequest request) {
+        log.debug("Apple login attempt");
+        SocialUserInfo userInfo = appleAuthService.verify(request.getIdToken());
+        
+        // Apple only sends name on the first login, so we use it from the request if present
+        if (request.getFirstName() != null) userInfo.setFirstName(request.getFirstName());
+        if (request.getLastName() != null) userInfo.setLastName(request.getLastName());
+        
+        return processSocialLogin(userInfo, User.AuthProvider.APPLE);
+    }
+
+    private AuthResponse processSocialLogin(SocialUserInfo userInfo, User.AuthProvider provider) {
+        Optional<User> userOptional = userRepository.findByAuthProviderAndProviderId(provider, userInfo.getProviderId());
+        
+        User user;
+        if (userOptional.isPresent()) {
+            user = userOptional.get();
+            log.info("{} user logged in: {}", provider, user.getEmail());
+        } else {
+            // Check if user exists with the same email
+            userOptional = userRepository.findByEmail(userInfo.getEmail());
+            if (userOptional.isPresent()) {
+                user = userOptional.get();
+                // Link the account
+                user.setAuthProvider(provider);
+                user.setProviderId(userInfo.getProviderId());
+                user.setEmailVerified(true); // Social email is verified
+                user = userRepository.save(user);
+                log.info("Linked {} account for existing user: {}", provider, user.getEmail());
+            } else {
+                // Create new user
+                user = User.builder()
+                        .email(userInfo.getEmail())
+                        .firstName(userInfo.getFirstName() != null ? userInfo.getFirstName() : "User")
+                        .lastName(userInfo.getLastName() != null ? userInfo.getLastName() : "")
+                        .role(User.Role.CUSTOMER)
+                        .authProvider(provider)
+                        .providerId(userInfo.getProviderId())
+                        .enabled(true)
+                        .emailVerified(true)
+                        .build();
+                user = userRepository.save(user);
+                log.info("Created new user via {}: {}", provider, user.getEmail());
+                userEventPublisher.publishUserCreatedEvent(user);
+            }
+        }
+
+        if (!user.isEnabled()) {
+            throw new AuthException("Account is disabled");
+        }
 
         String accessToken = generateAccessToken(user);
         RefreshToken refreshToken = createRefreshToken(user);

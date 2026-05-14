@@ -1,5 +1,7 @@
 package com.rudraksha.shopsphere.auth.service;
 
+import com.rudraksha.shopsphere.auth.dto.request.AppleLoginRequest;
+import com.rudraksha.shopsphere.auth.dto.request.GoogleLoginRequest;
 import com.rudraksha.shopsphere.auth.dto.request.LoginRequest;
 import com.rudraksha.shopsphere.auth.dto.request.RefreshTokenRequest;
 import com.rudraksha.shopsphere.auth.dto.request.RegisterRequest;
@@ -12,6 +14,10 @@ public interface AuthService {
     AuthResponse login(LoginRequest request);
 
     AuthResponse register(RegisterRequest request);
+
+    AuthResponse googleLogin(GoogleLoginRequest request);
+
+    AuthResponse appleLogin(AppleLoginRequest request);
 
     TokenResponse refreshToken(RefreshTokenRequest request);
 

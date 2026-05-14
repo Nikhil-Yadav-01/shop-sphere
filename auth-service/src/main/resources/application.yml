@@ -52,6 +52,14 @@ jwt:
   expiration-ms: ${JWT_EXPIRATION_MS:3600000}
   refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000}
 
+oauth2:
+  google:
+    client-id: ${GOOGLE_CLIENT_ID}
+  apple:
+    client-id: ${APPLE_CLIENT_ID}
+    team-id: ${APPLE_TEAM_ID}
+    key-id: ${APPLE_KEY_ID}
+
 app:
   verification:
     token-expiry-minutes: 15

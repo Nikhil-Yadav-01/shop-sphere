@@ -21,6 +21,8 @@ public class SecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS = {
             "/auth/login",
             "/auth/register",
+            "/auth/google",
+            "/auth/apple",
             "/auth/refresh",
             "/auth/validate",
             "/auth/verify-email",
