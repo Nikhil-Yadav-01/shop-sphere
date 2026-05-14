@@ -245,38 +245,54 @@ yellow "Lockout response: $LOCKOUT_RESPONSE"
 assert_contains "Account gets locked out after 5 attempts" "$LOCKOUT_RESPONSE" "locked"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Step 11 – Google Login (Negative Test)
+# Step 11 – Google Login
 # ─────────────────────────────────────────────────────────────────────────────
 echo ""
-echo "11. Testing Google login with invalid token..."
+GOOGLE_TOKEN="${TEST_GOOGLE_ID_TOKEN:-invalid-google-token}"
+if [ "$GOOGLE_TOKEN" == "invalid-google-token" ]; then
+  echo "11. Testing Google login with invalid token..."
+  EXPECTED_CODE=401
+else
+  echo "11. Testing Google login with valid token..."
+  EXPECTED_CODE=200
+fi
+
 GOOGLE_RESPONSE=$(curl -k -s -o /dev/null -w "%{http_code}" \
   -X POST "$BASE_URL/auth/google" \
   -H "Content-Type: application/json" \
-  -d "{\"idToken\": \"invalid-google-token\"}")
+  -d "{\"idToken\": \"$GOOGLE_TOKEN\"}")
 
-if [ "$GOOGLE_RESPONSE" -eq 401 ]; then
-  green "Google login correctly rejected invalid token (HTTP 401)"
+if [ "$GOOGLE_RESPONSE" -eq "$EXPECTED_CODE" ]; then
+  green "Google login test passed (HTTP $GOOGLE_RESPONSE)"
   PASS=$((PASS + 1))
 else
-  red "Google login returned unexpected HTTP $GOOGLE_RESPONSE"
+  red "Google login failed: Expected HTTP $EXPECTED_CODE but got $GOOGLE_RESPONSE"
   FAIL=$((FAIL + 1))
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Step 12 – Apple Login (Negative Test)
+# Step 12 – Apple Login
 # ─────────────────────────────────────────────────────────────────────────────
 echo ""
-echo "12. Testing Apple login with invalid token..."
+APPLE_TOKEN="${TEST_APPLE_ID_TOKEN:-invalid-apple-token}"
+if [ "$APPLE_TOKEN" == "invalid-apple-token" ]; then
+  echo "12. Testing Apple login with invalid token..."
+  EXPECTED_CODE=401
+else
+  echo "12. Testing Apple login with valid token..."
+  EXPECTED_CODE=200
+fi
+
 APPLE_RESPONSE=$(curl -k -s -o /dev/null -w "%{http_code}" \
   -X POST "$BASE_URL/auth/apple" \
   -H "Content-Type: application/json" \
-  -d "{\"idToken\": \"invalid-apple-token\"}")
+  -d "{\"idToken\": \"$APPLE_TOKEN\"}")
 
-if [ "$APPLE_RESPONSE" -eq 401 ]; then
-  green "Apple login correctly rejected invalid token (HTTP 401)"
+if [ "$APPLE_RESPONSE" -eq "$EXPECTED_CODE" ]; then
+  green "Apple login test passed (HTTP $APPLE_RESPONSE)"
   PASS=$((PASS + 1))
 else
-  red "Apple login returned unexpected HTTP $APPLE_RESPONSE"
+  red "Apple login failed: Expected HTTP $EXPECTED_CODE but got $APPLE_RESPONSE"
   FAIL=$((FAIL + 1))
 fi
 
