@@ -248,6 +248,8 @@ assert_contains "Account gets locked out after 5 attempts" "$LOCKOUT_RESPONSE" "
 # Step 11 – Google Login
 # ─────────────────────────────────────────────────────────────────────────────
 echo ""
+# Note: Google ID Tokens expire in 1 hour. This hardcoded token is for immediate CI testing.
+TEST_GOOGLE_ID_TOKEN="eyJhbGciOiJSUzI1NiIsImtpZCI6ImY4ZTY2MjBkMzk3MTFhYTIxY2U4YTJiZjJmM2VlMDFiOTI0Y2IyZDAiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIzMzk3OTc0NTA5NDUtYTRmNDVpYXU1NDJmYTNna210aTJvaXByaGNkam9vc2MuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIzMzk3OTc0NTA5NDUtYTRmNDVpYXU1NDJmYTNna210aTJvaXByaGNkam9vc2MuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTc0MTEzNDM0NjYwMzg0MTIyMDciLCJlbWFpbCI6Im5pa2hpbGRldnIuMDFAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImF0X2hhc2giOiJjeDVBa0F6WWJUdEJYUVRPVjNnM2NBIiwibmFtZSI6Ik5pa2hpbCBZYWRhdiIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NMWUpoQXhuM0FyX1RaZVdzVGdsUjM3WjBSMGI2MnVjLXFSRS1vaXdEbzF3UFkzMHc9czk2LWMiLCJnaXZlbl9uYW1lIjoiTmlraGlsIiwiZmFtaWx5X25hbWUiOiJZYWRhdiIsImlhdCI6MTc3ODc2ODM3MSwiZXhwIjoxNzc4NzcxOTcxfQ.MP7FBpAINqJOdgXi3JNecjEB3DphqgFQEWW_1Ef-KbvasEBVDNFdWmGlO2AwQwqVLGCDH7DDMP3Ldn-1fBfEDyEhv8ur2FGLqqx3qhM3N-wKZpboFh_NNJFk_A-obU7SqpPNzLXkKjv6LuriyJNKnnU7C2dGYZMLOpYq_oQ-u_R-y90qsodDPW9tm4w2DiZRRd8QRIUlRAzdLpmTxKg3KGCzLYrha__zCHXYHO3fbHRJ7_xpesAe3CvwAGaXZp-kJC4SaSPb1fvrFSFrdQnzex-MlT0J8ZGZd6YtkMHwnoeq14ZEwZngw6t1MvWGeGEu4i2lOAGEHLM1xO-CkBSP4Q"
 GOOGLE_TOKEN="${TEST_GOOGLE_ID_TOKEN:-invalid-google-token}"
 if [ "$GOOGLE_TOKEN" == "invalid-google-token" ]; then
   echo "11. Testing Google login with invalid token..."
