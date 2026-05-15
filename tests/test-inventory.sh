@@ -3,7 +3,7 @@
 set -e
 
 echo "Testing Inventory Service..."
-IP="51.20.189.129"
+IP="localhost"
 
 BASE_URL="http://$IP:8092/api/inventory"
 

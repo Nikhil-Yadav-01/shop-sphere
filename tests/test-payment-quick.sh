@@ -2,7 +2,7 @@
 
 # Quick Payment Service Test
 # Minimal tests for quick validation
-IP="51.20.189.129"
+IP="localhost"
 
 PAYMENT_SERVICE_URL="http://$IP:8092"
 BASE_ENDPOINT="/payment"

@@ -3,7 +3,7 @@
 # Recommendation Service Test Script
 
 set -e
-IP="51.20.12.72"
+IP="localhost"
 BASE_URL="http://$IP:8089/api/v1"
 SERVICE_NAME="Recommendation Service"
 

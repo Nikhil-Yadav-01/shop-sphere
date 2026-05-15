@@ -24,6 +24,10 @@ curl -s -X POST -H "Content-Type: application/json" \
 ACTUAL_PRODUCT_ID=$(cat product_response.json | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
 echo "Created Product ID: $ACTUAL_PRODUCT_ID"
 
+# Wait for Eureka discovery propagation
+echo "Waiting for service discovery..."
+sleep 10
+
 # 2. Seed Inventory Service
 echo "Seeding Inventory Service..."
 curl -s -X POST -H "Content-Type: application/json" \
@@ -31,7 +35,8 @@ curl -s -X POST -H "Content-Type: application/json" \
         \"sku\": \"$PRODUCT_SKU\",
         \"productId\": 1,
         \"quantity\": 10,
-        \"location\": \"Warehouse CI\"
+        \"reorderLevel\": 5,
+        \"warehouseLocation\": \"Warehouse CI\"
     }" http://$IP:8092/api/inventory
 
 # 3. Test Add to Cart (Should work now with real data)
