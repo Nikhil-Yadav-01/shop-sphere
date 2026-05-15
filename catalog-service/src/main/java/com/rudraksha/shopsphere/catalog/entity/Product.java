@@ -39,6 +39,10 @@ public class Product {
 
     private BigDecimal price;
 
+    private BigDecimal originalPrice;
+
+    private String currency;
+
     private List<String> images;
 
     @Indexed

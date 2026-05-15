@@ -90,6 +90,7 @@ public class ProductServiceImpl implements ProductService {
         }
         productRepository.deleteById(id);
         log.info("Deleted product with ID: {}", id);
+        productEventProducer.publishProductDeleted(id);
     }
 
     @Override
@@ -120,6 +121,8 @@ public class ProductServiceImpl implements ProductService {
                 .name(product.getName())
                 .description(product.getDescription())
                 .price(product.getPrice())
+                .originalPrice(product.getOriginalPrice())
+                .currency(product.getCurrency())
                 .categoryId(product.getCategoryId())
                 .images(product.getImages())
                 .status(product.getStatus())

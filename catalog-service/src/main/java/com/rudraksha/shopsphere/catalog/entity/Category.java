@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -28,6 +29,8 @@ public class Category {
 
     @Indexed
     private String parentId; // For hierarchy support
+
+    private List<String> ancestors; // Materialized path for deep hierarchy
 
     private int level; // 0 = root, 1 = first level, etc.
 

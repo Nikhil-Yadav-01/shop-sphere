@@ -11,6 +11,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,9 +40,14 @@ public class CategoryServiceImpl implements CategoryService {
             categoryBuilder.parentId(parent.getId());
             categoryBuilder.level(parent.getLevel() + 1);
             categoryBuilder.path(parent.getPath() + " > " + request.getName());
+            
+            List<String> ancestors = new ArrayList<>(parent.getAncestors() != null ? parent.getAncestors() : new ArrayList<>());
+            ancestors.add(parent.getId());
+            categoryBuilder.ancestors(ancestors);
         } else {
             categoryBuilder.level(0);
             categoryBuilder.path(request.getName());
+            categoryBuilder.ancestors(new ArrayList<>());
         }
 
         Category savedCategory = categoryRepository.save(categoryBuilder.build());
@@ -78,12 +84,17 @@ public class CategoryServiceImpl implements CategoryService {
                  category.setParentId(null);
                  category.setLevel(0);
                  category.setPath(category.getName());
+                 category.setAncestors(new ArrayList<>());
              } else {
                  Category parent = categoryRepository.findById(request.getParentId())
                          .orElseThrow(() -> new IllegalArgumentException("Parent category not found"));
                  category.setParentId(parent.getId());
                  category.setLevel(parent.getLevel() + 1);
                  category.setPath(parent.getPath() + " > " + category.getName());
+                 
+                 List<String> ancestors = new ArrayList<>(parent.getAncestors() != null ? parent.getAncestors() : new ArrayList<>());
+                 ancestors.add(parent.getId());
+                 category.setAncestors(ancestors);
              }
         }
 
@@ -116,6 +127,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .name(category.getName())
                 .description(category.getDescription())
                 .parentId(category.getParentId())
+                .ancestors(category.getAncestors())
                 .level(category.getLevel())
                 .path(category.getPath())
                 .createdAt(category.getCreatedAt())

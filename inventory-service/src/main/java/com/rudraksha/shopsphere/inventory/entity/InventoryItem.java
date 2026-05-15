@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 
 import java.time.LocalDateTime;
 
@@ -34,6 +35,9 @@ public class InventoryItem {
     @Column(nullable = false)
     private Integer reservedQuantity;
 
+    @Formula("quantity - reserved_quantity")
+    private Integer availableQuantity;
+
     @Column(nullable = false)
     private Integer reorderLevel;
 
@@ -61,10 +65,6 @@ public class InventoryItem {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
-    }
-
-    public Integer getAvailableQuantity() {
-        return quantity - reservedQuantity;
     }
 
     public enum InventoryStatus {
