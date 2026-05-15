@@ -23,6 +23,8 @@ import com.rudraksha.shopsphere.auth.service.AuthService;
 import com.rudraksha.shopsphere.auth.service.EmailService;
 import com.rudraksha.shopsphere.auth.service.GoogleAuthService;
 import com.rudraksha.shopsphere.auth.service.LoginAttemptService;
+import com.rudraksha.shopsphere.auth.service.RateLimitingService;
+import com.rudraksha.shopsphere.auth.service.SecurityAlertService;
 import com.rudraksha.shopsphere.auth.service.TokenRevocationService;
 import com.rudraksha.shopsphere.auth.entity.EmailVerificationToken;
 import com.rudraksha.shopsphere.auth.entity.PasswordResetToken;
@@ -54,8 +56,11 @@ public class AuthServiceImpl implements AuthService {
     private final TokenRevocationService tokenRevocationService;
     private final JwtTokenProvider jwtTokenProvider;
     private final LoginAttemptService loginAttemptService;
+    private final RateLimitingService rateLimitingService;
+    private final SecurityAlertService securityAlertService;
     private final GoogleAuthService googleAuthService;
     private final AppleAuthService appleAuthService;
+    private final org.springframework.kafka.core.KafkaTemplate<String, Object> kafkaTemplate;
 
     @Value("${jwt.expiration-ms}")
     private long jwtExpirationMs;
@@ -73,6 +78,10 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public AuthResponse login(LoginRequest request) {
         log.debug("Login attempt for email: {}", request.getEmail());
+        
+        if (!rateLimitingService.isLoginAllowed(request.getEmail())) {
+            throw new AuthException("Too many login attempts. Account is temporarily locked.");
+        }
         
         loginAttemptService.checkLockout(request.getEmail());
 
@@ -100,6 +109,7 @@ public class AuthServiceImpl implements AuthService {
         }
         
         loginAttemptService.loginSucceeded(request.getEmail());
+        rateLimitingService.resetLoginAttempts(request.getEmail());
 
         String accessToken = generateAccessToken(user);
         RefreshToken refreshToken = createRefreshToken(user);
@@ -112,6 +122,10 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         log.debug("Registration attempt for email: {}", request.getEmail());
+
+        if (!rateLimitingService.isRegisterAllowed(request.getEmail())) {
+            throw new AuthException("Too many registration attempts. Please try again later.");
+        }
 
         if (userRepository.existsByEmail(request.getEmail())) {
             log.warn("Registration failed - email already exists: {}", request.getEmail());
@@ -143,7 +157,8 @@ public class AuthServiceImpl implements AuthService {
             emailVerificationTokenRepository.save(emailToken);
 
             log.info("[{}] VERIFICATION_TOKEN: {}", user.getEmail(), verificationToken);
-            emailService.sendVerificationEmail(user.getEmail(), verificationToken);
+            publishEmailEvent(user.getEmail(), "Verify your email", 
+                    "Please verify your email using token: " + verificationToken);
         }
 
         userEventPublisher.publishUserCreatedEvent(user);
@@ -152,6 +167,22 @@ public class AuthServiceImpl implements AuthService {
         RefreshToken refreshToken = createRefreshToken(user);
 
         return buildAuthResponse(user, accessToken, refreshToken.getToken());
+    }
+
+    private void publishEmailEvent(String to, String subject, String body) {
+        try {
+            com.rudraksha.shopsphere.auth.dto.EmailNotificationEvent event = 
+                com.rudraksha.shopsphere.auth.dto.EmailNotificationEvent.builder()
+                    .to(to)
+                    .subject(subject)
+                    .body(body)
+                    .build();
+            kafkaTemplate.send("notification.email.send", to, event);
+            log.info("Published email notification event for: {}", to);
+        } catch (Exception e) {
+            log.error("Failed to publish email notification event for: {}", to, e);
+            // Fallback to sync email if kafka fails or handle appropriately
+        }
     }
 
     @Override
@@ -233,6 +264,10 @@ public class AuthServiceImpl implements AuthService {
                 });
 
         if (!refreshToken.isValid()) {
+            if (refreshToken.isRevoked()) {
+                securityAlertService.alertTokenReuse(refreshToken.getUser().getId().toString(), 
+                        refreshToken.getToken(), request.getRefreshToken());
+            }
             log.warn("Refresh token failed - token is expired or revoked");
             throw new AuthException("Refresh token is expired or revoked");
         }
@@ -354,13 +389,18 @@ public class AuthServiceImpl implements AuthService {
                 .build();
         emailVerificationTokenRepository.save(emailToken);
 
-        emailService.sendVerificationEmail(user.getEmail(), verificationToken);
+        publishEmailEvent(user.getEmail(), "Verify your email", 
+                "Please verify your email using token: " + verificationToken);
         log.info("Verification email resent to: {}", email);
     }
 
     @Override
     @Transactional
     public void forgotPassword(String email) {
+        if (!rateLimitingService.isForgotPasswordAllowed(email)) {
+            throw new AuthException("Too many password reset requests. Please try again later.");
+        }
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AuthException("User not found"));
 
@@ -375,7 +415,8 @@ public class AuthServiceImpl implements AuthService {
                 .build();
         passwordResetTokenRepository.save(passwordResetToken);
 
-        emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
+        publishEmailEvent(user.getEmail(), "Reset your password", 
+                "Please reset your password using token: " + resetToken);
         log.info("Password reset email sent to: {}", email);
     }
 
