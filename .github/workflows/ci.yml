@@ -295,15 +295,19 @@ jobs:
         run: bash tests/test-auth-complete.sh
 
       - name: Test – API gateway routes
+        if: success() || failure()
         run: bash tests/test-gateway-routes.sh
 
       - name: Test – Rate Limiting
+        if: success() || failure()
         run: bash tests/test-rate-limiting.sh
 
       - name: Test – Cart Service (Production Ready)
+        if: success() || failure()
         run: bash tests/test-cart.sh
 
       - name: Test – Catalog Service (Production Ready)
+        if: success() || failure()
         run: bash tests/test-catalog.sh
 
       # ──────────────────────────────────────────────────────────────
