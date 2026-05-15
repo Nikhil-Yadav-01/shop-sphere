@@ -34,6 +34,8 @@ public class Product {
     @Indexed
     private String categoryId;
 
+    private BigDecimal price;
+
     private List<String> images;
 
     @Indexed

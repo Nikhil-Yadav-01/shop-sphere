@@ -54,6 +54,15 @@ jobs:
       - name: Build notification-service JAR
         run: mvn -f notification-service/pom.xml clean package -DskipTests -B -q
 
+      - name: Build catalog-service JAR
+        run: mvn -f catalog-service/pom.xml clean package -DskipTests -B -q
+
+      - name: Build inventory-service JAR
+        run: mvn -f inventory-service/pom.xml clean package -DskipTests -B -q
+
+      - name: Build cart-service JAR
+        run: mvn -f cart-service/pom.xml clean package -DskipTests -B -q
+
       # api-gateway builds inside Docker (multi-stage Dockerfile) – no host build needed
 
       # ──────────────────────────────────────────────────────────────
@@ -67,19 +76,20 @@ jobs:
             build \
               --no-cache \
               --parallel \
-              discovery-service auth-service notification-service api-gateway nginx-proxy
+              discovery-service auth-service notification-service catalog-service inventory-service cart-service api-gateway nginx-proxy
 
       # ──────────────────────────────────────────────────────────────
       # 5. Start the CI subset stack
       # ──────────────────────────────────────────────────────────────
-      - name: Start CI stack (all auth-service dependencies)
+      - name: Start CI stack (all required services)
         run: |
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.ci.yml \
             up -d \
               --no-deps \
-              auth-db notification-db redis kafka discovery-service auth-service notification-service api-gateway nginx-proxy
+              auth-db notification-db catalog-db inventory-db redis kafka \
+              discovery-service auth-service notification-service catalog-service inventory-service cart-service api-gateway nginx-proxy
 
       # ──────────────────────────────────────────────────────────────
       # 6. Wait for all required services to be healthy
@@ -105,6 +115,30 @@ jobs:
               break
             fi
             if [ $i -eq 30 ]; then echo "notification-db timed out"; exit 1; fi
+            sleep 5
+          done
+
+      - name: Wait – inventory-db (postgres)
+        run: |
+          echo "Waiting for inventory-db..."
+          for i in $(seq 1 30); do
+            if docker exec inventory-db pg_isready -U postgres -q 2>/dev/null; then
+              echo "inventory-db is ready after $((i*5))s"
+              break
+            fi
+            if [ $i -eq 30 ]; then echo "inventory-db timed out"; exit 1; fi
+            sleep 5
+          done
+
+      - name: Wait – catalog-db (mongodb)
+        run: |
+          echo "Waiting for catalog-db..."
+          for i in $(seq 1 30); do
+            if docker exec catalog-db mongosh --eval "db.adminCommand('ping')" -q > /dev/null 2>&1; then
+              echo "catalog-db is ready after $((i*5))s"
+              break
+            fi
+            if [ $i -eq 30 ]; then echo "catalog-db timed out"; exit 1; fi
             sleep 5
           done
 
@@ -170,6 +204,42 @@ jobs:
             sleep 5
           done
 
+      - name: Wait – catalog-service
+        run: |
+          echo "Waiting for catalog-service..."
+          for i in $(seq 1 48); do
+            if curl -sf http://localhost:8083/actuator/health > /dev/null 2>&1; then
+              echo "catalog-service healthy after $((i*5))s"
+              break
+            fi
+            if [ $i -eq 48 ]; then echo "catalog-service timed out"; exit 1; fi
+            sleep 5
+          done
+
+      - name: Wait – inventory-service
+        run: |
+          echo "Waiting for inventory-service..."
+          for i in $(seq 1 48); do
+            if curl -sf http://localhost:8092/actuator/health > /dev/null 2>&1; then
+              echo "inventory-service healthy after $((i*5))s"
+              break
+            fi
+            if [ $i -eq 48 ]; then echo "inventory-service timed out"; exit 1; fi
+            sleep 5
+          done
+
+      - name: Wait – cart-service
+        run: |
+          echo "Waiting for cart-service..."
+          for i in $(seq 1 48); do
+            if curl -sf http://localhost:8085/actuator/health > /dev/null 2>&1; then
+              echo "cart-service healthy after $((i*5))s"
+              break
+            fi
+            if [ $i -eq 48 ]; then echo "cart-service timed out"; exit 1; fi
+            sleep 5
+          done
+
       - name: Wait – api-gateway
         run: |
           echo "Waiting for api-gateway..."
@@ -208,6 +278,12 @@ jobs:
           curl -s http://localhost:8080/actuator/health | python3 -m json.tool || true
           echo "=== discovery-service /actuator/health ==="
           curl -s http://localhost:8761/actuator/health | python3 -m json.tool || true
+          echo "=== catalog-service /actuator/health ==="
+          curl -s http://localhost:8083/actuator/health | python3 -m json.tool || true
+          echo "=== inventory-service /actuator/health ==="
+          curl -s http://localhost:8092/actuator/health | python3 -m json.tool || true
+          echo "=== cart-service /actuator/health ==="
+          curl -s http://localhost:8085/actuator/health | python3 -m json.tool || true
 
       # ──────────────────────────────────────────────────────────────
       # 8. Run tests
@@ -223,6 +299,9 @@ jobs:
 
       - name: Test – Rate Limiting
         run: bash tests/test-rate-limiting.sh
+
+      - name: Test – Cart Service (Production Ready)
+        run: bash tests/test-cart-production.sh
 
       # ──────────────────────────────────────────────────────────────
       # 9. Always: collect logs on failure

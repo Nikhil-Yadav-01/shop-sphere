@@ -177,6 +177,120 @@ services:
           cpus: '0.30'
           memory: 384M
 
+  # ── Catalog Service ─────────────────────────────────────────────────────────
+  catalog-db:
+    image: mongo:7.0
+    container_name: catalog-db
+    ports: []
+    networks:
+      - shopsphere-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: 256M
+
+  catalog-service:
+    ports: []
+    environment:
+      MONGO_URI: mongodb://catalog-db:27017/shopsphere_catalog
+      EUREKA_HOST: discovery-service
+      EUREKA_PORT: 8761
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      MANAGEMENT_HEALTH_KAFKA_ENABLED: "false"
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "always"
+    depends_on:
+      catalog-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    networks:
+      - shopsphere-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.40'
+          memory: 512M
+
+  # ── Inventory Service ───────────────────────────────────────────────────────
+  inventory-db:
+    image: postgres:15-alpine
+    container_name: inventory-db
+    environment:
+      POSTGRES_DB: shopsphere_inventory
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports: []
+    networks:
+      - shopsphere-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: 256M
+
+  inventory-service:
+    ports: []
+    environment:
+      DB_HOST: inventory-db
+      DB_PORT: 5432
+      DB_NAME: shopsphere_inventory
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      EUREKA_URI: http://discovery-service:8761/eureka
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      MANAGEMENT_HEALTH_KAFKA_ENABLED: "false"
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "always"
+    depends_on:
+      inventory-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - shopsphere-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.40'
+          memory: 512M
+
+  # ── Cart Service ────────────────────────────────────────────────────────────
+  cart-service:
+    ports: []
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      EUREKA_URI: http://discovery-service:8761/eureka
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "always"
+    depends_on:
+      redis:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      catalog-service:
+        condition: service_healthy
+      inventory-service:
+        condition: service_healthy
+    networks:
+      - shopsphere-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.40'
+          memory: 512M
+
   # ─────────────────────────────────────────────────────────────────────────────
   # Port-conflict fixes (safe to include even when not starting these services).
   # ─────────────────────────────────────────────────────────────────────────────

@@ -1,18 +1,24 @@
 package com.rudraksha.shopsphere.cart.service.impl;
 
+import com.rudraksha.shopsphere.cart.client.CatalogClient;
+import com.rudraksha.shopsphere.cart.client.InventoryClient;
 import com.rudraksha.shopsphere.cart.dto.request.AddToCartRequest;
 import com.rudraksha.shopsphere.cart.dto.request.UpdateCartItemRequest;
 import com.rudraksha.shopsphere.cart.dto.response.CartItemResponse;
 import com.rudraksha.shopsphere.cart.dto.response.CartResponse;
+import com.rudraksha.shopsphere.cart.dto.response.ProductResponse;
 import com.rudraksha.shopsphere.cart.entity.Cart;
 import com.rudraksha.shopsphere.cart.entity.CartItem;
+import com.rudraksha.shopsphere.cart.exception.InsufficientStockException;
 import com.rudraksha.shopsphere.cart.repository.CartRepository;
 import com.rudraksha.shopsphere.cart.service.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -24,6 +30,9 @@ import java.util.UUID;
 public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
+    private final CatalogClient catalogClient;
+    private final InventoryClient inventoryClient;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public CartResponse getCart(String userId) {
@@ -33,6 +42,17 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse addToCart(String userId, AddToCartRequest request) {
+        // 3.1 & 3.4: Fetch real product data with fallback
+        ProductResponse product = catalogClient.getProductById(request.getProductId());
+        
+        // 3.2: Stock validation
+        if (product.getSku() != null) {
+            Boolean available = inventoryClient.checkAvailability(product.getSku(), request.getQuantity());
+            if (Boolean.FALSE.equals(available)) {
+                throw new InsufficientStockException("Insufficient stock for product: " + product.getName());
+            }
+        }
+
         Cart cart = getOrCreateCart(userId);
 
         Optional<CartItem> existingItem = cart.getItems().stream()
@@ -45,16 +65,16 @@ public class CartServiceImpl implements CartService {
         } else {
             CartItem newItem = CartItem.builder()
                     .productId(request.getProductId())
-                    .productName("Product " + request.getProductId())
+                    .productName(product.getName())
                     .quantity(request.getQuantity())
-                    .price(BigDecimal.valueOf(99.99))
-                    .imageUrl("")
+                    .price(product.getPrice())
+                    .imageUrl(product.getImageUrl() != null ? product.getImageUrl() : "")
                     .build();
             cart.getItems().add(newItem);
         }
 
         cart.setUpdatedAt(LocalDateTime.now());
-        cartRepository.save(cart);
+        saveCart(cart);
 
         log.info("Added product {} to cart for user {}", request.getProductId(), userId);
         return mapToResponse(cart);
@@ -69,9 +89,20 @@ public class CartServiceImpl implements CartService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Product not found in cart"));
 
+        // 3.2: Optional stock check on increase
+        if (request.getQuantity() > item.getQuantity()) {
+            ProductResponse product = catalogClient.getProductById(productId);
+            if (product.getSku() != null) {
+                Boolean available = inventoryClient.checkAvailability(product.getSku(), request.getQuantity());
+                if (Boolean.FALSE.equals(available)) {
+                    throw new InsufficientStockException("Insufficient stock for product: " + product.getName());
+                }
+            }
+        }
+
         item.setQuantity(request.getQuantity());
         cart.setUpdatedAt(LocalDateTime.now());
-        cartRepository.save(cart);
+        saveCart(cart);
 
         log.info("Updated cart item {} for user {}", productId, userId);
         return mapToResponse(cart);
@@ -87,7 +118,7 @@ public class CartServiceImpl implements CartService {
         }
 
         cart.setUpdatedAt(LocalDateTime.now());
-        cartRepository.save(cart);
+        saveCart(cart);
 
         log.info("Removed product {} from cart for user {}", productId, userId);
         return mapToResponse(cart);
@@ -101,6 +132,12 @@ public class CartServiceImpl implements CartService {
         });
     }
 
+    private void saveCart(Cart cart) {
+        cartRepository.save(cart);
+        // 3.3: Explicit TTL enforcement
+        redisTemplate.expire("cart:" + cart.getUserId(), Duration.ofDays(7));
+    }
+
     private Cart getOrCreateCart(String userId) {
         return cartRepository.findById(userId)
                 .orElseGet(() -> {
@@ -112,7 +149,8 @@ public class CartServiceImpl implements CartService {
                             .updatedAt(LocalDateTime.now())
                             .expiresAt(LocalDateTime.now().plusDays(7))
                             .build();
-                    return cartRepository.save(newCart);
+                    saveCart(newCart);
+                    return newCart;
                 });
     }
 

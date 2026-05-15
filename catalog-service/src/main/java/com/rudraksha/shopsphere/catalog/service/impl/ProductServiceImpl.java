@@ -32,6 +32,7 @@ public class ProductServiceImpl implements ProductService {
                 .sku(request.getSku())
                 .name(request.getName())
                 .description(request.getDescription())
+                .price(request.getPrice())
                 .categoryId(request.getCategoryId())
                 .images(request.getImages())
                 .status(ProductStatus.ACTIVE)
@@ -64,6 +65,7 @@ public class ProductServiceImpl implements ProductService {
 
         if (request.getName() != null) product.setName(request.getName());
         if (request.getDescription() != null) product.setDescription(request.getDescription());
+        if (request.getPrice() != null) product.setPrice(request.getPrice());
         if (request.getCategoryId() != null) product.setCategoryId(request.getCategoryId());
         if (request.getImages() != null) product.setImages(request.getImages());
         if (request.getStatus() != null) product.setStatus(request.getStatus());
@@ -109,6 +111,7 @@ public class ProductServiceImpl implements ProductService {
                 .sku(product.getSku())
                 .name(product.getName())
                 .description(product.getDescription())
+                .price(product.getPrice())
                 .categoryId(product.getCategoryId())
                 .images(product.getImages())
                 .status(product.getStatus())
