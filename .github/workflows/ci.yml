@@ -310,6 +310,14 @@ jobs:
         if: success() || failure()
         run: bash tests/test-catalog.sh
 
+      - name: Test – Inventory Service
+        if: success() || failure()
+        run: bash tests/test-inventory.sh
+
+      - name: Test – Notification Service
+        if: success() || failure()
+        run: bash tests/test-notification.sh
+
       # ──────────────────────────────────────────────────────────────
       # 9. Always: collect logs on failure
       # ──────────────────────────────────────────────────────────────
