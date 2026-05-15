@@ -312,10 +312,12 @@ jobs:
       - name: Dump container logs on failure
         if: failure()
         run: |
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml ps -a
-          for svc in $(docker compose -f docker-compose.yml -f docker-compose.ci.yml ps --services); do
+          mkdir -p /tmp/container-logs
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml ps -a > /tmp/container-logs/ps-a.txt
+          for svc in $(docker compose -f docker-compose.yml -f docker-compose.ci.yml ps --services --all); do
             echo "==== $svc logs ===="
-            docker logs $svc --tail=200 2>&1 || true
+            docker logs $svc --tail=500 > /tmp/container-logs/${svc}.log 2>&1 || true
+            cat /tmp/container-logs/${svc}.log
           done
 
       - name: Upload logs as artifact
