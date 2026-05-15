@@ -24,9 +24,9 @@ curl -s -X POST -H "Content-Type: application/json" \
 ACTUAL_PRODUCT_ID=$(cat product_response.json | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
 echo "Created Product ID: $ACTUAL_PRODUCT_ID"
 
-# Wait for Eureka discovery propagation
+# Wait for Eureka discovery propagation (increased for reliability)
 echo "Waiting for service discovery..."
-sleep 10
+sleep 30
 
 # 2. Seed Inventory Service
 echo "Seeding Inventory Service..."
@@ -41,7 +41,7 @@ curl -s -X POST -H "Content-Type: application/json" \
 
 # 3. Test Add to Cart (Should work now with real data)
 echo "3. Add Item to Cart (Real Data):"
-ADD1=$(curl -s -X POST -H "X-User-Id: $USER_ID" -H "Content-Type: application/json" \
+ADD1=$(curl -s -X POST -H "x-user-id: $USER_ID" -H "Content-Type: application/json" \
     -d "{\"productId\":\"$ACTUAL_PRODUCT_ID\",\"quantity\":2}" \
     http://$IP:8085/api/v1/cart/items)
 
@@ -52,7 +52,7 @@ echo "SUCCESS: Real product data used."
 
 # 4. Test Stock Validation (Insufficient stock)
 echo "4. Test Stock Validation (Insufficient):"
-ADD2=$(curl -s -X POST -H "X-User-Id: $USER_ID" -H "Content-Type: application/json" \
+ADD2=$(curl -s -X POST -H "x-user-id: $USER_ID" -H "Content-Type: application/json" \
     -d "{\"productId\":\"$ACTUAL_PRODUCT_ID\",\"quantity\":20}" \
     http://$IP:8085/api/v1/cart/items)
 
@@ -75,7 +75,7 @@ fi
 
 # 6. Test Feign Fallback (Non-existent product)
 echo "6. Test Feign Fallback (Non-existent product):"
-ADD_FAIL=$(curl -s -X POST -H "X-User-Id: $USER_ID" -H "Content-Type: application/json" \
+ADD_FAIL=$(curl -s -X POST -H "x-user-id: $USER_ID" -H "Content-Type: application/json" \
     -d '{"productId":"non-existent","quantity":1}' \
     http://$IP:8085/api/v1/cart/items)
 
