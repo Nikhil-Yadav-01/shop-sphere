@@ -1,80 +1,81 @@
 #!/bin/bash
 set -e
-IP="51.20.188.129"
+
+# Use localhost for CI
+IP="localhost"
 USER_ID="cart-test-$(date +%s)"
 
-echo "=== Testing Cart Service Comprehensively ==="
+echo "=== Testing Production-Ready Cart Service ==="
 echo ""
 
-echo "1. Health Check:"
-curl -s http://$IP:8085/actuator/health | grep -o '"status":"[^"]*"'
-echo ""
+# 1. Seed Catalog Service
+echo "Seeding Catalog Service..."
+PRODUCT_SKU="SKU-CART-CI-$(date +%s)"
+curl -s -X POST -H "Content-Type: application/json" \
+    -d "{
+        \"sku\": \"$PRODUCT_SKU\",
+        \"name\": \"CI Test Product\",
+        \"description\": \"A product for CI testing\",
+        \"price\": 49.99,
+        \"categoryId\": \"cat-ci\",
+        \"images\": [\"http://example.com/image.jpg\"]
+    }" http://$IP:8083/api/v1/products > product_response.json
 
-echo "2. Get Empty Cart:"
-CART=$(curl -s -H "X-User-Id: $USER_ID" http://$IP:8085/api/v1/cart)
-echo $CART | grep -o '"totalItems":[0-9]*'
-echo ""
+ACTUAL_PRODUCT_ID=$(cat product_response.json | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
+echo "Created Product ID: $ACTUAL_PRODUCT_ID"
 
-echo "3. Add First Item to Cart:"
-ADD1=$(curl -s -X POST -H "X-User-Id: $USER_ID" -H "Content-Type: application/json" -d '{"productId":"prod-001","quantity":2}' http://$IP:8085/api/v1/cart/items)
-echo $ADD1 | grep -o '"totalItems":[0-9]*'
-echo ""
+# 2. Seed Inventory Service
+echo "Seeding Inventory Service..."
+curl -s -X POST -H "Content-Type: application/json" \
+    -d "{
+        \"sku\": \"$PRODUCT_SKU\",
+        \"productId\": 1,
+        \"quantity\": 10,
+        \"location\": \"Warehouse CI\"
+    }" http://$IP:8092/api/inventory
 
-echo "4. Add Second Item to Cart:"
-ADD2=$(curl -s -X POST -H "X-User-Id: $USER_ID" -H "Content-Type: application/json" -d '{"productId":"prod-002","quantity":3}' http://$IP:8085/api/v1/cart/items)
-echo $ADD2 | grep -o '"totalItems":[0-9]*'
-echo ""
+# 3. Test Add to Cart (Should work now with real data)
+echo "3. Add Item to Cart (Real Data):"
+ADD1=$(curl -s -X POST -H "X-User-Id: $USER_ID" -H "Content-Type: application/json" \
+    -d "{\"productId\":\"$ACTUAL_PRODUCT_ID\",\"quantity\":2}" \
+    http://$IP:8085/api/v1/cart/items)
 
-echo "5. Add Same Item (Should Increase Quantity):"
-ADD3=$(curl -s -X POST -H "X-User-Id: $USER_ID" -H "Content-Type: application/json" -d '{"productId":"prod-001","quantity":1}' http://$IP:8085/api/v1/cart/items)
-echo $ADD3 | grep -o '"totalItems":[0-9]*'
-echo ""
+echo "Response: $ADD1"
+echo $ADD1 | grep -q "\"productName\":\"CI Test Product\"" || (echo "FAILED: ProductName mismatch"; exit 1)
+echo $ADD1 | grep -q "\"price\":49.99" || (echo "FAILED: Price mismatch"; exit 1)
+echo "SUCCESS: Real product data used."
 
-echo "6. Get Cart with Items:"
-CART2=$(curl -s -H "X-User-Id: $USER_ID" http://$IP:8085/api/v1/cart)
-echo $CART2 | grep -o '"totalItems":[0-9]*'
-ITEM_COUNT=$(echo $CART2 | grep -o '"items":\[' | wc -l)
-echo "Items in cart: $ITEM_COUNT"
-echo ""
+# 4. Test Stock Validation (Insufficient stock)
+echo "4. Test Stock Validation (Insufficient):"
+ADD2=$(curl -s -X POST -H "X-User-Id: $USER_ID" -H "Content-Type: application/json" \
+    -d "{\"productId\":\"$ACTUAL_PRODUCT_ID\",\"quantity\":20}" \
+    http://$IP:8085/api/v1/cart/items)
 
-echo "7. Update Item Quantity:"
-UPDATE=$(curl -s -X PUT -H "X-User-Id: $USER_ID" -H "Content-Type: application/json" -d '{"quantity":5}' http://$IP:8085/api/v1/cart/items/prod-001)
-echo $UPDATE | grep -o '"totalItems":[0-9]*'
-echo ""
+echo "Response: $ADD2"
+echo $ADD2 | grep -q "Insufficient stock" || (echo "FAILED: Stock validation did not trigger"; exit 1)
+echo "SUCCESS: Stock validation working."
 
-echo "8. Remove Item from Cart:"
-REMOVE=$(curl -s -X DELETE -H "X-User-Id: $USER_ID" http://$IP:8085/api/v1/cart/items/prod-002)
-echo $REMOVE | grep -o '"totalItems":[0-9]*'
-echo ""
+# 5. Test Redis TTL
+echo "5. Verify Redis TTL:"
+if command -v docker &> /dev/null; then
+    TTL=$(docker exec redis redis-cli ttl "cart:$USER_ID")
+    echo "TTL for cart:$USER_ID: $TTL seconds"
+    if [ "$TTL" -gt 0 ]; then
+        echo "SUCCESS: Redis TTL is set."
+    else
+        echo "FAILED: Redis TTL is not set."
+        exit 1
+    fi
+fi
 
-echo "9. Verify Item Removed:"
-CART3=$(curl -s -H "X-User-Id: $USER_ID" http://$IP:8085/api/v1/cart)
-echo $CART3 | grep -o '"totalItems":[0-9]*'
-echo ""
+# 6. Test Feign Fallback (Non-existent product)
+echo "6. Test Feign Fallback (Non-existent product):"
+ADD_FAIL=$(curl -s -X POST -H "X-User-Id: $USER_ID" -H "Content-Type: application/json" \
+    -d '{"productId":"non-existent","quantity":1}' \
+    http://$IP:8085/api/v1/cart/items)
 
-echo "10. Clear Cart:"
-curl -s -X DELETE -H "X-User-Id: $USER_ID" http://$IP:8085/api/v1/cart -w "\nStatus: %{http_code}\n"
-echo ""
-
-echo "11. Verify Cart Cleared:"
-CART4=$(curl -s -H "X-User-Id: $USER_ID" http://$IP:8085/api/v1/cart)
-echo $CART4 | grep -o '"totalItems":[0-9]*'
-echo ""
-
-echo "12. Via API Gateway - Get Cart:"
-curl -s -H "X-User-Id: gateway-user" http://$IP:8080/cart/api/v1/cart | grep -o '"userId":"[^"]*"'
-echo ""
-
-echo "13. Via API Gateway - Add Item:"
-curl -s -X POST -H "X-User-Id: gateway-user" -H "Content-Type: application/json" -d '{"productId":"gw-prod","quantity":1}' http://$IP:8080/cart/api/v1/cart/items | grep -o '"totalItems":[0-9]*'
-echo ""
-
-echo "14. Redis Connection Check:"
-docker exec redis redis-cli ping
-echo ""
-
-echo "15. Check Cart Keys in Redis:"
-docker exec redis redis-cli --scan --pattern "cart:*" | wc -l
-echo ""
+echo "Response: $ADD_FAIL"
+echo $ADD_FAIL | grep -q "Product temporarily unavailable" || (echo "FAILED: Fallback not triggered"; exit 1)
+echo "SUCCESS: Feign fallback working."
 
 echo "=== Cart Service Tests Complete ==="

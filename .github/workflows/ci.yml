@@ -301,10 +301,10 @@ jobs:
         run: bash tests/test-rate-limiting.sh
 
       - name: Test – Cart Service (Production Ready)
-        run: bash tests/test-cart-production.sh
+        run: bash tests/test-cart.sh
 
       - name: Test – Catalog Service (Production Ready)
-        run: bash tests/test-catalog-production.sh
+        run: bash tests/test-catalog.sh
 
       # ──────────────────────────────────────────────────────────────
       # 9. Always: collect logs on failure
