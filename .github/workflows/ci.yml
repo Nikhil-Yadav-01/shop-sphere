@@ -133,12 +133,12 @@ jobs:
       - name: Wait – catalog-db (mongodb)
         run: |
           echo "Waiting for catalog-db..."
-          for i in $(seq 1 30); do
-            if docker exec catalog-db mongosh --eval "db.adminCommand('ping')" -q > /dev/null 2>&1; then
+          for i in $(seq 1 60); do
+            if docker exec catalog-db mongosh --quiet --eval "db.adminCommand('ping')" > /dev/null 2>&1; then
               echo "catalog-db is ready after $((i*5))s"
               break
             fi
-            if [ $i -eq 30 ]; then echo "catalog-db timed out"; exit 1; fi
+            if [ $i -eq 60 ]; then echo "catalog-db timed out"; exit 1; fi
             sleep 5
           done
 
