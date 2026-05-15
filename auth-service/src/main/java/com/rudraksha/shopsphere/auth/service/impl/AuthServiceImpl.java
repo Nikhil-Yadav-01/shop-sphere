@@ -80,7 +80,7 @@ public class AuthServiceImpl implements AuthService {
         log.debug("Login attempt for email: {}", request.getEmail());
         
         if (!rateLimitingService.isLoginAllowed(request.getEmail())) {
-            throw new AuthException("Too many login attempts. Please try again later.");
+            throw new AuthException("Too many login attempts. Account is temporarily locked.");
         }
         
         loginAttemptService.checkLockout(request.getEmail());
