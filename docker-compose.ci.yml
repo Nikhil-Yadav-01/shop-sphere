@@ -205,6 +205,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       MANAGEMENT_HEALTH_KAFKA_ENABLED: "false"
+      MANAGEMENT_HEALTH_REDIS_ENABLED: "false"
       MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "always"
     depends_on:
       catalog-db:
@@ -213,6 +214,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      kafka:
+        condition: service_started
     networks:
       - shopsphere-network
     deploy:
