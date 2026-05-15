@@ -21,13 +21,6 @@ spring:
             exposed-headers: X-User-Id,X-User-Roles
             allow-credentials: true
             max-age: 3600
-      default-filters:
-        - name: RequestRateLimiter
-          args:
-            rate-limiter: "#{@defaultRateLimiter}"
-            key-resolver: "#{@principalNameKeyResolver}"
-            status-code: TOO_MANY_REQUESTS
-            set-status-when-rate-limited: true
       httpclient:
         connect-timeout: 5000
         response-timeout: 10s

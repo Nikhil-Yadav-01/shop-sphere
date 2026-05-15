@@ -221,6 +221,9 @@ jobs:
       - name: Test – API gateway routes
         run: bash tests/test-gateway-routes.sh
 
+      - name: Test – Rate Limiting
+        run: bash tests/test-rate-limiting.sh
+
       # ──────────────────────────────────────────────────────────────
       # 9. Always: collect logs on failure
       # ──────────────────────────────────────────────────────────────

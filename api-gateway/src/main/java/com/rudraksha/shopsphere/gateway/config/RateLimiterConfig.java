@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Profile;
 import reactor.core.publisher.Mono;
 
 import java.net.InetSocketAddress;
+import java.util.Optional;
 
 @Configuration
 @Profile("!local")
@@ -29,11 +30,41 @@ public class RateLimiterConfig {
     }
 
     @Bean
-    public KeyResolver principalNameKeyResolver() {
+    public RedisRateLimiter catalogRateLimiter() {
+        // Search and browse need higher limits
+        return new RedisRateLimiter(200, 400, 1);
+    }
+
+    @Bean
+    public RedisRateLimiter authRateLimiter() {
+        // Login and token endpoints should be tighter to prevent brute force
+        return new RedisRateLimiter(10, 20, 1);
+    }
+
+    @Bean
+    public KeyResolver ipKeyResolver() {
         return exchange -> {
             InetSocketAddress addr = exchange.getRequest().getRemoteAddress();
-            String key = addr != null ? addr.getAddress().getHostAddress() : "unknown";
+            String key = addr != null && addr.getAddress() != null ? 
+                addr.getAddress().getHostAddress() : "unknown";
             return Mono.just(key);
         };
+    }
+
+    @Bean
+    public KeyResolver userKeyResolver() {
+        return exchange -> Mono.justOrEmpty(
+                exchange.getRequest().getHeaders().getFirst("X-User-Id"))
+                .switchIfEmpty(Mono.defer(() -> {
+                    String host = Optional.ofNullable(exchange.getRequest().getRemoteAddress())
+                            .map(addr -> addr.getAddress() != null ? addr.getAddress().getHostAddress() : addr.getHostString())
+                            .orElse("anonymous");
+                    return Mono.just(host);
+                }));
+    }
+
+    @Bean
+    public KeyResolver principalNameKeyResolver() {
+        return ipKeyResolver();
     }
 }
