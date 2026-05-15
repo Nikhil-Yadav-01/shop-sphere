@@ -379,8 +379,7 @@ services:
     container_name: catalog-service
     environment:
       MONGO_URI: mongodb://catalog-db:27017/shopsphere_catalog
-      EUREKA_HOST: discovery-service
-      EUREKA_PORT: 8761
+      EUREKA_URI: http://discovery-service:8761/eureka
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       REDIS_HOST: redis
       REDIS_PORT: 6379

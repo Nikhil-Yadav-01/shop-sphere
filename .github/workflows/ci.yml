@@ -312,9 +312,10 @@ jobs:
       - name: Dump container logs on failure
         if: failure()
         run: |
-          for svc in discovery-service auth-db redis kafka mailhog auth-service api-gateway nginx-proxy; do
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml ps -a
+          for svc in $(docker compose -f docker-compose.yml -f docker-compose.ci.yml ps --services); do
             echo "==== $svc logs ===="
-            docker logs $svc --tail=100 2>&1 || true
+            docker logs $svc --tail=200 2>&1 || true
           done
 
       - name: Upload logs as artifact

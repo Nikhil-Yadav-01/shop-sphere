@@ -199,8 +199,7 @@ services:
     ports: []
     environment:
       MONGO_URI: mongodb://catalog-db:27017/shopsphere_catalog
-      EUREKA_HOST: discovery-service
-      EUREKA_PORT: 8761
+      EUREKA_URI: http://discovery-service:8761/eureka
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       REDIS_HOST: redis
       REDIS_PORT: 6379
@@ -221,8 +220,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.40'
-          memory: 512M
+          cpus: '0.50'
+          memory: 768M
 
   # ── Inventory Service ───────────────────────────────────────────────────────
   inventory-db:
@@ -256,7 +255,10 @@ services:
       DB_PASSWORD: password
       EUREKA_URI: http://discovery-service:8761/eureka
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       MANAGEMENT_HEALTH_KAFKA_ENABLED: "false"
+      MANAGEMENT_HEALTH_REDIS_ENABLED: "false"
       MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "always"
     depends_on:
       inventory-db:
@@ -265,13 +267,15 @@ services:
         condition: service_healthy
       kafka:
         condition: service_started
+      redis:
+        condition: service_healthy
     networks:
       - shopsphere-network
     deploy:
       resources:
         limits:
-          cpus: '0.40'
-          memory: 512M
+          cpus: '0.50'
+          memory: 768M
 
   # ── Cart Service ────────────────────────────────────────────────────────────
   cart-service:
