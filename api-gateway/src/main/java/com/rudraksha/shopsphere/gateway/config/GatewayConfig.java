@@ -1,6 +1,7 @@
 package com.rudraksha.shopsphere.gateway.config;
 
 import com.rudraksha.shopsphere.gateway.filter.AuthenticationFilter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -24,11 +25,11 @@ public class GatewayConfig {
 
     public GatewayConfig(
             AuthenticationFilter authenticationFilter,
-            KeyResolver userKeyResolver,
-            KeyResolver ipKeyResolver,
-            RedisRateLimiter defaultRateLimiter,
-            RedisRateLimiter catalogRateLimiter,
-            RedisRateLimiter authRateLimiter) {
+            @Qualifier("userKeyResolver") KeyResolver userKeyResolver,
+            @Qualifier("ipKeyResolver") KeyResolver ipKeyResolver,
+            @Qualifier("defaultRateLimiter") RedisRateLimiter defaultRateLimiter,
+            @Qualifier("catalogRateLimiter") RedisRateLimiter catalogRateLimiter,
+            @Qualifier("authRateLimiter") RedisRateLimiter authRateLimiter) {
         this.authenticationFilter = authenticationFilter;
         this.userKeyResolver = userKeyResolver;
         this.ipKeyResolver = ipKeyResolver;

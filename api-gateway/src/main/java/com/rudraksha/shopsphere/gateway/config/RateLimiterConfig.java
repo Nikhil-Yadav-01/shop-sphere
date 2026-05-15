@@ -3,8 +3,10 @@ package com.rudraksha.shopsphere.gateway.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import reactor.core.publisher.Mono;
 
@@ -25,23 +27,28 @@ public class RateLimiterConfig {
     private int requestedTokens;
 
     @Bean
+    @Primary
+    @Qualifier("defaultRateLimiter")
     public RedisRateLimiter defaultRateLimiter() {
         return new RedisRateLimiter(replenishRate, burstCapacity, requestedTokens);
     }
 
     @Bean
+    @Qualifier("catalogRateLimiter")
     public RedisRateLimiter catalogRateLimiter() {
         // Search and browse need higher limits
         return new RedisRateLimiter(200, 400, 1);
     }
 
     @Bean
+    @Qualifier("authRateLimiter")
     public RedisRateLimiter authRateLimiter() {
         // Login and token endpoints should be tighter to prevent brute force
         return new RedisRateLimiter(10, 20, 1);
     }
 
     @Bean
+    @Qualifier("ipKeyResolver")
     public KeyResolver ipKeyResolver() {
         return exchange -> {
             InetSocketAddress addr = exchange.getRequest().getRemoteAddress();
@@ -52,6 +59,7 @@ public class RateLimiterConfig {
     }
 
     @Bean
+    @Qualifier("userKeyResolver")
     public KeyResolver userKeyResolver() {
         return exchange -> Mono.justOrEmpty(
                 exchange.getRequest().getHeaders().getFirst("X-User-Id"))
@@ -64,6 +72,8 @@ public class RateLimiterConfig {
     }
 
     @Bean
+    @Primary
+    @Qualifier("principalNameKeyResolver")
     public KeyResolver principalNameKeyResolver() {
         return ipKeyResolver();
     }
