@@ -303,6 +303,9 @@ jobs:
       - name: Test – Cart Service (Production Ready)
         run: bash tests/test-cart-production.sh
 
+      - name: Test – Catalog Service (Production Ready)
+        run: bash tests/test-catalog-production.sh
+
       # ──────────────────────────────────────────────────────────────
       # 9. Always: collect logs on failure
       # ──────────────────────────────────────────────────────────────

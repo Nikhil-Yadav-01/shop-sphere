@@ -15,6 +15,9 @@ public class CategoryResponse {
     private String id;
     private String name;
     private String description;
+    private String parentId;
+    private int level;
+    private String path;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

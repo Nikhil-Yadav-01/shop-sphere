@@ -10,8 +10,11 @@ import com.rudraksha.shopsphere.catalog.repository.ProductRepository;
 import com.rudraksha.shopsphere.catalog.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -23,6 +26,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductEventProducer productEventProducer;
 
     @Override
+    @CacheEvict(value = "products", allEntries = true)
     public ProductResponse createProduct(CreateProductRequest request) {
         if (productRepository.existsBySku(request.getSku())) {
             throw new IllegalArgumentException("Product with SKU " + request.getSku() + " already exists");
@@ -45,6 +49,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "products", key = "#id")
     public ProductResponse getProductById(String id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + id));
@@ -59,6 +64,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CacheEvict(value = "products", allEntries = true)
     public ProductResponse updateProduct(String id, UpdateProductRequest request) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + id));
@@ -77,6 +83,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CacheEvict(value = "products", allEntries = true)
     public void deleteProduct(String id) {
         if (!productRepository.existsById(id)) {
             throw new IllegalArgumentException("Product not found with ID: " + id);
@@ -102,7 +109,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductResponse> searchProducts(String keyword, Pageable pageable) {
-        return productRepository.searchByName(keyword, pageable).map(this::mapToResponse);
+        TextCriteria criteria = TextCriteria.forDefaultLanguage().matchingAny(keyword);
+        return productRepository.findAllBy(criteria, pageable).map(this::mapToResponse);
     }
 
     private ProductResponse mapToResponse(Product product) {
