@@ -291,6 +291,9 @@ jobs:
       - name: Make test scripts executable
         run: chmod +x tests/*.sh
 
+      - name: Seed initial data (Products & Inventory)
+        run: bash tests/seed-data.sh
+
       - name: Test – auth service (full flow with email verification)
         run: bash tests/test-auth-complete.sh
 
