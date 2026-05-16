@@ -26,13 +26,18 @@ public class InventoryResponse {
     private LocalDateTime updatedAt;
 
     public static InventoryResponse fromEntity(InventoryItem item) {
+        Integer available = item.getAvailableQuantity();
+        if (available == null && item.getQuantity() != null) {
+            available = item.getQuantity() - (item.getReservedQuantity() != null ? item.getReservedQuantity() : 0);
+        }
+        
         return InventoryResponse.builder()
             .id(item.getId())
             .sku(item.getSku())
             .productId(item.getProductId())
             .quantity(item.getQuantity())
             .reservedQuantity(item.getReservedQuantity())
-            .availableQuantity(item.getAvailableQuantity())
+            .availableQuantity(available)
             .reorderLevel(item.getReorderLevel())
             .status(item.getStatus().name())
             .warehouseLocation(item.getWarehouseLocation())

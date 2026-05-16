@@ -51,7 +51,7 @@ public class InventoryController {
         return ResponseEntity.ok(inventoryService.reserveInventory(request));
     }
 
-    @PostMapping("/adjust/{id}")
+    @PutMapping("/{id}/adjust")
     public ResponseEntity<InventoryResponse> adjustInventory(
             @PathVariable Long id,
             @Valid @RequestBody AdjustInventoryRequest request) {
@@ -68,12 +68,12 @@ public class InventoryController {
         return ResponseEntity.ok(inventoryService.getOutOfStockItems());
     }
 
-    @GetMapping("/history/{id}")
+    @GetMapping("/{id}/movements")
     public ResponseEntity<List<StockMovementResponse>> getMovementHistory(@PathVariable Long id) {
         return ResponseEntity.ok(inventoryService.getStockMovementHistory(id));
     }
 
-    @GetMapping("/availability")
+    @GetMapping("/check-availability")
     public ResponseEntity<Boolean> checkAvailability(
             @RequestParam String sku,
             @RequestParam Integer quantity) {
