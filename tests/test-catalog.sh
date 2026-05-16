@@ -39,7 +39,7 @@ curl -s -X POST -H "Content-Type: application/json" \
         \"description\": \"The best gadget in the universe\",
         \"price\": 99.99,
         \"categoryId\": \"$CHILD_ID\",
-        \"images\": [\"http://example.com/image.jpg\"]
+        \"images\": [\"https://picsum.photos/seed/catalog-test/400/300\"]
     }" http://$IP:8083/api/v1/products > /dev/null
 
 # Wait for index
@@ -75,7 +75,7 @@ PRODUCT_WITH_IMAGES=$(curl -s "http://$IP:8083/api/v1/products/sku/$PRODUCT_SKU"
 PRIMARY_IMAGE=$(echo $PRODUCT_WITH_IMAGES | jq -r '.images[0]')
 echo "First image (Primary): $PRIMARY_IMAGE"
 
-if [[ "$PRIMARY_IMAGE" == "http://example.com/image.jpg" ]]; then
+if [[ "$PRIMARY_IMAGE" == "https://picsum.photos/seed/catalog-test/400/300" ]]; then
     echo "SUCCESS: First image correctly identified as primary."
 else
     echo "FAILED: Primary image mismatch."

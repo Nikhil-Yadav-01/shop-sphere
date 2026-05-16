@@ -18,7 +18,7 @@ curl -s -X POST -H "Content-Type: application/json" \
         \"description\": \"A product for CI testing\",
         \"price\": 49.99,
         \"categoryId\": \"cat-ci\",
-        \"images\": [\"http://example.com/image.jpg\"]
+        \"images\": [\"https://picsum.photos/seed/cart-test/400/300\"]
     }" http://$IP:8083/api/v1/products > product_response.json
 
 ACTUAL_PRODUCT_ID=$(cat product_response.json | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
