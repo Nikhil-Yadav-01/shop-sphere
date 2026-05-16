@@ -8,18 +8,22 @@ import com.rudraksha.shopsphere.payment.exception.PaymentException;
 import com.rudraksha.shopsphere.payment.repository.PaymentRepository;
 import com.rudraksha.shopsphere.payment.service.PaymentService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 @Transactional
+@Slf4j
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
@@ -31,7 +35,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment payment = Payment.builder()
                 .transactionId(transactionId)
-                .orderId(request.getOrderId())
+                .orderNumber(request.getOrderNumber())
                 .customerId(request.getCustomerId())
                 .status(Payment.PaymentStatus.PROCESSING)
                 .method(request.getMethod())
@@ -46,11 +50,11 @@ public class PaymentServiceImpl implements PaymentService {
         if (simulatePaymentGateway(request)) {
             savedPayment.setStatus(Payment.PaymentStatus.SUCCESS);
             savedPayment.setProcessedAt(LocalDateTime.now());
-            publishPaymentEvent("PAYMENT_SUCCESS", transactionId, savedPayment.getOrderId());
+            publishPaymentEvent("PAYMENT_SUCCESS", transactionId, savedPayment.getOrderNumber());
         } else {
             savedPayment.setStatus(Payment.PaymentStatus.FAILED);
             savedPayment.setFailureReason("Payment gateway declined");
-            publishPaymentEvent("PAYMENT_FAILED", transactionId, savedPayment.getOrderId());
+            publishPaymentEvent("PAYMENT_FAILED", transactionId, savedPayment.getOrderNumber());
         }
 
         Payment updatedPayment = paymentRepository.save(savedPayment);
@@ -75,8 +79,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PaymentResponse> getPaymentsByOrderId(Long orderId) {
-        return paymentRepository.findByOrderId(orderId)
+    public List<PaymentResponse> getPaymentsByOrderNumber(String orderNumber) {
+        return paymentRepository.findByOrderNumber(orderNumber)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -84,7 +88,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PaymentResponse> getPaymentsByCustomerId(Long customerId) {
+    public List<PaymentResponse> getPaymentsByCustomerId(String customerId) {
         return paymentRepository.findByCustomerId(customerId)
                 .stream()
                 .map(this::mapToResponse)
@@ -112,7 +116,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatus(Payment.PaymentStatus.REFUNDED);
         Payment refundedPayment = paymentRepository.save(payment);
         
-        publishPaymentEvent("PAYMENT_REFUNDED", payment.getTransactionId(), payment.getOrderId());
+        publishPaymentEvent("PAYMENT_REFUNDED", payment.getTransactionId(), payment.getOrderNumber());
         
         return mapToResponse(refundedPayment);
     }
@@ -125,7 +129,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatus(status);
         Payment updatedPayment = paymentRepository.save(payment);
 
-        publishPaymentEvent("PAYMENT_STATUS_UPDATED", updatedPayment.getTransactionId(), updatedPayment.getOrderId());
+        publishPaymentEvent("PAYMENT_STATUS_UPDATED", updatedPayment.getTransactionId(), updatedPayment.getOrderNumber());
 
         return mapToResponse(updatedPayment);
     }
@@ -152,7 +156,7 @@ public class PaymentServiceImpl implements PaymentService {
         return PaymentResponse.builder()
                 .id(payment.getId())
                 .transactionId(payment.getTransactionId())
-                .orderId(payment.getOrderId())
+                .orderNumber(payment.getOrderNumber())
                 .customerId(payment.getCustomerId())
                 .status(payment.getStatus())
                 .method(payment.getMethod())
@@ -166,12 +170,16 @@ public class PaymentServiceImpl implements PaymentService {
                 .build();
     }
 
-    private void publishPaymentEvent(String eventType, String transactionId, Long orderId) {
-        try {
-            String message = eventType + ":" + transactionId + ":" + orderId + ":" + LocalDateTime.now();
-            kafkaTemplate.send("payment-events", message);
-        } catch (Exception e) {
-            System.err.println("Failed to publish payment event: " + e.getMessage());
-        }
+    private void publishPaymentEvent(String eventType, String transactionId, String orderNumber) {
+        String message = eventType + ":" + transactionId + ":" + orderNumber + ":" + LocalDateTime.now();
+        CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send("payment-events", message);
+        future.whenComplete((result, ex) -> {
+            if (ex != null) {
+                log.error("Failed to publish payment event: {} for order {}", eventType, orderNumber, ex);
+                // In production, save to an Outbox table here.
+            } else {
+                log.info("Published payment event: {} for order {}", eventType, orderNumber);
+            }
+        });
     }
 }

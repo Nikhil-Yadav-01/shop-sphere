@@ -24,7 +24,7 @@ public class OrderResponse {
     private BigDecimal shippingAmount;
     private List<OrderItemResponse> items;
     private ShippingAddressResponse shippingAddress;
-    private PaymentDetailsResponse paymentDetails;
+    private String transactionId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

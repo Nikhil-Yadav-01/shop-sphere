@@ -1091,7 +1091,6 @@ volumes:
   checkout-db-data: null
   coupon-db-data: null
   pricing-db-data: null
-  order-db-data: null
   payment-db-data: null
   inventory-db-data: null
   fraud-db-data: null

@@ -32,14 +32,14 @@ public class PaymentController {
         return ResponseEntity.ok(payment);
     }
 
-    @GetMapping("/order/{orderId}")
-    public ResponseEntity<List<PaymentResponse>> getPaymentsByOrderId(@PathVariable Long orderId) {
-        List<PaymentResponse> payments = paymentService.getPaymentsByOrderId(orderId);
+    @GetMapping("/order/{orderNumber}")
+    public ResponseEntity<List<PaymentResponse>> getPaymentsByOrderNumber(@PathVariable String orderNumber) {
+        List<PaymentResponse> payments = paymentService.getPaymentsByOrderNumber(orderNumber);
         return ResponseEntity.ok(payments);
     }
 
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<PaymentResponse>> getPaymentsByCustomerId(@PathVariable Long customerId) {
+    public ResponseEntity<List<PaymentResponse>> getPaymentsByCustomerId(@PathVariable String customerId) {
         List<PaymentResponse> payments = paymentService.getPaymentsByCustomerId(customerId);
         return ResponseEntity.ok(payments);
     }

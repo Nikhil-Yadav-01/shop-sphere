@@ -46,8 +46,8 @@ public class Order {
     @Embedded
     private ShippingAddress shippingAddress;
 
-    @Embedded
-    private PaymentDetails paymentDetails;
+    @Column(name = "transaction_id")
+    private String transactionId;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

@@ -24,10 +24,10 @@ public class Payment {
     private String transactionId;
 
     @Column(nullable = false)
-    private Long orderId;
+    private String orderNumber;
 
     @Column(nullable = false)
-    private Long customerId;
+    private String customerId;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

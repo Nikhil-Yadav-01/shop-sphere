@@ -14,13 +14,11 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class ProcessPaymentRequest {
-    @NotNull(message = "Order ID cannot be null")
-    @Positive(message = "Order ID must be positive")
-    private Long orderId;
+    @NotBlank(message = "Order Number cannot be blank")
+    private String orderNumber;
 
-    @NotNull(message = "Customer ID cannot be null")
-    @Positive(message = "Customer ID must be positive")
-    private Long customerId;
+    @NotBlank(message = "Customer ID cannot be blank")
+    private String customerId;
 
     @NotNull(message = "Amount cannot be null")
     @DecimalMin(value = "0.01", message = "Amount must be greater than 0")

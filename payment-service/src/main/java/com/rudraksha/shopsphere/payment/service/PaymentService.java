@@ -11,8 +11,8 @@ public interface PaymentService {
     PaymentResponse processPayment(ProcessPaymentRequest request);
     PaymentResponse getPaymentById(Long id);
     PaymentResponse getPaymentByTransactionId(String transactionId);
-    List<PaymentResponse> getPaymentsByOrderId(Long orderId);
-    List<PaymentResponse> getPaymentsByCustomerId(Long customerId);
+    List<PaymentResponse> getPaymentsByOrderNumber(String orderNumber);
+    List<PaymentResponse> getPaymentsByCustomerId(String customerId);
     List<PaymentResponse> getPaymentsByStatus(Payment.PaymentStatus status);
     PaymentResponse refundPayment(RefundPaymentRequest request);
     PaymentResponse updatePaymentStatus(Long id, Payment.PaymentStatus status);

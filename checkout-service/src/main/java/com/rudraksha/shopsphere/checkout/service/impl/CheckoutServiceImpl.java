@@ -5,21 +5,25 @@ import com.rudraksha.shopsphere.checkout.dto.response.*;
 import com.rudraksha.shopsphere.checkout.entity.*;
 import com.rudraksha.shopsphere.checkout.repository.OrderRepository;
 import com.rudraksha.shopsphere.checkout.service.CheckoutService;
-import com.rudraksha.shopsphere.checkout.service.payment.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Component;
+import java.util.Collections;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.concurrent.CompletableFuture;
+import org.springframework.kafka.support.SendResult;
 
 @Service
 @RequiredArgsConstructor
@@ -28,8 +32,8 @@ import java.util.stream.Collectors;
 public class CheckoutServiceImpl implements CheckoutService {
 
     private final OrderRepository orderRepository;
-    private final PaymentService paymentService;
     private final CartClient cartClient;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     public OrderResponse processCheckout(String userId, CheckoutRequest request) {
@@ -37,8 +41,8 @@ public class CheckoutServiceImpl implements CheckoutService {
 
         // Get cart items
         var cart = cartClient.getCart(userId);
-        if (cart.items().isEmpty()) {
-            throw new IllegalStateException("Cart is empty");
+        if (cart == null || cart.items() == null || cart.items().isEmpty()) {
+            throw new IllegalStateException("Cart is empty or cart service is unavailable");
         }
 
         // Calculate amounts
@@ -47,19 +51,18 @@ public class CheckoutServiceImpl implements CheckoutService {
         BigDecimal shippingAmount = BigDecimal.valueOf(9.99);
         BigDecimal totalAmount = subtotal.add(taxAmount).add(shippingAmount);
 
+        // Create robust Order ID
+        String orderNumber = "ORD-" + UUID.randomUUID().toString().replace("-", "").toUpperCase().substring(0, 16);
+
         // Create order
         Order order = Order.builder()
-                .orderNumber("ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
+                .orderNumber(orderNumber)
                 .userId(userId)
-                .status(Order.OrderStatus.PENDING)
+                .status(Order.OrderStatus.PROCESSING)
                 .totalAmount(totalAmount)
                 .taxAmount(taxAmount)
                 .shippingAmount(shippingAmount)
                 .shippingAddress(mapToShippingAddress(request.getShippingAddress()))
-                .paymentDetails(PaymentDetails.builder()
-                        .paymentMethod(request.getPayment().getPaymentMethod())
-                        .paymentStatus(PaymentDetails.PaymentStatus.PENDING)
-                        .build())
                 .build();
 
         // Save order first to get ID
@@ -79,27 +82,21 @@ public class CheckoutServiceImpl implements CheckoutService {
         savedOrder.setItems(orderItems);
         order = savedOrder;
 
-        // Process payment
-        var paymentResult = paymentService.processPayment(request.getPayment(), totalAmount, order.getOrderNumber());
-
-        // Update payment details
-        order.getPaymentDetails().setTransactionId(paymentResult.transactionId());
-        order.getPaymentDetails().setGatewayResponse(paymentResult.gatewayResponse());
+        // Publish checkout initiated event asynchronously
+        // In a real SAGA, this would use an Outbox table. For simplicity, we just use KafkaTemplate here.
+        final String finalOrderNumber = order.getOrderNumber();
+        CompletableFuture<SendResult<String, Object>> future = 
+                kafkaTemplate.send("checkout.initiated", finalOrderNumber, order);
         
-        if (paymentResult.success()) {
-            order.getPaymentDetails().setPaymentStatus(PaymentDetails.PaymentStatus.COMPLETED);
-            order.setStatus(Order.OrderStatus.CONFIRMED);
-            
-            // Clear cart after successful payment
-            cartClient.clearCart(userId);
-            log.info("Order {} confirmed and cart cleared for user {}", order.getOrderNumber(), userId);
-        } else {
-            order.getPaymentDetails().setPaymentStatus(PaymentDetails.PaymentStatus.FAILED);
-            order.setStatus(Order.OrderStatus.CANCELLED);
-            log.warn("Payment failed for order {} for user {}: {}", order.getOrderNumber(), userId, paymentResult.message());
-        }
+        future.whenComplete((result, ex) -> {
+            if (ex != null) {
+                log.error("Failed to publish checkout.initiated event for order {}", finalOrderNumber, ex);
+                // In production, save to outbox table here for retry
+            } else {
+                log.info("Successfully published checkout.initiated event for order {}", finalOrderNumber);
+            }
+        });
 
-        order = orderRepository.save(order);
         return mapToOrderResponse(order);
     }
 
@@ -171,7 +168,7 @@ public class CheckoutServiceImpl implements CheckoutService {
                 .shippingAmount(order.getShippingAmount())
                 .items(order.getItems().stream().map(this::mapToOrderItemResponse).collect(Collectors.toList()))
                 .shippingAddress(mapToShippingAddressResponse(order.getShippingAddress()))
-                .paymentDetails(mapToPaymentDetailsResponse(order.getPaymentDetails()))
+                .transactionId(order.getTransactionId())
                 .createdAt(order.getCreatedAt())
                 .updatedAt(order.getUpdatedAt())
                 .build();
@@ -202,16 +199,8 @@ public class CheckoutServiceImpl implements CheckoutService {
                 .build();
     }
 
-    private PaymentDetailsResponse mapToPaymentDetailsResponse(PaymentDetails details) {
-        return PaymentDetailsResponse.builder()
-                .paymentMethod(details.getPaymentMethod())
-                .transactionId(details.getTransactionId())
-                .paymentStatus(details.getPaymentStatus())
-                .build();
-    }
-
-    @FeignClient(name = "CART-SERVICE", path = "/api/v1/cart")
-    interface CartClient {
+    @FeignClient(name = "CART-SERVICE", path = "/api/v1/cart", fallbackFactory = CartClientFallbackFactory.class)
+    public interface CartClient {
         @GetMapping
         CartResponse getCart(@RequestHeader("X-User-Id") String userId);
         

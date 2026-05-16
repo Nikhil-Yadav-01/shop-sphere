@@ -82,12 +82,21 @@ if echo "$CHECKOUT_RESPONSE" | grep -q "orderNumber"; then
     
     # Additional tests if checkout succeeded
     echo ""
-    echo "9. Verify Cart Cleared:"
-    CART_ITEMS=$(curl -s -H "X-User-Id: $USER_ID" http://$IP:8085/api/v1/cart | grep -o '"totalItems":[0-9]*' | cut -d':' -f2)
-    if [ "$CART_ITEMS" = "0" ]; then
-        echo "✓ Cart cleared after checkout"
-    else
-        echo "✗ Cart not cleared (items: $CART_ITEMS)"
+    echo "9. Verify Cart Cleared (Async wait):"
+    
+    CART_CLEARED=false
+    for i in {1..15}; do
+        CART_ITEMS=$(curl -s -H "X-User-Id: $USER_ID" http://$IP:8085/api/v1/cart | grep -o '"totalItems":[0-9]*' | cut -d':' -f2)
+        if [ "$CART_ITEMS" = "0" ]; then
+            CART_CLEARED=true
+            echo "✓ Cart cleared after checkout (took ~$i seconds)"
+            break
+        fi
+        sleep 1
+    done
+    
+    if [ "$CART_CLEARED" = false ]; then
+        echo "✗ Cart not cleared within timeout (items: $CART_ITEMS)"
     fi
     echo ""
     
