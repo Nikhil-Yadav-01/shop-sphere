@@ -1,5 +1,7 @@
 package com.rudraksha.shopsphere.gateway.filter;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.rudraksha.shopsphere.gateway.security.JwtTokenProvider;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -14,12 +16,14 @@ import reactor.core.publisher.Mono;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final ReactiveRedisTemplate<String, String> redisTemplate;
+    private final Cache<String, Boolean> revokedTokenCache;
     private static final String REVOKED_TOKEN_PREFIX = "revoked_token:";
 
     public AuthenticationFilter(
@@ -28,6 +32,10 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
         super(Config.class);
         this.jwtTokenProvider = jwtTokenProvider;
         this.redisTemplate = redisTemplate;
+        this.revokedTokenCache = Caffeine.newBuilder()
+                .maximumSize(100000)
+                .expireAfterWrite(5, TimeUnit.MINUTES)
+                .build();
     }
 
     @Override
@@ -89,8 +97,20 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
     private Mono<RevocationResult> checkRevocation(String token) {
         String key = REVOKED_TOKEN_PREFIX + token;
+        
+        // Check local Caffeine cache first
+        Boolean isRevoked = revokedTokenCache.getIfPresent(key);
+        if (isRevoked != null) {
+            return Mono.just(new RevocationResult(isRevoked));
+        }
+
+        // Fallback to Redis only on cache miss
         return redisTemplate.hasKey(key)
-                .map(hasKey -> new RevocationResult(Boolean.TRUE.equals(hasKey)))
+                .map(hasKey -> {
+                    boolean result = Boolean.TRUE.equals(hasKey);
+                    revokedTokenCache.put(key, result);
+                    return new RevocationResult(result);
+                })
                 .defaultIfEmpty(new RevocationResult(false))
                 .onErrorResume(e -> Mono.just(new RevocationResult(false)));
     }

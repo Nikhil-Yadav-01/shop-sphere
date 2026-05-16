@@ -116,6 +116,121 @@ public class GatewayConfig {
                                 }))
                         .uri("lb://order-service"))
 
+                .route("user-service", r -> r
+                        .path("/users/**")
+                        .filters(f -> f.stripPrefix(1)
+                                .filter(authenticationFilter.apply(new AuthenticationFilter.Config()))
+                                .requestRateLimiter(config -> {
+                                    config.setRateLimiter(defaultRateLimiter);
+                                    config.setKeyResolver(userKeyResolver);
+                                }))
+                        .uri("lb://user-service"))
+
+                .route("payment-service", r -> r
+                        .path("/payment/**")
+                        .filters(f -> f.stripPrefix(1)
+                                .filter(authenticationFilter.apply(new AuthenticationFilter.Config()))
+                                .requestRateLimiter(config -> {
+                                    config.setRateLimiter(defaultRateLimiter);
+                                    config.setKeyResolver(userKeyResolver);
+                                }))
+                        .uri("lb://payment-service"))
+
+                .route("inventory-service", r -> r
+                        .path("/inventory/**")
+                        .filters(f -> f.stripPrefix(1)
+                                .filter(authenticationFilter.apply(new AuthenticationFilter.Config()))
+                                .requestRateLimiter(config -> {
+                                    config.setRateLimiter(defaultRateLimiter);
+                                    config.setKeyResolver(userKeyResolver);
+                                }))
+                        .uri("lb://inventory-service"))
+
+                .route("notification-service", r -> r
+                        .path("/notification/**")
+                        .filters(f -> f.stripPrefix(1)
+                                .filter(authenticationFilter.apply(new AuthenticationFilter.Config()))
+                                .requestRateLimiter(config -> {
+                                    config.setRateLimiter(defaultRateLimiter);
+                                    config.setKeyResolver(userKeyResolver);
+                                }))
+                        .uri("lb://notification-service"))
+
+                .route("fraud-service", r -> r
+                        .path("/fraud/**")
+                        .filters(f -> f.stripPrefix(1)
+                                .filter(authenticationFilter.apply(new AuthenticationFilter.Config(List.of("ADMIN"))))
+                                .requestRateLimiter(config -> {
+                                    config.setRateLimiter(defaultRateLimiter);
+                                    config.setKeyResolver(userKeyResolver);
+                                }))
+                        .uri("lb://fraud-service"))
+
+                .route("media-service", r -> r
+                        .path("/media/**")
+                        .filters(f -> f.stripPrefix(1)
+                                .requestRateLimiter(config -> {
+                                    config.setRateLimiter(defaultRateLimiter);
+                                    config.setKeyResolver(userKeyResolver);
+                                }))
+                        .uri("lb://media-service"))
+
+                .route("review-service", r -> r
+                        .path("/reviews/**")
+                        .filters(f -> f.stripPrefix(1)
+                                .requestRateLimiter(config -> {
+                                    config.setRateLimiter(defaultRateLimiter);
+                                    config.setKeyResolver(userKeyResolver);
+                                }))
+                        .uri("lb://review-service"))
+
+                .route("returns-service", r -> r
+                        .path("/returns/**")
+                        .filters(f -> f.stripPrefix(1)
+                                .filter(authenticationFilter.apply(new AuthenticationFilter.Config()))
+                                .requestRateLimiter(config -> {
+                                    config.setRateLimiter(defaultRateLimiter);
+                                    config.setKeyResolver(userKeyResolver);
+                                }))
+                        .uri("lb://returns-service"))
+
+                .route("recommendation-service", r -> r
+                        .path("/recommendations/**")
+                        .filters(f -> f.stripPrefix(1)
+                                .requestRateLimiter(config -> {
+                                    config.setRateLimiter(defaultRateLimiter);
+                                    config.setKeyResolver(userKeyResolver);
+                                }))
+                        .uri("lb://recommendation-service"))
+
+                .route("search-service", r -> r
+                        .path("/search/**")
+                        .filters(f -> f.stripPrefix(1)
+                                .requestRateLimiter(config -> {
+                                    config.setRateLimiter(catalogRateLimiter);
+                                    config.setKeyResolver(userKeyResolver);
+                                }))
+                        .uri("lb://search-service"))
+
+                .route("analytics-service", r -> r
+                        .path("/analytics/**")
+                        .filters(f -> f.stripPrefix(1)
+                                .filter(authenticationFilter.apply(new AuthenticationFilter.Config(List.of("ADMIN"))))
+                                .requestRateLimiter(config -> {
+                                    config.setRateLimiter(defaultRateLimiter);
+                                    config.setKeyResolver(userKeyResolver);
+                                }))
+                        .uri("lb://analytics-service"))
+
+                .route("coupon-service", r -> r
+                        .path("/coupons/**")
+                        .filters(f -> f.stripPrefix(1)
+                                .requestRateLimiter(config -> {
+                                    config.setRateLimiter(defaultRateLimiter);
+                                    config.setKeyResolver(userKeyResolver);
+                                }))
+                        .uri("lb://coupon-service"))
+
                 .build();
     }
 }
