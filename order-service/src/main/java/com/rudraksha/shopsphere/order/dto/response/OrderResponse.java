@@ -17,7 +17,7 @@ import java.util.List;
 public class OrderResponse {
     private Long id;
     private String orderNumber;
-    private Long customerId;
+    private String userId;
     private Order.OrderStatus status;
     private BigDecimal totalAmount;
     private BigDecimal taxAmount;

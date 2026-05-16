@@ -15,26 +15,31 @@ import java.time.LocalDateTime;
 public class InventoryResponse {
     private Long id;
     private String sku;
-    private Long productId;
+    private String productId;
     private Integer quantity;
     private Integer reservedQuantity;
     private Integer availableQuantity;
     private Integer reorderLevel;
-    private InventoryItem.InventoryStatus status;
+    private String status;
     private String warehouseLocation;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public static InventoryResponse fromEntity(InventoryItem item) {
+        Integer available = item.getAvailableQuantity();
+        if (available == null && item.getQuantity() != null) {
+            available = item.getQuantity() - (item.getReservedQuantity() != null ? item.getReservedQuantity() : 0);
+        }
+        
         return InventoryResponse.builder()
             .id(item.getId())
             .sku(item.getSku())
             .productId(item.getProductId())
             .quantity(item.getQuantity())
             .reservedQuantity(item.getReservedQuantity())
-            .availableQuantity(item.getAvailableQuantity())
+            .availableQuantity(available)
             .reorderLevel(item.getReorderLevel())
-            .status(item.getStatus())
+            .status(item.getStatus().name())
             .warehouseLocation(item.getWarehouseLocation())
             .createdAt(item.getCreatedAt())
             .updatedAt(item.getUpdatedAt())

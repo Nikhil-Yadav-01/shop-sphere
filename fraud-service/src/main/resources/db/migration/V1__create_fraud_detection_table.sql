@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS fraud_detection (
     id SERIAL PRIMARY KEY,
     transaction_id VARCHAR(255) NOT NULL UNIQUE,
-    order_id BIGINT NOT NULL,
-    customer_id BIGINT NOT NULL,
+    order_id VARCHAR(255) NOT NULL,
+    customer_id VARCHAR(255) NOT NULL,
     amount NUMERIC(19, 2) NOT NULL,
     currency VARCHAR(3) NOT NULL,
     transaction_type VARCHAR(50) NOT NULL,

@@ -20,23 +20,22 @@ public class InventoryController {
 
     @PostMapping
     public ResponseEntity<InventoryResponse> createInventory(@Valid @RequestBody CreateInventoryRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-            .body(inventoryService.createInventory(request));
+        return new ResponseEntity<>(inventoryService.createInventory(request), HttpStatus.CREATED);
     }
 
     @GetMapping("/sku/{sku}")
-    public ResponseEntity<InventoryResponse> getInventoryBySku(@PathVariable String sku) {
+    public ResponseEntity<InventoryResponse> getBySku(@PathVariable String sku) {
         return ResponseEntity.ok(inventoryService.getInventoryBySku(sku));
     }
 
     @GetMapping("/product/{productId}")
-    public ResponseEntity<InventoryResponse> getInventoryByProductId(@PathVariable Long productId) {
+    public ResponseEntity<InventoryResponse> getByProductId(@PathVariable String productId) {
         return ResponseEntity.ok(inventoryService.getInventoryByProductId(productId));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<InventoryResponse> updateInventory(
-            @PathVariable Long id,
+            @PathVariable Long id, 
             @Valid @RequestBody UpdateInventoryRequest request) {
         return ResponseEntity.ok(inventoryService.updateInventory(id, request));
     }
@@ -50,14 +49,6 @@ public class InventoryController {
     @PostMapping("/reserve")
     public ResponseEntity<InventoryResponse> reserveInventory(@Valid @RequestBody ReserveInventoryRequest request) {
         return ResponseEntity.ok(inventoryService.reserveInventory(request));
-    }
-
-    @PostMapping("/release-reservation")
-    public ResponseEntity<InventoryResponse> releaseReservation(
-            @RequestParam String sku,
-            @RequestParam Integer quantity,
-            @RequestParam String reference) {
-        return ResponseEntity.ok(inventoryService.releaseReservation(sku, quantity, reference));
     }
 
     @PutMapping("/{id}/adjust")

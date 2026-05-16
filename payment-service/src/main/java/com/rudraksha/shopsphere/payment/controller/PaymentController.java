@@ -6,16 +6,15 @@ import com.rudraksha.shopsphere.payment.dto.response.PaymentResponse;
 import com.rudraksha.shopsphere.payment.entity.Payment;
 import com.rudraksha.shopsphere.payment.service.PaymentService;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/payment")
-@AllArgsConstructor
+@RequestMapping("/api/payment")
+@RequiredArgsConstructor
 public class PaymentController {
 
     private final PaymentService paymentService;
@@ -23,7 +22,13 @@ public class PaymentController {
     @PostMapping("/process")
     public ResponseEntity<PaymentResponse> processPayment(@Valid @RequestBody ProcessPaymentRequest request) {
         PaymentResponse payment = paymentService.processPayment(request);
-        return new ResponseEntity<>(payment, HttpStatus.CREATED);
+        return ResponseEntity.ok(payment);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PaymentResponse> getPaymentById(@PathVariable Long id) {
+        PaymentResponse payment = paymentService.getPaymentById(id);
+        return ResponseEntity.ok(payment);
     }
 
     @GetMapping("/transaction/{transactionId}")
@@ -32,15 +37,15 @@ public class PaymentController {
         return ResponseEntity.ok(payment);
     }
 
-    @GetMapping("/order/{orderId}")
-    public ResponseEntity<List<PaymentResponse>> getPaymentsByOrderId(@PathVariable Long orderId) {
-        List<PaymentResponse> payments = paymentService.getPaymentsByOrderId(orderId);
+    @GetMapping("/order/{orderNumber}")
+    public ResponseEntity<List<PaymentResponse>> getPaymentsByOrderNumber(@PathVariable String orderNumber) {
+        List<PaymentResponse> payments = paymentService.getPaymentsByOrderNumber(orderNumber);
         return ResponseEntity.ok(payments);
     }
 
-    @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<PaymentResponse>> getPaymentsByCustomerId(@PathVariable Long customerId) {
-        List<PaymentResponse> payments = paymentService.getPaymentsByCustomerId(customerId);
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<PaymentResponse>> getPaymentsByUserId(@PathVariable String userId) {
+        List<PaymentResponse> payments = paymentService.getPaymentsByUserId(userId);
         return ResponseEntity.ok(payments);
     }
 
@@ -50,12 +55,6 @@ public class PaymentController {
         return ResponseEntity.ok(payments);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PaymentResponse> getPaymentById(@PathVariable Long id) {
-        PaymentResponse payment = paymentService.getPaymentById(id);
-        return ResponseEntity.ok(payment);
-    }
-
     @PostMapping("/refund")
     public ResponseEntity<PaymentResponse> refundPayment(@Valid @RequestBody RefundPaymentRequest request) {
         PaymentResponse payment = paymentService.refundPayment(request);
@@ -63,9 +62,7 @@ public class PaymentController {
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<PaymentResponse> updatePaymentStatus(
-            @PathVariable Long id,
-            @RequestParam Payment.PaymentStatus status) {
+    public ResponseEntity<PaymentResponse> updatePaymentStatus(@PathVariable Long id, @RequestParam Payment.PaymentStatus status) {
         PaymentResponse payment = paymentService.updatePaymentStatus(id, status);
         return ResponseEntity.ok(payment);
     }

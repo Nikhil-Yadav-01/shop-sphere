@@ -13,7 +13,7 @@ RESPONSE=$(curl -s -X POST $BASE_URL \
   -H "Content-Type: application/json" \
   -d '{
     "sku": "TEST-SKU-002",
-    "productId": 102,
+    "productId": "PROD-102",
     "quantity": 500,
     "reorderLevel": 50,
     "warehouseLocation": "WAREHOUSE-B2"
@@ -25,12 +25,12 @@ echo "  Response: $(echo $RESPONSE | jq -c '.')"
 
 # Test 2: Get inventory by SKU
 echo -e "\n2. Fetching inventory by SKU..."
-curl -s -X GET "$BASE_URL/sku/TEST-SKU-001" | jq '.id, .sku, .quantity, .status'
+curl -s -X GET "$BASE_URL/sku/TEST-SKU-002" | jq '.id, .sku, .quantity, .status'
 echo "✓ Fetched successfully"
 
 # Test 3: Get inventory by Product ID
 echo -e "\n3. Fetching inventory by Product ID..."
-curl -s -X GET "$BASE_URL/product/101" | jq '.id, .productId, .sku'
+curl -s -X GET "$BASE_URL/product/PROD-102" | jq '.id, .productId, .sku'
 echo "✓ Fetched successfully"
 
 # Test 4: Reserve inventory
@@ -38,7 +38,7 @@ echo -e "\n4. Reserving inventory..."
 RESERVE_RESPONSE=$(curl -s -X POST "$BASE_URL/reserve" \
   -H "Content-Type: application/json" \
   -d '{
-    "sku": "TEST-SKU-001",
+    "sku": "TEST-SKU-002",
     "quantity": 100,
     "reference": "ORDER-9999"
   }')
@@ -47,7 +47,7 @@ echo "  Available after reservation: $(echo $RESERVE_RESPONSE | jq '.availableQu
 
 # Test 5: Check availability
 echo -e "\n5. Checking availability..."
-AVAILABLE=$(curl -s -X GET "$BASE_URL/check-availability?sku=TEST-SKU-001&quantity=300")
+AVAILABLE=$(curl -s -X GET "$BASE_URL/check-availability?sku=TEST-SKU-002&quantity=300")
 echo "✓ Is 300 units available? $AVAILABLE"
 
 # Test 6: Adjust inventory

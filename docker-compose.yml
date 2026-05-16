@@ -74,7 +74,6 @@ services:
       JWT_EXPIRATION_MS: 3600000
       JWT_REFRESH_EXPIRATION_MS: 604800000
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      # Frontend Base URL (for email links)
       APP_BASE_URL: ${APP_BASE_URL:-http://localhost:8080}
     ports:
     - 8081:8081
@@ -237,8 +236,7 @@ services:
     healthcheck:
       test:
       - CMD-SHELL
-      - /opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092
-        || exit 1
+      - /opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1
       interval: 10s
       timeout: 5s
       retries: 10
@@ -356,7 +354,7 @@ services:
       EUREKA_HOST: discovery-service
       EUREKA_PORT: 8761
     ports:
-    - 8091:8091
+    - 8094:8091
     depends_on:
       discovery-service:
         condition: service_healthy
@@ -383,9 +381,6 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      MANAGEMENT_HEALTH_KAFKA_ENABLED: "false"
-      MANAGEMENT_HEALTH_REDIS_ENABLED: "false"
-      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "always"
     ports:
     - 8083:8083
     depends_on:
@@ -626,8 +621,7 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: password
       EUREKA_URI: http://discovery-service:8761/eureka
-      PAYMENT_PROVIDER: mock
-      PAYMENT_API_KEY: mock-api-key
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     ports:
     - 8086:8086
     depends_on:
@@ -636,6 +630,8 @@ services:
       discovery-service:
         condition: service_healthy
       cart-service:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
     networks:
     - shopsphere-network
@@ -864,7 +860,6 @@ services:
       EUREKA_URI: http://discovery-service:8761/eureka
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SERVER_PORT: 8095
-      # Gmail SMTP
       MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
       MAIL_PORT: ${MAIL_PORT:-587}
       MAIL_USERNAME: ${MAIL_USERNAME:-}
@@ -939,7 +934,7 @@ services:
       EUREKA_PORT: '8761'
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     ports:
-    - 8089:8089
+    - 8096:8089
     depends_on:
       review-db:
         condition: service_healthy
@@ -1006,7 +1001,7 @@ services:
       EUREKA_PORT: 8761
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     ports:
-    - 8089:8089
+    - 8099:8089
     depends_on:
       recommendation-db:
         condition: service_healthy

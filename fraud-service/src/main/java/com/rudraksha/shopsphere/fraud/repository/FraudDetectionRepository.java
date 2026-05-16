@@ -14,14 +14,14 @@ public interface FraudDetectionRepository extends JpaRepository<FraudDetection, 
     
     Optional<FraudDetection> findByTransactionId(String transactionId);
     
-    List<FraudDetection> findByCustomerId(Long customerId);
+    List<FraudDetection> findByCustomerId(String customerId);
     
-    List<FraudDetection> findByOrderId(Long orderId);
+    List<FraudDetection> findByOrderId(String orderId);
     
     List<FraudDetection> findByIsFraudulent(Boolean isFraudulent);
     
     List<FraudDetection> findByStatus(String status);
     
     @Query("SELECT f FROM FraudDetection f WHERE f.customerId = :customerId AND f.isFraudulent = true")
-    List<FraudDetection> findFraudulentTransactionsByCustomer(@Param("customerId") Long customerId);
+    List<FraudDetection> findFraudulentTransactionsByCustomer(@Param("customerId") String customerId);
 }

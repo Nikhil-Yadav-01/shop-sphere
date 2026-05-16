@@ -62,7 +62,7 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public InventoryResponse getInventoryByProductId(Long productId) {
+    public InventoryResponse getInventoryByProductId(String productId) {
         log.info("Fetching inventory for Product ID: {}", productId);
         InventoryItem item = inventoryRepository.findByProductId(productId)
             .orElseThrow(() -> new IllegalArgumentException("Inventory not found for Product ID: " + productId));
@@ -120,7 +120,7 @@ public class InventoryServiceImpl implements InventoryService {
             recordMovement(item.getId(), StockMovement.MovementType.RESERVATION, 
                 request.getQuantity(), request.getReference(), null);
             
-            publishEvent("inventory.reserved", request.getSku(), request.getQuantity());
+            publishEvent("inventory.reserved", request.getSku(), request.getQuantity(), request.getReference());
             log.info("Inventory reserved successfully for SKU: {}", request.getSku());
             
             return InventoryResponse.fromEntity(updated);
@@ -144,7 +144,7 @@ public class InventoryServiceImpl implements InventoryService {
             recordMovement(item.getId(), StockMovement.MovementType.RESERVATION_RELEASE, 
                 quantity, reference, null);
             
-            publishEvent("inventory.reservation.released", sku, quantity);
+            publishEvent("inventory.reservation.released", sku, quantity, reference);
             log.info("Reservation released successfully for SKU: {}", sku);
             
             return InventoryResponse.fromEntity(updated);
@@ -224,28 +224,34 @@ public class InventoryServiceImpl implements InventoryService {
         }
     }
 
-    private void publishEvent(String topic, String sku, Integer quantity) {
-        String message = String.format("{\"sku\":\"%s\",\"quantity\":%d}", sku, quantity);
+    private void publishEvent(String topic, String sku, Integer quantity, String reference) {
+        String message = String.format("{\"sku\":\"%s\",\"quantity\":%d,\"orderNumber\":\"%s\"}", sku, quantity, reference);
         OutboxEvent event = OutboxEvent.builder()
             .topic(topic)
             .key(sku)
             .payload(message)
             .build();
         outboxRepository.save(event);
-        log.debug("Outbox event saved: {} for SKU: {}", topic, sku);
+        log.debug("Outbox event saved: {} for SKU: {} (Order: {})", topic, sku, reference);
     }
 
     @Override
     @Transactional
-    public InventoryResponse reserveInventoryForOrder(String sku, Integer quantity, String orderId) {
-        log.info("Reserving inventory for order {} with SKU: {} and quantity: {}", orderId, sku, quantity);
+    public InventoryResponse reserveInventoryForOrder(String sku, Integer quantity, String orderNumber) {
+        return reserveInventoryForOrderWithContext(sku, quantity, orderNumber, null, null);
+    }
+
+    @Override
+    @Transactional
+    public InventoryResponse reserveInventoryForOrderWithContext(String sku, Integer quantity, String orderNumber, String userId, String totalAmount) {
+        log.info("Reserving inventory for order {} with SKU: {} and quantity: {}", orderNumber, sku, quantity);
         
         return distributedLockUtil.executeWithLock(sku, () -> {
             InventoryItem item = inventoryRepository.findBySkuWithLock(sku)
                 .orElseThrow(() -> new IllegalArgumentException("Inventory not found for SKU: " + sku));
             
             if (item.getAvailableQuantity() < quantity) {
-                log.warn("Insufficient inventory for order {}: SKU {}", orderId, sku);
+                log.warn("Insufficient inventory for order {}: SKU {}", orderNumber, sku);
                 throw new IllegalArgumentException("Insufficient inventory available for SKU: " + sku);
             }
             
@@ -255,17 +261,27 @@ public class InventoryServiceImpl implements InventoryService {
             InventoryItem updated = inventoryRepository.save(item);
             
             OrderReservation reservation = OrderReservation.builder()
-                .orderId(orderId)
+                .orderNumber(orderNumber)
                 .inventoryItemId(item.getId())
                 .quantityReserved(quantity)
                 .build();
             orderReservationRepository.save(reservation);
             
             recordMovement(item.getId(), StockMovement.MovementType.RESERVATION, 
-                quantity, "Order: " + orderId, null);
+                quantity, "Order: " + orderNumber, null);
             
-            publishEvent("inventory.reserved", sku, quantity);
-            log.info("Inventory reserved for order {}: SKU {} x {}", orderId, sku, quantity);
+            // Publish event with full context for SAGA
+            String message = String.format("{\"sku\":\"%s\",\"quantity\":%d,\"orderNumber\":\"%s\",\"userId\":\"%s\",\"totalAmount\":\"%s\"}", 
+                sku, quantity, orderNumber, userId != null ? userId : "", totalAmount != null ? totalAmount : "0.0");
+            
+            OutboxEvent event = OutboxEvent.builder()
+                .topic("inventory.reserved")
+                .key(sku)
+                .payload(message)
+                .build();
+            outboxRepository.save(event);
+            
+            log.info("Inventory reserved for order {}: SKU {} x {}", orderNumber, sku, quantity);
             
             return InventoryResponse.fromEntity(updated);
         });
@@ -273,10 +289,10 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional
-    public void releaseReservationByOrder(String orderId) {
-        log.info("Releasing all reservations for order: {}", orderId);
+    public void releaseReservationByOrder(String orderNumber) {
+        log.info("Releasing all reservations for order: {}", orderNumber);
         
-        List<OrderReservation> reservations = orderReservationRepository.findByOrderId(orderId);
+        List<OrderReservation> reservations = orderReservationRepository.findByOrderNumber(orderNumber);
         
         for (OrderReservation reservation : reservations) {
             InventoryItem item = inventoryRepository.findById(reservation.getInventoryItemId())
@@ -295,18 +311,18 @@ public class InventoryServiceImpl implements InventoryService {
                 inventoryRepository.save(currentItem);
                 
                 recordMovement(item.getId(), StockMovement.MovementType.RESERVATION_RELEASE, 
-                    reservation.getQuantityReserved(), "Order cancelled: " + orderId, null);
+                    reservation.getQuantityReserved(), "Order cancelled: " + orderNumber, null);
                 
                 publishEvent("inventory.reservation.released", item.getSku(), 
-                    reservation.getQuantityReserved());
+                    reservation.getQuantityReserved(), orderNumber);
                 
-                log.info("Inventory released for order {}: {} x {}", orderId, item.getSku(), 
+                log.info("Inventory released for order {}: {} x {}", orderNumber, item.getSku(), 
                     reservation.getQuantityReserved());
                 
                 return null;
             });
         }
         
-        orderReservationRepository.deleteByOrderId(orderId);
+        orderReservationRepository.deleteByOrderNumber(orderNumber);
     }
 }

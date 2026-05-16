@@ -1,6 +1,6 @@
 package com.rudraksha.shopsphere.order.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,11 +22,11 @@ public class OrderItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
-    @JsonManagedReference
+    @JsonBackReference
     private Order order;
 
     @Column(nullable = false)
-    private Long productId;
+    private String productId;
 
     @Column(nullable = false)
     private String productName;

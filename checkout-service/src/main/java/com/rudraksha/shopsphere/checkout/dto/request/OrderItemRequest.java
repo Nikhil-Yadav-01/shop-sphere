@@ -1,4 +1,4 @@
-package com.rudraksha.shopsphere.order.dto.request;
+package com.rudraksha.shopsphere.checkout.dto.request;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
