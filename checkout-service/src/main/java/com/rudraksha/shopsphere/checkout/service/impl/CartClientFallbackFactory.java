@@ -16,13 +16,12 @@ public class CartClientFallbackFactory implements FallbackFactory<CheckoutServic
             @Override
             public CartResponse getCart(String userId) {
                 log.error("Fallback triggered for getCart due to: {}", cause.getMessage());
-                return new CartResponse(null, userId, Collections.emptyList(), 0, BigDecimal.ZERO, null, null);
+                return new CartResponse(null, userId, Collections.emptyList(), 0, BigDecimal.ZERO);
             }
 
             @Override
             public void clearCart(String userId) {
                 log.error("Fallback triggered for clearCart due to: {}", cause.getMessage());
-                // Silently fail or queue for retry
             }
         };
     }

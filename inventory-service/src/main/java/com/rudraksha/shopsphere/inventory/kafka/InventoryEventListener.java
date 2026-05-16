@@ -17,33 +17,36 @@ public class InventoryEventListener {
     /**
      * Listen to order.placed event and auto-reserve inventory
      * Expected message format: {"orderId": 123, "items": [{"sku": "ABC", "quantity": 5}]}
-     */
-    @KafkaListener(topics = "order.placed", groupId = "inventory-service")
-    public void handleOrderPlaced(String message) {
-        log.info("Received order.placed event: {}", message);
-        try {
-            // Parse JSON message
-            Map<String, Object> event = parseJsonMessage(message);
-            String orderId = event.get("orderId").toString();
-            
-            @SuppressWarnings("unchecked")
-            java.util.List<Map<String, Object>> items = 
-                (java.util.List<Map<String, Object>>) event.get("items");
-            
-            if (items == null || items.isEmpty()) {
-                log.warn("No items found in order: {}", orderId);
-                return;
-            }
-            
-            // Reserve inventory for each item
-            for (Map<String, Object> item : items) {
-                String sku = item.get("sku").toString();
-                Integer quantity = ((Number) item.get("quantity")).intValue();
-                
-                try {
-                    inventoryService.reserveInventoryForOrder(sku, quantity, orderId);
-                    log.info("Inventory reserved for order {}: {} x {}", orderId, sku, quantity);
-                } catch (Exception e) {
+     @KafkaListener(topics = "order.placed", groupId = "inventory-service")
+     public void handleOrderPlaced(String message) {
+         log.info("Received order.placed event: {}", message);
+         try {
+             // Parse JSON message
+             Map<String, Object> event = parseJsonMessage(message);
+             String orderId = event.get("orderId").toString();
+             String userId = event.get("userId").toString();
+             String totalAmount = event.get("totalAmount") != null ? event.get("totalAmount").toString() : "0.0";
+
+             @SuppressWarnings("unchecked")
+             java.util.List<Map<String, Object>> items = 
+                 (java.util.List<Map<String, Object>>) event.get("items");
+
+             if (items == null || items.isEmpty()) {
+                 log.warn("No items found in order: {}", orderId);
+                 return;
+             }
+
+             // Reserve inventory for each item
+             for (Map<String, Object> item : items) {
+                 String sku = item.get("sku").toString();
+                 Integer quantity = ((Number) item.get("quantity")).intValue();
+
+                 try {
+                     // Pass extra info for SAGA propagation in event
+                     inventoryService.reserveInventoryForOrderWithContext(sku, quantity, orderId, userId, totalAmount);
+                     log.info("Inventory reserved for order {}: {} x {}", orderId, sku, quantity);
+                 } catch (Exception e) {
+     ...
                     log.error("Failed to reserve inventory for order {}: {} x {}", orderId, sku, quantity, e);
                     // Emit inventory.reservation.failed event for saga compensation
                     throw new RuntimeException("Inventory reservation failed for order: " + orderId, e);

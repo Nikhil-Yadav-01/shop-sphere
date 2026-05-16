@@ -106,6 +106,16 @@ public class GatewayConfig {
                                 }))
                         .uri("lb://pricing-service"))
 
+                .route("order-service", r -> r
+                        .path("/order/**")
+                        .filters(f -> f.stripPrefix(1)
+                                .filter(authenticationFilter.apply(new AuthenticationFilter.Config()))
+                                .requestRateLimiter(config -> {
+                                    config.setRateLimiter(defaultRateLimiter);
+                                    config.setKeyResolver(userKeyResolver);
+                                }))
+                        .uri("lb://order-service"))
+
                 .build();
     }
 }

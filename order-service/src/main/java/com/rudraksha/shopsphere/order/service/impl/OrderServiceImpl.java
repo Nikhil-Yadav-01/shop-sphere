@@ -10,22 +10,32 @@ import com.rudraksha.shopsphere.order.exception.OrderException;
 import com.rudraksha.shopsphere.order.repository.OrderRepository;
 import com.rudraksha.shopsphere.order.service.OrderService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 @AllArgsConstructor
 @Transactional
+@Slf4j
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
 
     @Override
     public OrderResponse createOrder(CreateOrderRequest request) {
@@ -43,7 +53,7 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = Order.builder()
                 .orderNumber(orderNumber)
-                .customerId(request.getCustomerId())
+                .userId(request.getUserId())
                 .status(Order.OrderStatus.PENDING)
                 .totalAmount(request.getTotalAmount())
                 .taxAmount(request.getTaxAmount())
@@ -55,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
         items.forEach(item -> item.setOrder(order));
         Order savedOrder = orderRepository.save(order);
 
-        publishOrderEvent("ORDER_CREATED", orderNumber);
+        publishOrderPlacedEvent(savedOrder);
 
         return mapToResponse(savedOrder);
     }
@@ -78,11 +88,18 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<OrderResponse> getOrdersByCustomerId(Long customerId) {
-        return orderRepository.findByCustomerId(customerId)
+    public List<OrderResponse> getOrdersByUserId(String userId) {
+        return orderRepository.findByUserId(userId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<OrderResponse> getOrdersByUserId(String userId, Pageable pageable) {
+        return orderRepository.findByUserId(userId, pageable)
+                .map(this::mapToResponse);
     }
 
     @Override
@@ -102,7 +119,7 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(newStatus);
         Order updatedOrder = orderRepository.save(order);
 
-        publishOrderEvent("ORDER_STATUS_UPDATED", order.getOrderNumber() + ":" + newStatus);
+        publishGenericOrderEvent("ORDER_STATUS_UPDATED", order.getOrderNumber() + ":" + newStatus);
 
         return mapToResponse(updatedOrder);
     }
@@ -111,21 +128,20 @@ public class OrderServiceImpl implements OrderService {
     public void deleteOrder(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderException("Order not found with id: " + id));
+        String orderNumber = order.getOrderNumber();
         orderRepository.delete(order);
-        publishOrderEvent("ORDER_DELETED", order.getOrderNumber());
+        publishGenericOrderEvent("ORDER_DELETED", orderNumber);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<OrderResponse> getAllOrders() {
-        return orderRepository.findAll()
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<OrderResponse> getAllOrders(Pageable pageable) {
+        return orderRepository.findAll(pageable)
+                .map(this::mapToResponse);
     }
 
     private String generateOrderNumber() {
-        return "ORD-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        return "ORD-" + UUID.randomUUID().toString().replace("-", "").toUpperCase().substring(0, 16);
     }
 
     private OrderResponse mapToResponse(Order order) {
@@ -143,7 +159,7 @@ public class OrderServiceImpl implements OrderService {
         return OrderResponse.builder()
                 .id(order.getId())
                 .orderNumber(order.getOrderNumber())
-                .customerId(order.getCustomerId())
+                .userId(order.getUserId())
                 .status(order.getStatus())
                 .totalAmount(order.getTotalAmount())
                 .taxAmount(order.getTaxAmount())
@@ -155,13 +171,49 @@ public class OrderServiceImpl implements OrderService {
                 .build();
     }
 
-    private void publishOrderEvent(String eventType, String details) {
+    private void publishOrderPlacedEvent(Order order) {
         try {
-            String message = eventType + ":" + details + ":" + LocalDateTime.now();
-            kafkaTemplate.send("order-events", message);
+            Map<String, Object> message = new HashMap<>();
+            message.put("orderId", order.getOrderNumber());
+            
+            List<Map<String, Object>> items = order.getItems().stream()
+                    .map(item -> {
+                        Map<String, Object> itemMap = new HashMap<>();
+                        itemMap.put("sku", item.getProductId());
+                        itemMap.put("quantity", item.getQuantity());
+                        return itemMap;
+                    }).collect(Collectors.toList());
+            
+            message.put("items", items);
+            message.put("userId", order.getUserId());
+            message.put("totalAmount", order.getTotalAmount().toString());
+            message.put("timestamp", LocalDateTime.now().toString());
+
+            String jsonPayload = objectMapper.writeValueAsString(message);
+            CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send("order.placed", order.getOrderNumber(), jsonPayload);
+            
+            future.whenComplete((result, ex) -> {
+                if (ex != null) {
+                    log.error("Failed to publish order.placed event for order {}", order.getOrderNumber(), ex);
+                } else {
+                    log.info("Successfully published order.placed event for order {}", order.getOrderNumber());
+                }
+            });
         } catch (Exception e) {
-            // Log and continue - don't fail order creation if Kafka is down
-            System.err.println("Failed to publish order event: " + e.getMessage());
+            log.error("Failed to serialize order.placed event", e);
         }
+    }
+
+    private void publishGenericOrderEvent(String eventType, String details) {
+        String message = eventType + ":" + details + ":" + LocalDateTime.now();
+        CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send("order-events", details, message);
+        
+        future.whenComplete((result, ex) -> {
+            if (ex != null) {
+                log.error("Failed to publish order event: {} for order {}", eventType, details, ex);
+            } else {
+                log.info("Successfully published order event: {} for order {}", eventType, details);
+            }
+        });
     }
 }

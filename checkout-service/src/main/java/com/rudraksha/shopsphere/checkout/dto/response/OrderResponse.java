@@ -1,6 +1,5 @@
 package com.rudraksha.shopsphere.checkout.dto.response;
 
-import com.rudraksha.shopsphere.checkout.entity.Order;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +17,7 @@ public class OrderResponse {
     private Long id;
     private String orderNumber;
     private String userId;
-    private Order.OrderStatus status;
+    private String status;
     private BigDecimal totalAmount;
     private BigDecimal taxAmount;
     private BigDecimal shippingAmount;

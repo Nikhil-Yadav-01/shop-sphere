@@ -1,26 +1,20 @@
 package com.rudraksha.shopsphere.checkout.service.impl;
 
 import com.rudraksha.shopsphere.checkout.dto.request.CheckoutRequest;
+import com.rudraksha.shopsphere.checkout.dto.request.OrderItemRequest;
 import com.rudraksha.shopsphere.checkout.dto.response.*;
-import com.rudraksha.shopsphere.checkout.entity.*;
-import com.rudraksha.shopsphere.checkout.repository.OrderRepository;
 import com.rudraksha.shopsphere.checkout.service.CheckoutService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.stereotype.Component;
-import java.util.Collections;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.concurrent.CompletableFuture;
 import org.springframework.kafka.support.SendResult;
@@ -28,175 +22,94 @@ import org.springframework.kafka.support.SendResult;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class CheckoutServiceImpl implements CheckoutService {
 
-    private final OrderRepository orderRepository;
     private final CartClient cartClient;
+    private final OrderClient orderClient;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     public OrderResponse processCheckout(String userId, CheckoutRequest request) {
         log.info("Processing checkout for user: {}", userId);
 
-        // Get cart items
+        // 1. Get cart items
         var cart = cartClient.getCart(userId);
         if (cart == null || cart.items() == null || cart.items().isEmpty()) {
             throw new IllegalStateException("Cart is empty or cart service is unavailable");
         }
 
-        // Calculate amounts
-        BigDecimal subtotal = cart.totalPrice();
-        BigDecimal taxAmount = subtotal.multiply(BigDecimal.valueOf(0.08)); // 8% tax
-        BigDecimal shippingAmount = BigDecimal.valueOf(9.99);
-        BigDecimal totalAmount = subtotal.add(taxAmount).add(shippingAmount);
-
-        // Create robust Order ID
-        String orderNumber = "ORD-" + UUID.randomUUID().toString().replace("-", "").toUpperCase().substring(0, 16);
-
-        // Create order
-        Order order = Order.builder()
-                .orderNumber(orderNumber)
+        // 2. Map to Order Creation Request
+        CreateOrderRequest orderRequest = CreateOrderRequest.builder()
                 .userId(userId)
-                .status(Order.OrderStatus.PROCESSING)
-                .totalAmount(totalAmount)
-                .taxAmount(taxAmount)
-                .shippingAmount(shippingAmount)
-                .shippingAddress(mapToShippingAddress(request.getShippingAddress()))
+                .totalAmount(calculateTotal(cart))
+                .taxAmount(calculateTax(cart))
+                .shippingAddress(request.getShippingAddress().getAddressLine1() + ", " + request.getShippingAddress().getCity())
+                .billingAddress(request.getShippingAddress().getAddressLine1())
+                .items(cart.items().stream()
+                        .map(item -> OrderItemRequest.builder()
+                                .productId(item.productId())
+                                .productName(item.productName())
+                                .quantity(item.quantity())
+                                .unitPrice(item.price())
+                                .totalPrice(item.subtotal())
+                                .build())
+                        .collect(Collectors.toList()))
                 .build();
 
-        // Save order first to get ID
-        Order savedOrder = orderRepository.save(order);
-        
-        // Create order items
-        List<OrderItem> orderItems = cart.items().stream()
-                .map(item -> OrderItem.builder()
-                        .order(savedOrder)
-                        .productId(item.productId())
-                        .productName(item.productName())
-                        .quantity(item.quantity())
-                        .unitPrice(item.price())
-                        .totalPrice(item.subtotal())
-                        .build())
-                .collect(Collectors.toList());
-        savedOrder.setItems(orderItems);
-        order = savedOrder;
+        // 3. Call Order Service to create the "Legal Record"
+        OrderResponse order = orderClient.createOrder(orderRequest);
 
-        // Publish checkout initiated event asynchronously
-        // In a real SAGA, this would use an Outbox table. For simplicity, we just use KafkaTemplate here.
-        final String finalOrderNumber = order.getOrderNumber();
+        // 4. Initiate SAGA asynchronously
+        final String orderNumber = order.getOrderNumber();
         CompletableFuture<SendResult<String, Object>> future = 
-                kafkaTemplate.send("checkout.initiated", finalOrderNumber, order);
+                kafkaTemplate.send("checkout.initiated", orderNumber, order);
         
         future.whenComplete((result, ex) -> {
             if (ex != null) {
-                log.error("Failed to publish checkout.initiated event for order {}", finalOrderNumber, ex);
-                // In production, save to outbox table here for retry
+                log.error("Failed to publish checkout.initiated event for order {}", orderNumber, ex);
             } else {
-                log.info("Successfully published checkout.initiated event for order {}", finalOrderNumber);
+                log.info("Successfully published checkout.initiated event for order {}", orderNumber);
             }
         });
 
-        return mapToOrderResponse(order);
+        return order;
+    }
+
+    private BigDecimal calculateTotal(CartClient.CartResponse cart) {
+        BigDecimal subtotal = cart.totalPrice();
+        return subtotal.add(calculateTax(cart)).add(BigDecimal.valueOf(9.99));
+    }
+
+    private BigDecimal calculateTax(CartClient.CartResponse cart) {
+        return cart.totalPrice().multiply(BigDecimal.valueOf(0.08));
     }
 
     @Override
-    @Transactional(readOnly = true)
     public OrderResponse getOrder(Long orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
-        return mapToOrderResponse(order);
+        return orderClient.getOrderById(orderId);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public OrderResponse getOrderByNumber(String orderNumber) {
-        Order order = orderRepository.findByOrderNumber(orderNumber)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
-        return mapToOrderResponse(order);
+        return orderClient.getOrderByOrderNumber(orderNumber);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<OrderResponse> getUserOrders(String userId) {
-        return orderRepository.findByUserId(userId).stream()
-                .map(this::mapToOrderResponse)
-                .collect(Collectors.toList());
+        // This would need a paginated version or just call order-service
+        return orderClient.getOrdersByUserId(userId, 0, 10).getContent();
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Page<OrderResponse> getUserOrders(String userId, Pageable pageable) {
-        return orderRepository.findByUserId(userId, pageable)
-                .map(this::mapToOrderResponse);
+    public Page<OrderResponse> getUserOrders(String userId, org.springframework.data.domain.Pageable pageable) {
+        // We'll adapt the Pageable to simple params for Feign
+        var pageResp = orderClient.getOrdersByUserId(userId, pageable.getPageNumber(), pageable.getPageSize());
+        return new org.springframework.data.domain.PageImpl<>(pageResp.getContent(), pageable, pageResp.totalElements());
     }
 
     @Override
     public OrderResponse updateOrderStatus(Long orderId, String status) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
-        
-        order.setStatus(Order.OrderStatus.valueOf(status.toUpperCase()));
-        order = orderRepository.save(order);
-        
-        log.info("Updated order {} status to {}", order.getOrderNumber(), status);
-        return mapToOrderResponse(order);
-    }
-
-    private ShippingAddress mapToShippingAddress(com.rudraksha.shopsphere.checkout.dto.request.ShippingAddressRequest request) {
-        return ShippingAddress.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .addressLine1(request.getAddressLine1())
-                .addressLine2(request.getAddressLine2())
-                .city(request.getCity())
-                .state(request.getState())
-                .postalCode(request.getPostalCode())
-                .country(request.getCountry())
-                .phone(request.getPhone())
-                .build();
-    }
-
-    private OrderResponse mapToOrderResponse(Order order) {
-        return OrderResponse.builder()
-                .id(order.getId())
-                .orderNumber(order.getOrderNumber())
-                .userId(order.getUserId())
-                .status(order.getStatus())
-                .totalAmount(order.getTotalAmount())
-                .taxAmount(order.getTaxAmount())
-                .shippingAmount(order.getShippingAmount())
-                .items(order.getItems().stream().map(this::mapToOrderItemResponse).collect(Collectors.toList()))
-                .shippingAddress(mapToShippingAddressResponse(order.getShippingAddress()))
-                .transactionId(order.getTransactionId())
-                .createdAt(order.getCreatedAt())
-                .updatedAt(order.getUpdatedAt())
-                .build();
-    }
-
-    private OrderItemResponse mapToOrderItemResponse(OrderItem item) {
-        return OrderItemResponse.builder()
-                .id(item.getId())
-                .productId(item.getProductId())
-                .productName(item.getProductName())
-                .quantity(item.getQuantity())
-                .unitPrice(item.getUnitPrice())
-                .totalPrice(item.getTotalPrice())
-                .build();
-    }
-
-    private ShippingAddressResponse mapToShippingAddressResponse(ShippingAddress address) {
-        return ShippingAddressResponse.builder()
-                .firstName(address.getFirstName())
-                .lastName(address.getLastName())
-                .addressLine1(address.getAddressLine1())
-                .addressLine2(address.getAddressLine2())
-                .city(address.getCity())
-                .state(address.getState())
-                .postalCode(address.getPostalCode())
-                .country(address.getCountry())
-                .phone(address.getPhone())
-                .build();
+        return orderClient.updateOrderStatus(orderId, status);
     }
 
     @FeignClient(name = "CART-SERVICE", path = "/api/v1/cart", fallbackFactory = CartClientFallbackFactory.class)
@@ -207,23 +120,34 @@ public class CheckoutServiceImpl implements CheckoutService {
         @DeleteMapping
         void clearCart(@RequestHeader("X-User-Id") String userId);
 
-        record CartResponse(
-                String id,
-                String userId,
-                List<CartItemResponse> items,
-                Integer totalItems,
-                BigDecimal totalPrice,
-                LocalDateTime createdAt,
-                LocalDateTime updatedAt
-        ) {}
+        record CartResponse(String id, String userId, List<CartItemResponse> items, Integer totalItems, BigDecimal totalPrice) {}
+        record CartItemResponse(String productId, String productName, Integer quantity, BigDecimal price, BigDecimal subtotal) {}
+    }
 
-        record CartItemResponse(
-                String productId,
-                String productName,
-                Integer quantity,
-                BigDecimal price,
-                BigDecimal subtotal,
-                String imageUrl
-        ) {}
+    @FeignClient(name = "ORDER-SERVICE", path = "/order")
+    public interface OrderClient {
+        @PostMapping
+        OrderResponse createOrder(@RequestBody CreateOrderRequest request);
+
+        @GetMapping("/{id}")
+        OrderResponse getOrderById(@PathVariable("id") Long id);
+
+        @GetMapping("/number/{orderNumber}")
+        OrderResponse getOrderByOrderNumber(@PathVariable("orderNumber") String orderNumber);
+
+        @GetMapping("/user/{userId}")
+        PageResponse<OrderResponse> getOrdersByUserId(@PathVariable("userId") String userId, @RequestParam("page") int page, @RequestParam("size") int size);
+
+        @PutMapping("/{id}/status")
+        OrderResponse updateOrderStatus(@PathVariable("id") Long id, @RequestParam("status") String status);
+    }
+
+    @lombok.Builder
+    @lombok.extern.jackson.Jacksonized
+    public record CreateOrderRequest(String userId, BigDecimal totalAmount, BigDecimal taxAmount, String shippingAddress, String billingAddress, List<OrderItemRequest> items) {}
+    
+    @lombok.Builder
+    public record PageResponse<T>(List<T> content, int totalPages, long totalElements) {
+        public List<T> getContent() { return content; }
     }
 }

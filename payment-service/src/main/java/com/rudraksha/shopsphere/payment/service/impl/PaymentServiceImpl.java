@@ -50,11 +50,11 @@ public class PaymentServiceImpl implements PaymentService {
         if (simulatePaymentGateway(request)) {
             savedPayment.setStatus(Payment.PaymentStatus.SUCCESS);
             savedPayment.setProcessedAt(LocalDateTime.now());
-            publishPaymentEvent("PAYMENT_SUCCESS", transactionId, savedPayment.getOrderNumber());
+            publishPaymentEvent("PAYMENT_SUCCESS", transactionId, savedPayment.getOrderNumber(), savedPayment.getCustomerId());
         } else {
             savedPayment.setStatus(Payment.PaymentStatus.FAILED);
             savedPayment.setFailureReason("Payment gateway declined");
-            publishPaymentEvent("PAYMENT_FAILED", transactionId, savedPayment.getOrderNumber());
+            publishPaymentEvent("PAYMENT_FAILED", transactionId, savedPayment.getOrderNumber(), savedPayment.getCustomerId());
         }
 
         Payment updatedPayment = paymentRepository.save(savedPayment);
@@ -116,7 +116,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatus(Payment.PaymentStatus.REFUNDED);
         Payment refundedPayment = paymentRepository.save(payment);
         
-        publishPaymentEvent("PAYMENT_REFUNDED", payment.getTransactionId(), payment.getOrderNumber());
+        publishPaymentEvent("PAYMENT_REFUNDED", payment.getTransactionId(), payment.getOrderNumber(), payment.getCustomerId());
         
         return mapToResponse(refundedPayment);
     }
@@ -129,7 +129,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatus(status);
         Payment updatedPayment = paymentRepository.save(payment);
 
-        publishPaymentEvent("PAYMENT_STATUS_UPDATED", updatedPayment.getTransactionId(), updatedPayment.getOrderNumber());
+        publishPaymentEvent("PAYMENT_STATUS_UPDATED", updatedPayment.getTransactionId(), updatedPayment.getOrderNumber(), updatedPayment.getCustomerId());
 
         return mapToResponse(updatedPayment);
     }
@@ -170,13 +170,12 @@ public class PaymentServiceImpl implements PaymentService {
                 .build();
     }
 
-    private void publishPaymentEvent(String eventType, String transactionId, String orderNumber) {
-        String message = eventType + ":" + transactionId + ":" + orderNumber + ":" + LocalDateTime.now();
-        CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send("payment-events", message);
+    private void publishPaymentEvent(String eventType, String transactionId, String orderNumber, String customerId) {
+        String message = eventType + ":" + transactionId + ":" + orderNumber + ":" + customerId + ":" + LocalDateTime.now();
+        CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send("payment-events", orderNumber, message);
         future.whenComplete((result, ex) -> {
             if (ex != null) {
                 log.error("Failed to publish payment event: {} for order {}", eventType, orderNumber, ex);
-                // In production, save to an Outbox table here.
             } else {
                 log.info("Published payment event: {} for order {}", eventType, orderNumber);
             }

@@ -6,6 +6,8 @@ import com.rudraksha.shopsphere.order.entity.Order;
 import com.rudraksha.shopsphere.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,10 +39,9 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
-    @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<OrderResponse>> getOrdersByCustomerId(@PathVariable Long customerId) {
-        List<OrderResponse> orders = orderService.getOrdersByCustomerId(customerId);
-        return ResponseEntity.ok(orders);
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Page<OrderResponse>> getOrdersByUserId(@PathVariable String userId, Pageable pageable) {
+        return ResponseEntity.ok(orderService.getOrdersByUserId(userId, pageable));
     }
 
     @GetMapping("/status/{status}")
@@ -64,8 +65,7 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<List<OrderResponse>> getAllOrders() {
-        List<OrderResponse> orders = orderService.getAllOrders();
-        return ResponseEntity.ok(orders);
+    public ResponseEntity<Page<OrderResponse>> getAllOrders(Pageable pageable) {
+        return ResponseEntity.ok(orderService.getAllOrders(pageable));
     }
 }

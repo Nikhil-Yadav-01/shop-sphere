@@ -1,6 +1,6 @@
 package com.rudraksha.shopsphere.order.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +26,7 @@ public class Order {
     private String orderNumber;
 
     @Column(nullable = false)
-    private Long customerId;
+    private String userId;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -45,7 +45,7 @@ public class Order {
     private String billingAddress;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference
+    @JsonManagedReference
     private List<OrderItem> items;
 
     @Column(nullable = false)
@@ -66,6 +66,6 @@ public class Order {
     }
 
     public enum OrderStatus {
-        PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED
+        PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED, PROCESSING
     }
 }

@@ -1,7 +1,8 @@
 package com.rudraksha.shopsphere.order.dto.request;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,24 +16,18 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class CreateOrderRequest {
-    @NotNull(message = "Customer ID cannot be null")
-    private Long customerId;
+    @NotBlank(message = "User ID is required")
+    private String userId;
 
-    @NotEmpty(message = "Order items cannot be empty")
-    @Valid
-    private List<OrderItemRequest> items;
-
-    @NotNull(message = "Total amount cannot be null")
-    @DecimalMin(value = "0.01", message = "Total amount must be greater than 0")
+    @NotNull(message = "Total amount is required")
     private BigDecimal totalAmount;
 
-    @NotNull(message = "Tax amount cannot be null")
-    @DecimalMin(value = "0", message = "Tax amount cannot be negative")
+    @NotNull(message = "Tax amount is required")
     private BigDecimal taxAmount;
 
-    @NotBlank(message = "Shipping address cannot be blank")
     private String shippingAddress;
-
-    @NotBlank(message = "Billing address cannot be blank")
     private String billingAddress;
+
+    @NotEmpty(message = "Order must have at least one item")
+    private List<OrderItemRequest> items;
 }

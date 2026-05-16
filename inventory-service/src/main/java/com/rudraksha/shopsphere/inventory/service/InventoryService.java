@@ -31,7 +31,9 @@ public interface InventoryService {
     
     boolean checkAvailability(String sku, Integer requiredQuantity);
     
-    InventoryResponse reserveInventoryForOrder(String sku, Integer quantity, String orderId);
+    InventoryResponse reserveInventoryForOrder(String sku, Integer quantity, String orderNumber);
+
+    InventoryResponse reserveInventoryForOrderWithContext(String sku, Integer quantity, String orderNumber, String userId, String totalAmount);
     
-    void releaseReservationByOrder(String orderId);
+    void releaseReservationByOrder(String orderNumber);
 }

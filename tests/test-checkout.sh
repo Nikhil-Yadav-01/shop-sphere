@@ -82,7 +82,15 @@ if echo "$CHECKOUT_RESPONSE" | grep -q "orderNumber"; then
     
     # Additional tests if checkout succeeded
     echo ""
-    echo "9. Verify Cart Cleared (Async wait):"
+    echo "9. Verify Order Created in Order Service:"
+    if curl -s http://$IP:8084/order/number/$ORDER_NUMBER | grep -q "orderNumber"; then
+        echo "✓ Order correctly persisted in Order Service"
+    else
+        echo "✗ Order not found in Order Service"
+    fi
+    echo ""
+
+    echo "10. Verify Cart Cleared (Async wait):"
     
     CART_CLEARED=false
     for i in {1..15}; do
@@ -100,28 +108,19 @@ if echo "$CHECKOUT_RESPONSE" | grep -q "orderNumber"; then
     fi
     echo ""
     
-    echo "10. Get Order by Number:"
+    echo "11. Get Order by Number:"
     if curl -s http://$IP:8086/api/v1/checkout/orders/number/$ORDER_NUMBER | grep -q "orderNumber"; then
-        echo "✓ Order found by number"
+        echo "✓ Order found by number via Checkout Gateway"
     else
         echo "✗ Order not found by number"
     fi
     echo ""
     
-    echo "11. Get User Orders:"
-    USER_ORDERS=$(curl -s -H "X-User-Id: $USER_ID" http://$IP:8086/api/v1/checkout/orders)
-    if echo "$USER_ORDERS" | grep -q "orderNumber"; then
-        echo "✓ Order found in user orders"
-    else
-        echo "✗ Order not found in user orders"
-    fi
-    echo ""
-    
-    echo "12. Update Order Status:"
+    echo "12. Update Order Status (Directly in Order Service):"
     if [ -n "$ORDER_ID" ]; then
-        STATUS_UPDATE=$(curl -s -X PUT "http://$IP:8086/api/v1/checkout/orders/$ORDER_ID/status?status=PROCESSING")
-        if echo "$STATUS_UPDATE" | grep -q '"status":"PROCESSING"'; then
-            echo "✓ Order status updated to PROCESSING"
+        STATUS_UPDATE=$(curl -s -X PUT "http://$IP:8084/order/$ORDER_ID/status?status=SHIPPED")
+        if echo "$STATUS_UPDATE" | grep -q '"status":"SHIPPED"'; then
+            echo "✓ Order status updated to SHIPPED"
         else
             echo "✗ Failed to update order status"
         fi

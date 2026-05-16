@@ -1,7 +1,5 @@
 package com.rudraksha.shopsphere.checkout.kafka;
 
-import com.rudraksha.shopsphere.checkout.entity.Order;
-import com.rudraksha.shopsphere.checkout.repository.OrderRepository;
 import com.rudraksha.shopsphere.checkout.service.impl.CheckoutServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,41 +11,30 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class PaymentEventListener {
 
-    private final OrderRepository orderRepository;
     private final CheckoutServiceImpl.CartClient cartClient;
 
     @KafkaListener(topics = "payment-events", groupId = "checkout-service-group")
     public void onPaymentEvent(String message) {
-        log.info("Received payment event: {}", message);
+        log.info("Received payment event in checkout-service: {}", message);
         try {
             String[] parts = message.split(":");
-            if (parts.length >= 3) {
+            if (parts.length >= 4) {
                 String eventType = parts[0];
-                String transactionId = parts[1];
-                String orderNumber = parts[2]; // assuming payment service will send string order number
+                String orderNumber = parts[2];
+                String userId = parts[3];
 
-                orderRepository.findByOrderNumber(orderNumber).ifPresent(order -> {
-                    if ("PAYMENT_PROCESSED".equals(eventType) || "PAYMENT_SUCCESS".equals(eventType)) {
-                        order.setStatus(Order.OrderStatus.CONFIRMED);
-                        order.setTransactionId(transactionId);
-                        orderRepository.save(order);
-                        log.info("Order {} confirmed. Transaction ID: {}", orderNumber, transactionId);
-                        
-                        try {
-                            cartClient.clearCart(order.getUserId());
-                        } catch (Exception e) {
-                            log.error("Failed to clear cart for user {}", order.getUserId(), e);
-                        }
-                    } else if ("PAYMENT_FAILED".equals(eventType)) {
-                        order.setStatus(Order.OrderStatus.CANCELLED);
-                        order.setTransactionId(transactionId);
-                        orderRepository.save(order);
-                        log.warn("Order {} cancelled due to payment failure.", orderNumber);
+                if ("PAYMENT_SUCCESS".equals(eventType) || "PAYMENT_PROCESSED".equals(eventType)) {
+                    log.info("Payment successful for order {}. Clearing cart for user {}.", orderNumber, userId);
+                    try {
+                        cartClient.clearCart(userId);
+                        log.info("Cart cleared for user {}.", userId);
+                    } catch (Exception e) {
+                        log.error("Failed to clear cart for user {} after successful payment.", userId, e);
                     }
-                });
+                }
             }
         } catch (Exception e) {
-            log.error("Error processing payment event", e);
+            log.error("Error in checkout-service payment listener", e);
         }
     }
 }
