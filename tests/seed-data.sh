@@ -76,14 +76,22 @@ for i in {1..105}; do
     CAT_INDEX=$((i % ${#CATEGORIES[@]}))
     CATEGORY=${CATEGORIES[$CAT_INDEX]}
     PRICE=$(echo "scale=2; 10 + ($i * 1.5)" | bc)
-    PRODUCTS+=("Bulk Product $i|Product Item $i|High quality item from category $CATEGORY|$PRICE|$CATEGORY|https://picsum.photos/seed/$i/400/300")
+    # Adding 3 images per product, first one is primary
+    IMG1="https://picsum.photos/seed/${i}_1/400/300"
+    IMG2="https://picsum.photos/seed/${i}_2/400/300"
+    IMG3="https://picsum.photos/seed/${i}_3/400/300"
+    PRODUCTS+=("Bulk Product $i|Product Item $i|High quality item from category $CATEGORY|$PRICE|$CATEGORY|$IMG1,$IMG2,$IMG3")
 done
 
 for prod in "${PRODUCTS[@]}"; do
-    IFS="|" read -r NAME SHORT_NAME DESC PRICE CAT IMG <<< "$prod"
+    IFS="|" read -r NAME SHORT_NAME DESC PRICE CAT IMGS <<< "$prod"
     SKU="SKU-$(echo $SHORT_NAME | tr '[:lower:]' '[:upper:]' | tr ' ' '-')"
     
-    echo "  Creating Product: $SHORT_NAME ($SKU)..."
+    # Split IMGS string into JSON array format
+    IFS=',' read -r -a IMG_ARRAY <<< "$IMGS"
+    JSON_IMAGES=$(printf '%s\n' "${IMG_ARRAY[@]}" | jq -R . | jq -s -c .)
+    
+    echo "  Creating Product: $SHORT_NAME ($SKU) with ${#IMG_ARRAY[@]} images..."
     
     # Create Product
     PROD_RESP=$(curl -k -s -X POST "$BASE_URL/catalog/api/v1/products" \
@@ -95,7 +103,7 @@ for prod in "${PRODUCTS[@]}"; do
         \"description\": \"$DESC\",
         \"price\": $PRICE,
         \"categoryId\": \"$CAT\",
-        \"images\": [\"$IMG\"]
+        \"images\": $JSON_IMAGES
       }")
     
     PROD_ID=$(echo $PROD_RESP | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)

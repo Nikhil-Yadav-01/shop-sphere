@@ -67,4 +67,19 @@ if command -v docker &> /dev/null; then
     docker exec redis redis-cli keys "categories*"
 fi
 
+# 5. Test Primary Image Convention
+echo "5. Testing Primary Image Convention:"
+# Get a product with multiple images
+PRODUCT_WITH_IMAGES=$(curl -s "http://$IP:8083/api/v1/products/sku/$PRODUCT_SKU")
+PRIMARY_IMAGE=$(echo $PRODUCT_WITH_IMAGES | jq -r '.images[0]')
+echo "First image (Primary): $PRIMARY_IMAGE"
+
+if [[ "$PRIMARY_IMAGE" == "http://example.com/image.jpg" ]]; then
+    echo "SUCCESS: First image correctly identified as primary."
+else
+    echo "FAILED: Primary image mismatch."
+    exit 1
+fi
+echo ""
+
 echo "=== Catalog Service Tests Complete ==="
