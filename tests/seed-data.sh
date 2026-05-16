@@ -59,6 +59,7 @@ echo "✅ Authorized. Token acquired."
 # 5. Create Products & Inventory
 echo "Step 5: Seeding Products and Inventory..."
 
+# 5a. Curated Products
 declare -a PRODUCTS=(
     "Laptop|ThinkPad X1|The ultimate business laptop|1499.99|electronics|https://images.unsplash.com/photo-1588872657578-7efd1f1555ed"
     "Smartphone|iPhone 15|Latest Apple smartphone|999.00|electronics|https://images.unsplash.com/photo-1695048133142-1a20484d2569"
@@ -66,6 +67,17 @@ declare -a PRODUCTS=(
     "Coffee|Arabica Beans|Freshly roasted organic beans|18.50|grocery|https://images.unsplash.com/photo-1559056199-641a0ac8b55e"
     "Chair|Office Ergonomic|High back mesh office chair|245.00|furniture|https://images.unsplash.com/photo-1505797149-43b007662c21"
 )
+
+# 5b. Generate 100+ additional products
+echo "Generating 105 bulk products..."
+CATEGORIES=("electronics" "home" "grocery" "fashion" "audio" "furniture" "toys" "sports")
+
+for i in {1..105}; do
+    CAT_INDEX=$((i % ${#CATEGORIES[@]}))
+    CATEGORY=${CATEGORIES[$CAT_INDEX]}
+    PRICE=$(echo "scale=2; 10 + ($i * 1.5)" | bc)
+    PRODUCTS+=("Bulk Product $i|Product Item $i|High quality item from category $CATEGORY|$PRICE|$CATEGORY|https://picsum.photos/seed/$i/400/300")
+done
 
 for prod in "${PRODUCTS[@]}"; do
     IFS="|" read -r NAME SHORT_NAME DESC PRICE CAT IMG <<< "$prod"
