@@ -38,7 +38,8 @@ curl -s -X POST -H "Content-Type: application/json" \
         \"name\": \"Super Gadget Alpha\",
         \"description\": \"The best gadget in the universe\",
         \"price\": 99.99,
-        \"categoryId\": \"$CHILD_ID\"
+        \"categoryId\": \"$CHILD_ID\",
+        \"images\": [\"http://example.com/image.jpg\"]
     }" http://$IP:8083/api/v1/products > /dev/null
 
 # Wait for index

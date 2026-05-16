@@ -24,9 +24,25 @@ curl -s -X POST -H "Content-Type: application/json" \
 ACTUAL_PRODUCT_ID=$(cat product_response.json | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
 echo "Created Product ID: $ACTUAL_PRODUCT_ID"
 
-# Wait for Eureka discovery propagation (increased for reliability)
-echo "Waiting for service discovery..."
-sleep 30
+if [ -z "$ACTUAL_PRODUCT_ID" ]; then
+    echo "FAILED: Product creation failed"
+    cat product_response.json
+    exit 1
+fi
+
+# Wait for Eureka discovery propagation
+echo "Waiting for service discovery (Eureka registration)..."
+for i in {1..20}; do
+    if curl -s http://$IP:8761/eureka/apps/CATALOG-SERVICE | grep -q "UP"; then
+        echo "✓ Catalog Service registered in Eureka"
+        break
+    fi
+    echo "  Still waiting for Catalog Service ($i/20)..."
+    sleep 3
+done
+
+echo "Waiting for Ribbon/LoadBalancer cache refresh (45s)..."
+sleep 45
 
 # 2. Seed Inventory Service
 echo "Seeding Inventory Service..."

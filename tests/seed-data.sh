@@ -28,12 +28,12 @@ REG_RESP=$(curl -k -s -X POST "$BASE_URL/auth/register" \
     \"lastName\": \"Seller\"
   }")
 
-# 2. Verify Email (Directly from DB for speed)
-echo "Step 2: Auto-verifying email in DB..."
+# 2. Verify Email & Enable (Directly from DB for speed)
+echo "Step 2: Auto-verifying and enabling account in DB..."
 docker exec -i auth-db psql -U postgres -d shopsphere_auth -c \
   "UPDATE email_verification_tokens SET used = true WHERE user_id = (SELECT id FROM users WHERE email = '$ADMIN_EMAIL');" > /dev/null
 docker exec -i auth-db psql -U postgres -d shopsphere_auth -c \
-  "UPDATE users SET email_verified = true WHERE email = '$ADMIN_EMAIL';" > /dev/null
+  "UPDATE users SET email_verified = true, enabled = true WHERE email = '$ADMIN_EMAIL';" > /dev/null
 
 # 3. Elevate to ADMIN
 echo "Step 3: Elevating user to ADMIN..."
