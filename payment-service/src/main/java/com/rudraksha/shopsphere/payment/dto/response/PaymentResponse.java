@@ -17,7 +17,7 @@ public class PaymentResponse {
     private Long id;
     private String transactionId;
     private String orderNumber;
-    private String customerId;
+    private String userId;
     private Payment.PaymentStatus status;
     private Payment.PaymentMethod method;
     private BigDecimal amount;

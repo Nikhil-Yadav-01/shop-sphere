@@ -117,7 +117,7 @@ for prod in "${PRODUCTS[@]}"; do
           -H "Content-Type: application/json" \
           -d "{
             \"sku\": \"$SKU\",
-            \"productId\": 1,
+            \"productId\": \"$PROD_ID\",
             \"quantity\": 100,
             \"reorderLevel\": 10,
             \"warehouseLocation\": \"Main Warehouse\"

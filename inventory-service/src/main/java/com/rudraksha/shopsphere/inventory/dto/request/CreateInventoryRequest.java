@@ -16,8 +16,8 @@ public class CreateInventoryRequest {
     @NotBlank(message = "SKU is required")
     private String sku;
 
-    @NotNull(message = "Product ID is required")
-    private Long productId;
+    @NotBlank(message = "Product ID is required")
+    private String productId;
 
     @NotNull(message = "Quantity is required")
     @Positive(message = "Quantity must be greater than 0")

@@ -62,7 +62,7 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public InventoryResponse getInventoryByProductId(Long productId) {
+    public InventoryResponse getInventoryByProductId(String productId) {
         log.info("Fetching inventory for Product ID: {}", productId);
         InventoryItem item = inventoryRepository.findByProductId(productId)
             .orElseThrow(() -> new IllegalArgumentException("Inventory not found for Product ID: " + productId));
@@ -261,7 +261,7 @@ public class InventoryServiceImpl implements InventoryService {
             InventoryItem updated = inventoryRepository.save(item);
             
             OrderReservation reservation = OrderReservation.builder()
-                .orderId(orderNumber)
+                .orderNumber(orderNumber)
                 .inventoryItemId(item.getId())
                 .quantityReserved(quantity)
                 .build();
@@ -292,7 +292,7 @@ public class InventoryServiceImpl implements InventoryService {
     public void releaseReservationByOrder(String orderNumber) {
         log.info("Releasing all reservations for order: {}", orderNumber);
         
-        List<OrderReservation> reservations = orderReservationRepository.findByOrderId(orderNumber);
+        List<OrderReservation> reservations = orderReservationRepository.findByOrderNumber(orderNumber);
         
         for (OrderReservation reservation : reservations) {
             InventoryItem item = inventoryRepository.findById(reservation.getInventoryItemId())
@@ -323,6 +323,6 @@ public class InventoryServiceImpl implements InventoryService {
             });
         }
         
-        orderReservationRepository.deleteByOrderId(orderNumber);
+        orderReservationRepository.deleteByOrderNumber(orderNumber);
     }
 }

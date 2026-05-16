@@ -27,7 +27,7 @@ public class Payment {
     private String orderNumber;
 
     @Column(nullable = false)
-    private String customerId;
+    private String userId;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -45,9 +45,6 @@ public class Payment {
 
     @Column
     private String paymentGatewayId;
-
-    @Column
-    private String paymentGatewayResponse;
 
     @Column
     private String failureReason;

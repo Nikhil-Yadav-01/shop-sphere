@@ -17,8 +17,8 @@ public class ProcessPaymentRequest {
     @NotBlank(message = "Order Number cannot be blank")
     private String orderNumber;
 
-    @NotBlank(message = "Customer ID cannot be blank")
-    private String customerId;
+    @NotBlank(message = "User ID cannot be blank")
+    private String userId;
 
     @NotNull(message = "Amount cannot be null")
     @DecimalMin(value = "0.01", message = "Amount must be greater than 0")

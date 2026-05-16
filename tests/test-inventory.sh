@@ -13,7 +13,7 @@ RESPONSE=$(curl -s -X POST $BASE_URL \
   -H "Content-Type: application/json" \
   -d '{
     "sku": "TEST-SKU-002",
-    "productId": 102,
+    "productId": "PROD-102",
     "quantity": 500,
     "reorderLevel": 50,
     "warehouseLocation": "WAREHOUSE-B2"
@@ -30,7 +30,7 @@ echo "✓ Fetched successfully"
 
 # Test 3: Get inventory by Product ID
 echo -e "\n3. Fetching inventory by Product ID..."
-curl -s -X GET "$BASE_URL/product/101" | jq '.id, .productId, .sku'
+curl -s -X GET "$BASE_URL/product/PROD-101" | jq '.id, .productId, .sku'
 echo "✓ Fetched successfully"
 
 # Test 4: Reserve inventory

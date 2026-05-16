@@ -12,7 +12,7 @@ public interface PaymentService {
     PaymentResponse getPaymentById(Long id);
     PaymentResponse getPaymentByTransactionId(String transactionId);
     List<PaymentResponse> getPaymentsByOrderNumber(String orderNumber);
-    List<PaymentResponse> getPaymentsByCustomerId(String customerId);
+    List<PaymentResponse> getPaymentsByUserId(String userId);
     List<PaymentResponse> getPaymentsByStatus(Payment.PaymentStatus status);
     PaymentResponse refundPayment(RefundPaymentRequest request);
     PaymentResponse updatePaymentStatus(Long id, Payment.PaymentStatus status);

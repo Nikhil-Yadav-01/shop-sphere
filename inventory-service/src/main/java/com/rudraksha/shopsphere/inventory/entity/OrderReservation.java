@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "order_reservations", indexes = {
-    @Index(name = "idx_order_id", columnList = "order_id"),
+    @Index(name = "idx_order_number", columnList = "order_number"),
     @Index(name = "idx_inventory_item_id", columnList = "inventory_item_id")
 })
 @Data
@@ -22,8 +22,8 @@ public class OrderReservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String orderId;
+    @Column(name = "order_number", nullable = false)
+    private String orderNumber;
 
     @Column(nullable = false)
     private Long inventoryItemId;

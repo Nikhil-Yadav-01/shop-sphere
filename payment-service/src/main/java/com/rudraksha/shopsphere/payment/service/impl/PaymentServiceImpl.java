@@ -36,7 +36,7 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = Payment.builder()
                 .transactionId(transactionId)
                 .orderNumber(request.getOrderNumber())
-                .customerId(request.getCustomerId())
+                .userId(request.getUserId())
                 .status(Payment.PaymentStatus.PROCESSING)
                 .method(request.getMethod())
                 .amount(request.getAmount())
@@ -50,11 +50,11 @@ public class PaymentServiceImpl implements PaymentService {
         if (simulatePaymentGateway(request)) {
             savedPayment.setStatus(Payment.PaymentStatus.SUCCESS);
             savedPayment.setProcessedAt(LocalDateTime.now());
-            publishPaymentEvent("PAYMENT_SUCCESS", transactionId, savedPayment.getOrderNumber(), savedPayment.getCustomerId());
+            publishPaymentEvent("PAYMENT_SUCCESS", transactionId, savedPayment.getOrderNumber(), savedPayment.getUserId());
         } else {
             savedPayment.setStatus(Payment.PaymentStatus.FAILED);
             savedPayment.setFailureReason("Payment gateway declined");
-            publishPaymentEvent("PAYMENT_FAILED", transactionId, savedPayment.getOrderNumber(), savedPayment.getCustomerId());
+            publishPaymentEvent("PAYMENT_FAILED", transactionId, savedPayment.getOrderNumber(), savedPayment.getUserId());
         }
 
         Payment updatedPayment = paymentRepository.save(savedPayment);
@@ -88,8 +88,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PaymentResponse> getPaymentsByCustomerId(String customerId) {
-        return paymentRepository.findByCustomerId(customerId)
+    public List<PaymentResponse> getPaymentsByUserId(String userId) {
+        return paymentRepository.findByUserId(userId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -116,7 +116,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatus(Payment.PaymentStatus.REFUNDED);
         Payment refundedPayment = paymentRepository.save(payment);
         
-        publishPaymentEvent("PAYMENT_REFUNDED", payment.getTransactionId(), payment.getOrderNumber(), payment.getCustomerId());
+        publishPaymentEvent("PAYMENT_REFUNDED", payment.getTransactionId(), payment.getOrderNumber(), payment.getUserId());
         
         return mapToResponse(refundedPayment);
     }
@@ -129,7 +129,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatus(status);
         Payment updatedPayment = paymentRepository.save(payment);
 
-        publishPaymentEvent("PAYMENT_STATUS_UPDATED", updatedPayment.getTransactionId(), updatedPayment.getOrderNumber(), updatedPayment.getCustomerId());
+        publishPaymentEvent("PAYMENT_STATUS_UPDATED", updatedPayment.getTransactionId(), updatedPayment.getOrderNumber(), updatedPayment.getUserId());
 
         return mapToResponse(updatedPayment);
     }
@@ -157,7 +157,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .id(payment.getId())
                 .transactionId(payment.getTransactionId())
                 .orderNumber(payment.getOrderNumber())
-                .customerId(payment.getCustomerId())
+                .userId(payment.getUserId())
                 .status(payment.getStatus())
                 .method(payment.getMethod())
                 .amount(payment.getAmount())
@@ -170,8 +170,8 @@ public class PaymentServiceImpl implements PaymentService {
                 .build();
     }
 
-    private void publishPaymentEvent(String eventType, String transactionId, String orderNumber, String customerId) {
-        String message = eventType + ":" + transactionId + ":" + orderNumber + ":" + customerId + ":" + LocalDateTime.now();
+    private void publishPaymentEvent(String eventType, String transactionId, String orderNumber, String userId) {
+        String message = eventType + ":" + transactionId + ":" + orderNumber + ":" + userId + ":" + LocalDateTime.now();
         CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send("payment-events", orderNumber, message);
         future.whenComplete((result, ex) -> {
             if (ex != null) {

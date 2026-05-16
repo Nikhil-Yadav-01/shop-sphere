@@ -49,7 +49,7 @@ echo "Seeding Inventory Service..."
 curl -s -X POST -H "Content-Type: application/json" \
     -d "{
         \"sku\": \"$PRODUCT_SKU\",
-        \"productId\": 1,
+        \"productId\": \"$ACTUAL_PRODUCT_ID\",
         \"quantity\": 10,
         \"reorderLevel\": 5,
         \"warehouseLocation\": \"Warehouse CI\"

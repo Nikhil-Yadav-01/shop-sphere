@@ -11,7 +11,7 @@ public interface InventoryService {
     
     InventoryResponse getInventoryBySku(String sku);
     
-    InventoryResponse getInventoryByProductId(Long productId);
+    InventoryResponse getInventoryByProductId(String productId);
     
     InventoryResponse updateInventory(Long id, UpdateInventoryRequest request);
     

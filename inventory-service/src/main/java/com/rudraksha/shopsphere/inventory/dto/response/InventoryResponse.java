@@ -15,12 +15,12 @@ import java.time.LocalDateTime;
 public class InventoryResponse {
     private Long id;
     private String sku;
-    private Long productId;
+    private String productId;
     private Integer quantity;
     private Integer reservedQuantity;
     private Integer availableQuantity;
     private Integer reorderLevel;
-    private InventoryItem.InventoryStatus status;
+    private String status;
     private String warehouseLocation;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -34,7 +34,7 @@ public class InventoryResponse {
             .reservedQuantity(item.getReservedQuantity())
             .availableQuantity(item.getAvailableQuantity())
             .reorderLevel(item.getReorderLevel())
-            .status(item.getStatus())
+            .status(item.getStatus().name())
             .warehouseLocation(item.getWarehouseLocation())
             .createdAt(item.getCreatedAt())
             .updatedAt(item.getUpdatedAt())

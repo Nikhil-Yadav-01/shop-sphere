@@ -37,7 +37,7 @@ public class InventoryEventListener {
 
                 ProcessPaymentRequest request = ProcessPaymentRequest.builder()
                     .orderNumber(orderNumber)
-                    .customerId(userId)
+                    .userId(userId)
                     .amount(amount)
                     .currency("USD")
                     .method(Payment.PaymentMethod.CREDIT_CARD)

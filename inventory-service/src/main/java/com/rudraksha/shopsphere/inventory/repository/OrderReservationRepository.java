@@ -8,7 +8,6 @@ import java.util.List;
 
 @Repository
 public interface OrderReservationRepository extends JpaRepository<OrderReservation, Long> {
-    List<OrderReservation> findByOrderId(String orderId);
-    
-    void deleteByOrderId(String orderId);
+    List<OrderReservation> findByOrderNumber(String orderNumber);
+    void deleteByOrderNumber(String orderNumber);
 }
