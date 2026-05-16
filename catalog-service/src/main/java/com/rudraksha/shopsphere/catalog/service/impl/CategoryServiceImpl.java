@@ -7,8 +7,11 @@ import com.rudraksha.shopsphere.catalog.repository.CategoryRepository;
 import com.rudraksha.shopsphere.catalog.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,22 +23,40 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
+    @CacheEvict(value = "categories", allEntries = true)
     public CategoryResponse createCategory(CreateCategoryRequest request) {
         if (categoryRepository.existsByName(request.getName())) {
             throw new IllegalArgumentException("Category with name " + request.getName() + " already exists");
         }
 
-        Category category = Category.builder()
+        Category.CategoryBuilder categoryBuilder = Category.builder()
                 .name(request.getName())
                 .description(request.getDescription())
-                .build();
+                .active(true);
 
-        Category savedCategory = categoryRepository.save(category);
+        if (request.getParentId() != null && !request.getParentId().isEmpty()) {
+            Category parent = categoryRepository.findById(request.getParentId())
+                    .orElseThrow(() -> new IllegalArgumentException("Parent category not found"));
+            categoryBuilder.parentId(parent.getId());
+            categoryBuilder.level(parent.getLevel() + 1);
+            categoryBuilder.path(parent.getPath() + " > " + request.getName());
+            
+            List<String> ancestors = new ArrayList<>(parent.getAncestors() != null ? parent.getAncestors() : new ArrayList<>());
+            ancestors.add(parent.getId());
+            categoryBuilder.ancestors(ancestors);
+        } else {
+            categoryBuilder.level(0);
+            categoryBuilder.path(request.getName());
+            categoryBuilder.ancestors(new ArrayList<>());
+        }
+
+        Category savedCategory = categoryRepository.save(categoryBuilder.build());
         log.info("Created category with ID: {}", savedCategory.getId());
         return mapToResponse(savedCategory);
     }
 
     @Override
+    @Cacheable(value = "categories", key = "#id")
     public CategoryResponse getCategoryById(String id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found with ID: " + id));
@@ -43,6 +64,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @CacheEvict(value = "categories", allEntries = true)
     public CategoryResponse updateCategory(String id, CreateCategoryRequest request) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found with ID: " + id));
@@ -57,12 +79,32 @@ public class CategoryServiceImpl implements CategoryService {
             category.setDescription(request.getDescription());
         }
 
+        if (request.getParentId() != null && !request.getParentId().equals(category.getParentId())) {
+             if (request.getParentId().isEmpty()) {
+                 category.setParentId(null);
+                 category.setLevel(0);
+                 category.setPath(category.getName());
+                 category.setAncestors(new ArrayList<>());
+             } else {
+                 Category parent = categoryRepository.findById(request.getParentId())
+                         .orElseThrow(() -> new IllegalArgumentException("Parent category not found"));
+                 category.setParentId(parent.getId());
+                 category.setLevel(parent.getLevel() + 1);
+                 category.setPath(parent.getPath() + " > " + category.getName());
+                 
+                 List<String> ancestors = new ArrayList<>(parent.getAncestors() != null ? parent.getAncestors() : new ArrayList<>());
+                 ancestors.add(parent.getId());
+                 category.setAncestors(ancestors);
+             }
+        }
+
         Category updatedCategory = categoryRepository.save(category);
         log.info("Updated category with ID: {}", updatedCategory.getId());
         return mapToResponse(updatedCategory);
     }
 
     @Override
+    @CacheEvict(value = "categories", allEntries = true)
     public void deleteCategory(String id) {
         if (!categoryRepository.existsById(id)) {
             throw new IllegalArgumentException("Category not found with ID: " + id);
@@ -72,6 +114,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Cacheable(value = "categories", key = "'all'")
     public List<CategoryResponse> getAllCategories() {
         return categoryRepository.findAll().stream()
                 .map(this::mapToResponse)
@@ -83,6 +126,10 @@ public class CategoryServiceImpl implements CategoryService {
                 .id(category.getId())
                 .name(category.getName())
                 .description(category.getDescription())
+                .parentId(category.getParentId())
+                .ancestors(category.getAncestors())
+                .level(category.getLevel())
+                .path(category.getPath())
                 .createdAt(category.getCreatedAt())
                 .updatedAt(category.getUpdatedAt())
                 .build();

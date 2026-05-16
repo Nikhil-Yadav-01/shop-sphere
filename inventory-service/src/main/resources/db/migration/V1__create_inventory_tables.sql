@@ -46,3 +46,17 @@ CREATE TABLE IF NOT EXISTS order_reservations (
 -- Create indexes for order_reservations
 CREATE INDEX IF NOT EXISTS idx_order_id ON order_reservations(order_id);
 CREATE INDEX IF NOT EXISTS idx_inventory_item_id ON order_reservations(inventory_item_id);
+
+-- Create outbox_events table
+CREATE TABLE IF NOT EXISTS outbox_events (
+    id BIGSERIAL PRIMARY KEY,
+    topic VARCHAR(255) NOT NULL,
+    key VARCHAR(255) NOT NULL,
+    payload TEXT NOT NULL,
+    processed BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL
+);
+
+-- Create indexes for outbox_events
+CREATE INDEX IF NOT EXISTS idx_outbox_processed ON outbox_events(processed);
+CREATE INDEX IF NOT EXISTS idx_outbox_created_at ON outbox_events(created_at);

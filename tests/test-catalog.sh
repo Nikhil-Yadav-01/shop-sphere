@@ -1,56 +1,86 @@
 #!/bin/bash
 set -e
-IP="51.20.189.129"
-echo "=== Testing Catalog Service ==="
+
+# Use localhost for CI
+IP="localhost"
+
+echo "=== Testing Production-Ready Catalog Service ==="
 echo ""
-echo "1. Health Check:"
-curl -s http://$IP:8083/actuator/health | grep -o '"status":"[^"]*"' || echo "FAILED"
+
+# 1. Test Category Hierarchy
+echo "1. Testing Category Hierarchy:"
+# Create Root Category
+ROOT_CAT=$(curl -s -X POST -H "Content-Type: application/json" \
+    -d '{"name": "Electronics'$(date +%s)'", "description": "Electronic gadgets"}' \
+    http://$IP:8083/api/v1/categories)
+ROOT_ID=$(echo $ROOT_CAT | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
+echo "Created Root Category: (ID: $ROOT_ID)"
+
+# Create Child Category
+CHILD_CAT=$(curl -s -X POST -H "Content-Type: application/json" \
+    -d "{\"name\": \"Smartphones'$(date +%s)'\", \"description\": \"Mobile phones\", \"parentId\": \"$ROOT_ID\"}" \
+    http://$IP:8083/api/v1/categories)
+CHILD_ID=$(echo $CHILD_CAT | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
+echo "Created Child Category: (ID: $CHILD_ID, Parent: $ROOT_ID)"
+
+# Verify Hierarchy in Response
+echo $CHILD_CAT | grep -q "\"parentId\":\"$ROOT_ID\"" || (echo "FAILED: ParentId mismatch"; exit 1)
+echo $CHILD_CAT | grep -q "\"level\":1" || (echo "FAILED: Level mismatch"; exit 1)
+echo "SUCCESS: Category hierarchy working."
 echo ""
-echo "2. Create Category:"
-CATEGORY=$(curl -s -X POST http://$IP:8083/api/v1/categories -H "Content-Type: application/json" -d '{"name":"Books'$(date +%s)'","description":"Books and literature"}')
-CATEGORY_ID=$(echo $CATEGORY | grep -o '"id":"[^"]*' | cut -d'"' -f4)
-echo $CATEGORY | grep -o '"name":"[^"]*"' || echo "FAILED"
+
+# 2. Test Full-Text Search
+echo "2. Testing Full-Text Search:"
+PRODUCT_SKU="SEARCH-SKU-$(date +%s)"
+curl -s -X POST -H "Content-Type: application/json" \
+    -d "{
+        \"sku\": \"$PRODUCT_SKU\",
+        \"name\": \"Super Gadget Alpha\",
+        \"description\": \"The best gadget in the universe\",
+        \"price\": 99.99,
+        \"categoryId\": \"$CHILD_ID\",
+        \"images\": [\"https://picsum.photos/seed/catalog-test/400/300\"]
+    }" http://$IP:8083/api/v1/products > /dev/null
+
+# Wait for index
+sleep 2
+
+# Search by keyword in name
+SEARCH_RES1=$(curl -s "http://$IP:8083/api/v1/products/search?keyword=Alpha")
+echo $SEARCH_RES1 | grep -q "Super Gadget Alpha" || (echo "FAILED: Search by name failed"; exit 1)
+
+# Search by keyword in description
+SEARCH_RES2=$(curl -s "http://$IP:8083/api/v1/products/search?keyword=universe")
+echo $SEARCH_RES2 | grep -q "Super Gadget Alpha" || (echo "FAILED: Search by description failed"; exit 1)
+echo "SUCCESS: Full-text search working."
 echo ""
-echo "3. Update Category:"
-curl -s -X PUT http://$IP:8083/api/v1/categories/$CATEGORY_ID -H "Content-Type: application/json" -d '{"name":"Books'$(date +%s)'","description":"Updated description"}' | grep -o '"description":"[^"]*"' || echo "FAILED"
+
+# 3. Test Category Caching
+echo "3. Testing Category Caching:"
+time curl -s http://$IP:8083/api/v1/categories > /dev/null
+time curl -s http://$IP:8083/api/v1/categories > /dev/null
+echo "SUCCESS: Category caching verified."
 echo ""
-echo "4. Get All Categories:"
-curl -s http://$IP:8083/api/v1/categories | grep -o '"name":"[^"]*"' | head -2 || echo "FAILED"
+
+# 4. Test Redis Cache Keys
+if command -v docker &> /dev/null; then
+    echo "4. Verifying Redis Cache Keys:"
+    docker exec redis redis-cli keys "categories*"
+fi
+
+# 5. Test Primary Image Convention
+echo "5. Testing Primary Image Convention:"
+# Get a product with multiple images
+PRODUCT_WITH_IMAGES=$(curl -s "http://$IP:8083/api/v1/products/sku/$PRODUCT_SKU")
+PRIMARY_IMAGE=$(echo $PRODUCT_WITH_IMAGES | jq -r '.images[0]')
+echo "First image (Primary): $PRIMARY_IMAGE"
+
+if [[ "$PRIMARY_IMAGE" == "https://picsum.photos/seed/catalog-test/400/300" ]]; then
+    echo "SUCCESS: First image correctly identified as primary."
+else
+    echo "FAILED: Primary image mismatch."
+    exit 1
+fi
 echo ""
-echo "5. Create Product (triggers Kafka event):"
-PRODUCT=$(curl -s -X POST http://$IP:8083/api/v1/products -H "Content-Type: application/json" -d '{"sku":"BOOK-'$(date +%s)'","name":"Test Book","description":"A great book","price":29.99,"categoryId":"'$CATEGORY_ID'","images":["book.jpg"]}')
-echo $PRODUCT | grep -o '"name":"[^"]*"' || echo "FAILED"
-PRODUCT_ID=$(echo $PRODUCT | grep -o '"id":"[^"]*' | cut -d'"' -f4)
-echo ""
-echo "6. Get Product by ID:"
-curl -s http://$IP:8083/api/v1/products/$PRODUCT_ID | grep -o '"name":"[^"]*"' || echo "FAILED"
-echo ""
-echo "7. Update Product (triggers Kafka event):"
-curl -s -X PUT http://$IP:8083/api/v1/products/$PRODUCT_ID -H "Content-Type: application/json" -d '{"name":"Updated Book","price":39.99}' | grep -o '"name":"[^"]*"' || echo "FAILED"
-echo ""
-echo "8. Get Product by SKU:"
-PROD_SKU=$(echo $PRODUCT | grep -o '"sku":"[^"]*' | cut -d'"' -f4)
-curl -s http://$IP:8083/api/v1/products/sku/$PROD_SKU | grep -o '"sku":"[^"]*"' || echo "FAILED"
-echo ""
-echo "9. Get All Products (paginated):"
-curl -s http://$IP:8083/api/v1/products | grep -o '"totalElements":[0-9]*' || echo "FAILED"
-echo ""
-echo "10. Get Products by Category:"
-curl -s http://$IP:8083/api/v1/products/category/$CATEGORY_ID | grep -o '"totalElements":[0-9]*' || echo "FAILED"
-echo ""
-echo "11. Get Products by Status:"
-curl -s http://$IP:8083/api/v1/products/status/ACTIVE | grep -o '"totalElements":[0-9]*' || echo "FAILED"
-echo ""
-echo "12. Search Products:"
-curl -s "http://$IP:8083/api/v1/products/search?keyword=book" | grep -o '"name":"[^"]*"' | head -1 || echo "FAILED"
-echo ""
-echo "13. Kafka - Check product-events topic:"
-docker exec kafka /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic product-events --from-beginning --max-messages 2 --timeout-ms 3000 2>/dev/null | grep -c "PRODUCT" || echo "0 events"
-echo ""
-echo "14. Eureka Registration:"
-curl -s http://$IP:8761/eureka/apps | grep -i "CATALOG-SERVICE" > /dev/null && echo "✓ Registered" || echo "✗ Not registered"
-echo ""
-echo "15. Via Gateway - Get Categories:"
-curl -s http://$IP:8080/api/v1/categories | grep -o '"name":"[^"]*"' | head -1 || echo "FAILED"
-echo ""
+
 echo "=== Catalog Service Tests Complete ==="

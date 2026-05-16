@@ -8,6 +8,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
@@ -26,13 +27,21 @@ public class Product {
     @Indexed(unique = true)
     private String sku;
 
+    @TextIndexed
     @Indexed
     private String name;
 
+    @TextIndexed
     private String description;
 
     @Indexed
     private String categoryId;
+
+    private BigDecimal price;
+
+    private BigDecimal originalPrice;
+
+    private String currency;
 
     private List<String> images;
 

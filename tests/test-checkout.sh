@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-IP="51.20.188.129"
+IP="localhost"
 USER_ID="checkout-test-$(date +%s)"
 
 echo "=== Comprehensive Checkout Service Tests ==="

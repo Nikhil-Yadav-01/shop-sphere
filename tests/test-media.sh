@@ -2,7 +2,7 @@
 
 ###############################################################################
 # MEDIA SERVICE TEST SUITE (FULL, DIAGNOSTIC)
-# Target Server: 13.60.64.207:8091
+# Target Server: localhost:8091
 # Usage: chmod +x test-media.sh && ./test-media.sh
 ###############################################################################
 
