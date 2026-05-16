@@ -36,7 +36,7 @@ CREATE INDEX IF NOT EXISTS idx_created_at ON stock_movements(created_at);
 -- Create order_reservations table to track order-to-inventory mappings
 CREATE TABLE IF NOT EXISTS order_reservations (
     id BIGSERIAL PRIMARY KEY,
-    order_id VARCHAR(255) NOT NULL,
+    order_number VARCHAR(255) NOT NULL,
     inventory_item_id BIGINT NOT NULL,
     quantity_reserved INTEGER NOT NULL,
     created_at TIMESTAMP NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS order_reservations (
 );
 
 -- Create indexes for order_reservations
-CREATE INDEX IF NOT EXISTS idx_order_id ON order_reservations(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_number ON order_reservations(order_number);
 CREATE INDEX IF NOT EXISTS idx_inventory_item_id ON order_reservations(inventory_item_id);
 
 -- Create outbox_events table
