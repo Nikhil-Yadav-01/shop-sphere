@@ -35,7 +35,12 @@ public class NotificationConsumer {
         try {
             EmailNotificationEvent event = objectMapper.readValue(message, EmailNotificationEvent.class);
             log.info("Processing email notification for: {}", event.getTo());
-            emailService.sendEmail(event.getTo(), event.getSubject(), event.getBody());
+            
+            java.util.Map<String, Object> variables = new java.util.HashMap<>();
+            variables.put("title", event.getSubject());
+            variables.put("message", event.getBody());
+            
+            emailService.sendHtmlEmail(event.getTo(), event.getSubject(), "email-template", variables);
         } catch (Exception e) {
             log.error("Failed to process email notification: {}. Error: {}", message, e.getMessage());
             throw new RuntimeException("Email processing failed, triggering retry", e);
