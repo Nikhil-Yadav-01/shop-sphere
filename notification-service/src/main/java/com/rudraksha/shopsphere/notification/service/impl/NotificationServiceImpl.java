@@ -3,16 +3,22 @@ package com.rudraksha.shopsphere.notification.service.impl;
 import com.rudraksha.shopsphere.notification.dto.NotificationRequest;
 import com.rudraksha.shopsphere.notification.dto.NotificationResponse;
 import com.rudraksha.shopsphere.notification.entity.Notification;
+import com.rudraksha.shopsphere.notification.entity.UserPushToken;
 import com.rudraksha.shopsphere.notification.exception.NotificationException;
 import com.rudraksha.shopsphere.notification.repository.NotificationRepository;
+import com.rudraksha.shopsphere.notification.repository.UserPushTokenRepository;
+import com.rudraksha.shopsphere.notification.service.EmailService;
 import com.rudraksha.shopsphere.notification.service.NotificationService;
+import com.rudraksha.shopsphere.notification.service.PushNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +27,9 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final UserPushTokenRepository pushTokenRepository;
+    private final EmailService emailService;
+    private final PushNotificationService pushNotificationService;
 
     @Override
     public NotificationResponse createNotification(NotificationRequest request) {
@@ -38,11 +47,49 @@ public class NotificationServiceImpl implements NotificationService {
 
             Notification saved = notificationRepository.save(notification);
             log.info("Notification created with ID: {}", saved.getId());
+            
+            // Trigger actual delivery
+            sendNotification(saved);
+            
             return NotificationResponse.fromEntity(saved);
         } catch (Exception e) {
             log.error("Error creating notification", e);
             throw new NotificationException("Failed to create notification: " + e.getMessage());
         }
+    }
+
+    private void sendNotification(Notification notification) {
+        String channel = notification.getChannel();
+        if ("EMAIL".equalsIgnoreCase(channel) && notification.getRecipientEmail() != null) {
+            Map<String, Object> variables = new HashMap<>();
+            variables.put("title", notification.getTitle());
+            variables.put("message", notification.getMessage());
+            emailService.sendHtmlEmail(notification.getRecipientEmail(), notification.getTitle(), "email-template", variables);
+        } else if ("PUSH".equalsIgnoreCase(channel)) {
+            List<UserPushToken> tokens = pushTokenRepository.findByUserId(notification.getUserId());
+            for (UserPushToken token : tokens) {
+                pushNotificationService.sendPushNotification(token.getToken(), notification.getTitle(), notification.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void registerPushToken(String userId, String token, String deviceType) {
+        pushTokenRepository.findByUserIdAndToken(userId, token)
+            .ifPresentOrElse(
+                t -> {
+                    t.setDeviceType(deviceType);
+                    pushTokenRepository.save(t);
+                },
+                () -> {
+                    UserPushToken newToken = UserPushToken.builder()
+                        .userId(userId)
+                        .token(token)
+                        .deviceType(deviceType)
+                        .build();
+                    pushTokenRepository.save(newToken);
+                }
+            );
     }
 
     @Override

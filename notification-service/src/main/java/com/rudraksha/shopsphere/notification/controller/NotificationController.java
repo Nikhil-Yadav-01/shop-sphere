@@ -81,4 +81,13 @@ public class NotificationController {
         List<NotificationResponse> notifications = notificationService.getRecentNotifications(userId, days);
         return ResponseEntity.ok(notifications);
     }
+
+    @PostMapping("/tokens")
+    public ResponseEntity<Void> registerToken(
+            @RequestParam String userId,
+            @RequestParam String token,
+            @RequestParam(required = false) String deviceType) {
+        notificationService.registerPushToken(userId, token, deviceType);
+        return ResponseEntity.ok().build();
+    }
 }

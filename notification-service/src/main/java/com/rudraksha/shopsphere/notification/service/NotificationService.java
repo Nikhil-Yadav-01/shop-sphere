@@ -24,4 +24,6 @@ public interface NotificationService {
     long getUnreadCount(String userId);
 
     List<NotificationResponse> getRecentNotifications(String userId, int days);
+
+    void registerPushToken(String userId, String token, String deviceType);
 }
