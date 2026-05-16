@@ -17,10 +17,9 @@ public class FraudCheckResponse {
     
     private String transactionId;
     
-    private Long orderId;
-    
-    private Long customerId;
-    
+    private String orderId;
+
+    private String customerId;    
     private BigDecimal riskScore;
     
     private Boolean isFraudulent;

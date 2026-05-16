@@ -47,7 +47,7 @@ public class FraudDetectionController {
     }
     
     @GetMapping("/customer/{customerId}/history")
-    public ResponseEntity<?> getCustomerFraudHistory(@PathVariable Long customerId) {
+    public ResponseEntity<?> getCustomerFraudHistory(@PathVariable String customerId) {
         var fraudHistory = fraudDetectionService.getCustomerFraudHistory(customerId);
         Map<String, Object> response = new HashMap<>();
         response.put("customerId", customerId);

@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS inventory_items (
     id BIGSERIAL PRIMARY KEY,
     sku VARCHAR(255) NOT NULL UNIQUE,
-    product_id BIGINT NOT NULL,
+    product_id VARCHAR(255) NOT NULL,
     quantity INTEGER NOT NULL,
     reserved_quantity INTEGER NOT NULL DEFAULT 0,
     reorder_level INTEGER NOT NULL,

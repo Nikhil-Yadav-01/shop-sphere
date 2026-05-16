@@ -123,7 +123,7 @@ public class FraudDetectionService {
                 .orElse(null);
     }
     
-    public List<FraudDetection> getCustomerFraudHistory(Long customerId) {
+    public List<FraudDetection> getCustomerFraudHistory(String customerId) {
         return fraudDetectionRepository.findFraudulentTransactionsByCustomer(customerId);
     }
     

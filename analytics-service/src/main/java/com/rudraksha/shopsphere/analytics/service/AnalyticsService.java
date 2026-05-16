@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 public interface AnalyticsService {
-    void ingestEvent(String eventType, Long userId, String sessionId, Map<String, Object> eventData, String ipAddress, String userAgent);
+    void ingestEvent(String eventType, String userId, String sessionId, Map<String, Object> eventData, String ipAddress, String userAgent);
     List<AnalyticsResponse> getEventsByType(String eventType);
-    List<AnalyticsResponse> getUserEvents(Long userId, LocalDateTime startDate, LocalDateTime endDate);
+    List<AnalyticsResponse> getUserEvents(String userId, LocalDateTime startDate, LocalDateTime endDate);
     List<AnalyticsResponse> getRecentEvents(String eventType, LocalDateTime since);
     long getTotalEventCount();
     long getEventCountByType(String eventType);

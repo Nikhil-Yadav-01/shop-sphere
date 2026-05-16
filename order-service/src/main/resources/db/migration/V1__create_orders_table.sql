@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS orders (
     id BIGSERIAL PRIMARY KEY,
     order_number VARCHAR(255) NOT NULL UNIQUE,
-    customer_id BIGINT NOT NULL,
+    customer_id VARCHAR(255) NOT NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
     total_amount NUMERIC(19, 2) NOT NULL,
     tax_amount NUMERIC(19, 2) NOT NULL,

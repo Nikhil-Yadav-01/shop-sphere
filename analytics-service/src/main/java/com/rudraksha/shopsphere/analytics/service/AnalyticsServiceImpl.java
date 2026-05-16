@@ -20,7 +20,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private final AnalyticsEventRepository repository;
 
     @Override
-    public void ingestEvent(String eventType, Long userId, String sessionId, Map<String, Object> eventData, String ipAddress, String userAgent) {
+    public void ingestEvent(String eventType, String userId, String sessionId, Map<String, Object> eventData, String ipAddress, String userAgent) {
         AnalyticsEvent event = AnalyticsEvent.builder()
                 .eventType(eventType)
                 .userId(userId)
@@ -42,7 +42,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     @Override
-    public List<AnalyticsResponse> getUserEvents(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
+    public List<AnalyticsResponse> getUserEvents(String userId, LocalDateTime startDate, LocalDateTime endDate) {
         return repository.findByUserIdAndTimestampBetween(userId, startDate, endDate).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());

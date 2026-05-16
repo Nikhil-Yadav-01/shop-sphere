@@ -24,7 +24,7 @@ public class KafkaConsumer {
             Map<String, Object> event = objectMapper.readValue(message, Map.class);
             String eventType = (String) event.get("eventType");
             Object userIdObj = event.get("userId");
-            Long userId = userIdObj instanceof Number ? ((Number) userIdObj).longValue() : Long.parseLong(userIdObj.toString());
+            String userId = userIdObj != null ? userIdObj.toString() : null;
             String sessionId = (String) event.getOrDefault("sessionId", "kafka-session");
             
             analyticsService.ingestEvent(eventType, userId, sessionId, event, null, null);
@@ -41,7 +41,7 @@ public class KafkaConsumer {
             String action = (String) event.getOrDefault("action", "PLACED");
             String eventType = "ORDER_" + action;
             Object userIdObj = event.get("userId");
-            Long userId = userIdObj instanceof Number ? ((Number) userIdObj).longValue() : Long.parseLong(userIdObj.toString());
+            String userId = userIdObj != null ? userIdObj.toString() : null;
             
             analyticsService.ingestEvent(eventType, userId, "order-session", event, null, null);
         } catch (Exception e) {

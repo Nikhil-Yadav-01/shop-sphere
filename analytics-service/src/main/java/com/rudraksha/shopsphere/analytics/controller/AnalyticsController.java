@@ -23,7 +23,7 @@ public class AnalyticsController {
     @PostMapping("/events")
     public ResponseEntity<ApiResponse<String>> ingestEvent(
             @RequestParam String eventType,
-            @RequestParam Long userId,
+            @RequestParam String userId,
             @RequestParam String sessionId,
             @RequestBody Map<String, Object> eventData,
             @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress,
@@ -40,7 +40,7 @@ public class AnalyticsController {
 
     @GetMapping("/users/{userId}/events")
     public ResponseEntity<ApiResponse<List<AnalyticsResponse>>> getUserEvents(
-            @PathVariable Long userId,
+            @PathVariable String userId,
             @RequestParam LocalDateTime startDate,
             @RequestParam LocalDateTime endDate) {
         return ResponseEntity.ok(ApiResponse.success(analyticsService.getUserEvents(userId, startDate, endDate)));

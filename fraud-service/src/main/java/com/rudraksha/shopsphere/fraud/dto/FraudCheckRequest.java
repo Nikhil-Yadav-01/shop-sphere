@@ -18,13 +18,10 @@ public class FraudCheckRequest {
     private String transactionId;
     
     @NotNull(message = "Order ID is required")
-    @Positive(message = "Order ID must be positive")
-    private Long orderId;
-    
+    private String orderId;
+
     @NotNull(message = "Customer ID is required")
-    @Positive(message = "Customer ID must be positive")
-    private Long customerId;
-    
+    private String customerId;    
     @NotNull(message = "Amount is required")
     @Positive(message = "Amount must be positive")
     private BigDecimal amount;

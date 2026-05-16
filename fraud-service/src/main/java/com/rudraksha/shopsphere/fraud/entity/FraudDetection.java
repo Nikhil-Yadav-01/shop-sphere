@@ -24,11 +24,10 @@ public class FraudDetection {
     private String transactionId;
     
     @Column(nullable = false)
-    private Long orderId;
-    
+    private String orderId;
+
     @Column(nullable = false)
-    private Long customerId;
-    
+    private String customerId;    
     @Column(nullable = false)
     private BigDecimal amount;
     
