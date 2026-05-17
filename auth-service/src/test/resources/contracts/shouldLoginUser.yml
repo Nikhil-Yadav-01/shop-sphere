@@ -1,0 +1,21 @@
+request:
+  method: POST
+  url: /auth/login
+  headers:
+    Content-Type: application/json
+  body:
+    email: user@example.com
+    password: SecurePassword123
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    accessToken: mocked_access_jwt_token
+    refreshToken: mocked_refresh_jwt_token
+    tokenType: Bearer
+    expiresIn: 3600
+    email: user@example.com
+    firstName: John
+    lastName: Doe
+    role: CUSTOMER

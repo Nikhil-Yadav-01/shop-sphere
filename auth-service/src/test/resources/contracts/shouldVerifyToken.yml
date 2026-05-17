@@ -1,0 +1,14 @@
+request:
+  method: POST
+  url: /auth/validate
+  headers:
+    Authorization: Bearer valid_jwt_token
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    valid: true
+    userId: d3b07384-d113-4a1d-a5ee-a83d0382bc52
+    roles:
+      - CUSTOMER
