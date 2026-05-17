@@ -2,7 +2,9 @@ package com.rudraksha.shopsphere.auth.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rudraksha.shopsphere.auth.dto.request.*;
+import com.rudraksha.shopsphere.auth.entity.EmailVerificationToken;
 import com.rudraksha.shopsphere.auth.entity.User;
+import com.rudraksha.shopsphere.auth.repository.EmailVerificationTokenRepository;
 import com.rudraksha.shopsphere.auth.repository.UserRepository;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -47,6 +49,9 @@ public class AuthProductionIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
+    private EmailVerificationTokenRepository emailVerificationTokenRepository;
+
+    @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
     @Value("${spring.kafka.bootstrap-servers}")
@@ -66,6 +71,7 @@ public class AuthProductionIntegrationTest {
         kafkaConsumer = new KafkaConsumer<>(props);
         kafkaConsumer.subscribe(Collections.singletonList("user.created"));
         
+        emailVerificationTokenRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -97,8 +103,10 @@ public class AuthProductionIntegrationTest {
                 .orElseThrow(() -> new AssertionError("User should be persisted in real PostgreSQL"));
 
         assertFalse(persistedUser.isEmailVerified());
-        assertNotNull(persistedUser.getVerificationToken());
-        String verificationToken = persistedUser.getVerificationToken();
+        EmailVerificationToken emailToken = emailVerificationTokenRepository.findByUser(persistedUser)
+                .orElseThrow(() -> new AssertionError("Verification token should exist for user"));
+        String verificationToken = emailToken.getToken();
+        assertNotNull(verificationToken);
 
         // Assert event was published to Kafka in real time
         boolean messageReceived = false;
