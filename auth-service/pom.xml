@@ -167,6 +167,19 @@
             <artifactId>spring-cloud-starter-contract-verifier</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Chaos Monkey for Spring Boot -->
+        <dependency>
+            <groupId>de.codecentric</groupId>
+            <artifactId>chaos-monkey-spring-boot</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <!-- Gatling Load Testing Highcharts -->
+        <dependency>
+            <groupId>io.gatling.highcharts</groupId>
+            <artifactId>gatling-charts-highcharts</artifactId>
+            <version>3.9.5</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -205,6 +218,15 @@
                 <configuration>
                     <testFramework>JUNIT5</testFramework>
                     <baseClassForTests>com.rudraksha.shopsphere.auth.contract.AuthContractBase</baseClassForTests>
+                </configuration>
+            </plugin>
+            <!-- Gatling Load Test Plugin -->
+            <plugin>
+                <groupId>io.gatling</groupId>
+                <artifactId>gatling-maven-plugin</artifactId>
+                <version>4.3.0</version>
+                <configuration>
+                    <simulationClass>com.rudraksha.shopsphere.auth.load.AuthLoginSimulation</simulationClass>
                 </configuration>
             </plugin>
         </plugins>
