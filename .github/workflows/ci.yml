@@ -288,6 +288,9 @@ jobs:
       # ──────────────────────────────────────────────────────────────
       # 8. Run tests
       # ──────────────────────────────────────────────────────────────
+      - name: Run Spring Boot Java Integration Tests (against real Docker Services)
+        run: mvn -f auth-service/pom.xml test -Dtest=AuthProductionIntegrationTest -Dspring.profiles.active=integration-test -DrunIntegrationTests=true
+
       - name: Make test scripts executable
         run: chmod +x tests/*.sh
 

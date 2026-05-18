@@ -1,0 +1,17 @@
+chaos:
+  monkey:
+    enabled: true
+    assaults:
+      latencyActive: true
+      latencyMinMs: 1000
+      latencyMaxMs: 2500
+      exceptionActive: true
+      exception:
+        type: java.lang.RuntimeException
+        arguments:
+          - Chaos Monkey Assault Exception
+      level: 2 # Assault every 2nd request (50% probability)
+    watcher:
+      controller: true
+      service: true
+      repository: true
