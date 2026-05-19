@@ -20,9 +20,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -37,6 +36,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public CartResponse getCart(String userId) {
         Cart cart = getOrCreateCart(userId);
+        refreshCartPrices(cart);
         return mapToResponse(cart);
     }
 
@@ -62,6 +62,9 @@ public class CartServiceImpl implements CartService {
         if (existingItem.isPresent()) {
             CartItem item = existingItem.get();
             item.setQuantity(item.getQuantity() + request.getQuantity());
+            // Update price and name even if item already exists
+            item.setPrice(product.getPrice());
+            item.setProductName(product.getName());
         } else {
             CartItem newItem = CartItem.builder()
                     .productId(request.getProductId())
@@ -74,6 +77,7 @@ public class CartServiceImpl implements CartService {
         }
 
         cart.setUpdatedAt(LocalDateTime.now());
+        refreshCartPrices(cart); // Refresh all items in case others changed
         saveCart(cart);
 
         log.info("Added product {} to cart for user {}", request.getProductId(), userId);
@@ -98,14 +102,55 @@ public class CartServiceImpl implements CartService {
                     throw new InsufficientStockException("Insufficient stock for product: " + product.getName());
                 }
             }
+            // Update price and name while we're at it
+            item.setPrice(product.getPrice());
+            item.setProductName(product.getName());
         }
 
         item.setQuantity(request.getQuantity());
         cart.setUpdatedAt(LocalDateTime.now());
+        refreshCartPrices(cart);
         saveCart(cart);
 
         log.info("Updated cart item {} for user {}", productId, userId);
         return mapToResponse(cart);
+    }
+
+    private void refreshCartPrices(Cart cart) {
+        if (cart.getItems().isEmpty()) {
+            return;
+        }
+
+        List<String> productIds = cart.getItems().stream()
+                .map(CartItem::getProductId)
+                .toList();
+
+        try {
+            List<ProductResponse> products = catalogClient.getProductsByIds(productIds);
+            Map<String, ProductResponse> productMap = products.stream()
+                    .collect(Collectors.toMap(ProductResponse::getId, p -> p));
+
+            boolean changed = false;
+            for (CartItem item : cart.getItems()) {
+                ProductResponse product = productMap.get(item.getProductId());
+                if (product != null) {
+                    if (!product.getPrice().equals(item.getPrice())) {
+                        item.setPrice(product.getPrice());
+                        changed = true;
+                    }
+                    if (!product.getName().equals(item.getProductName())) {
+                        item.setProductName(product.getName());
+                        changed = true;
+                    }
+                }
+            }
+            if (changed) {
+                saveCart(cart);
+                log.info("Refreshed prices for cart of user {}", cart.getUserId());
+            }
+        } catch (Exception e) {
+            log.warn("Failed to refresh cart prices for user {}: {}", cart.getUserId(), e.getMessage());
+        }
     }
 
     @Override

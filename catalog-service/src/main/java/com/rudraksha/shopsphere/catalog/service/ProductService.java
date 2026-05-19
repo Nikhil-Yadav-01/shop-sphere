@@ -17,4 +17,5 @@ public interface ProductService {
     Page<ProductResponse> getProductsByCategory(String categoryId, Pageable pageable);
     Page<ProductResponse> getProductsByStatus(ProductStatus status, Pageable pageable);
     Page<ProductResponse> searchProducts(String keyword, Pageable pageable);
+    java.util.List<ProductResponse> getProductsByIds(java.util.List<String> ids);
 }

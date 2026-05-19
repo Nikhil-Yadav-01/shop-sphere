@@ -114,6 +114,13 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findAllBy(criteria, pageable).map(this::mapToResponse);
     }
 
+    @Override
+    public java.util.List<ProductResponse> getProductsByIds(java.util.List<String> ids) {
+        return productRepository.findAllById(ids).stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
     private ProductResponse mapToResponse(Product product) {
         return ProductResponse.builder()
                 .id(product.getId())

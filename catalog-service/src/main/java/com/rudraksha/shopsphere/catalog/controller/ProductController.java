@@ -65,4 +65,9 @@ public class ProductController {
     public ResponseEntity<Page<ProductResponse>> searchProducts(@RequestParam String keyword, Pageable pageable) {
         return ResponseEntity.ok(productService.searchProducts(keyword, pageable));
     }
+
+    @GetMapping("/batch")
+    public ResponseEntity<java.util.List<ProductResponse>> getProductsByIds(@RequestParam java.util.List<String> ids) {
+        return ResponseEntity.ok(productService.getProductsByIds(ids));
+    }
 }
