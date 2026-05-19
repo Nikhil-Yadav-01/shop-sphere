@@ -47,7 +47,8 @@ management:
         include: health,metrics,info
   endpoint:
     health:
-      show-details: always
+      show-details: when-authorized
+      roles: ADMIN
 
 media:
   upload:
