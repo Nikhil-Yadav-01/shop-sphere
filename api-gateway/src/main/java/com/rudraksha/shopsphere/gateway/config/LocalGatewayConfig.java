@@ -43,7 +43,8 @@ public class LocalGatewayConfig {
 
                 .route("cart-service", r -> r
                         .path("/cart/**")
-                        .filters(f -> f.stripPrefix(1))
+                        .filters(f -> f.stripPrefix(1)
+                                .filter(authenticationFilter.apply(new AuthenticationFilter.Config())))
                         .uri("http://localhost:8085"))
 
                 .route("checkout-service", r -> r
