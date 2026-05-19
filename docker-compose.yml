@@ -353,8 +353,9 @@ services:
     environment:
       EUREKA_HOST: discovery-service
       EUREKA_PORT: 8761
+      SERVER_PORT: 8094
     ports:
-    - 8094:8091
+    - 8094:8094
     depends_on:
       discovery-service:
         condition: service_healthy
@@ -365,7 +366,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8091/actuator/health
+      - http://localhost:8094/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
@@ -477,7 +478,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-    - 5436:5432
+    - 5443:5432
     volumes:
     - coupon-db-data:/var/lib/postgresql/data
     networks:
@@ -933,8 +934,9 @@ services:
       EUREKA_HOST: discovery-service
       EUREKA_PORT: '8761'
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SERVER_PORT: 8096
     ports:
-    - 8096:8089
+    - 8096:8096
     depends_on:
       review-db:
         condition: service_healthy
@@ -949,7 +951,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8089/actuator/health
+      - http://localhost:8096/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
@@ -1000,8 +1002,9 @@ services:
       EUREKA_HOST: discovery-service
       EUREKA_PORT: 8761
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SERVER_PORT: 8099
     ports:
-    - 8099:8089
+    - 8099:8099
     depends_on:
       recommendation-db:
         condition: service_healthy
@@ -1016,7 +1019,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8089/actuator/health
+      - http://localhost:8099/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
@@ -1031,8 +1034,9 @@ services:
       EUREKA_HOST: discovery-service
       EUREKA_PORT: 8761
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SERVER_PORT: 8097
     ports:
-    - 8097:8090
+    - 8097:8097
     depends_on:
       returns-db:
         condition: service_healthy
@@ -1047,7 +1051,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8090/actuator/health
+      - http://localhost:8097/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5
