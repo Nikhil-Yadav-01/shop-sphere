@@ -17,7 +17,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/actuator/health/**", "/actuator/info/**").permitAll()
+                .requestMatchers("/actuator/**").hasRole("ADMIN")
                 .requestMatchers("/api/v1/products/**", "/api/v1/products").permitAll() // Public read access
                 .requestMatchers("/api/v1/categories/**", "/api/v1/categories").permitAll() // Public read access
                 .anyRequest().authenticated()

@@ -59,7 +59,8 @@ management:
         include: health,info,metrics
   endpoint:
     health:
-      show-details: when_authorized
+      show-details: when-authorized
+      roles: ADMIN
 
 logging:
   level:
