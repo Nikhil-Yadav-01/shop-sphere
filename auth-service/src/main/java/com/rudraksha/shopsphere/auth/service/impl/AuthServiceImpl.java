@@ -60,7 +60,6 @@ public class AuthServiceImpl implements AuthService {
     private final SecurityAlertService securityAlertService;
     private final GoogleAuthService googleAuthService;
     private final AppleAuthService appleAuthService;
-    private final org.springframework.kafka.core.KafkaTemplate<String, Object> kafkaTemplate;
 
     @Value("${jwt.expiration-ms}")
     private long jwtExpirationMs;
@@ -157,8 +156,9 @@ public class AuthServiceImpl implements AuthService {
             emailVerificationTokenRepository.save(emailToken);
 
             log.info("[{}] VERIFICATION_TOKEN: {}", user.getEmail(), verificationToken);
-            publishEmailEvent(user.getEmail(), "Verify your email", 
-                    "Please verify your email using token: " + verificationToken);
+            emailService.sendVerificationEmail(user.getEmail(), user.getFirstName(), verificationToken);
+        } else {
+            emailService.sendWelcomeEmail(user.getEmail(), user.getFirstName());
         }
 
         userEventPublisher.publishUserCreatedEvent(user);
@@ -167,22 +167,6 @@ public class AuthServiceImpl implements AuthService {
         RefreshToken refreshToken = createRefreshToken(user);
 
         return buildAuthResponse(user, accessToken, refreshToken.getToken());
-    }
-
-    private void publishEmailEvent(String to, String subject, String body) {
-        try {
-            com.rudraksha.shopsphere.auth.dto.EmailNotificationEvent event = 
-                com.rudraksha.shopsphere.auth.dto.EmailNotificationEvent.builder()
-                    .to(to)
-                    .subject(subject)
-                    .body(body)
-                    .build();
-            kafkaTemplate.send("notification.email.send", to, event);
-            log.info("Published email notification event for: {}", to);
-        } catch (Exception e) {
-            log.error("Failed to publish email notification event for: {}", to, e);
-            // Fallback to sync email if kafka fails or handle appropriately
-        }
     }
 
     @Override
@@ -389,8 +373,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
         emailVerificationTokenRepository.save(emailToken);
 
-        publishEmailEvent(user.getEmail(), "Verify your email", 
-                "Please verify your email using token: " + verificationToken);
+        emailService.sendVerificationEmail(user.getEmail(), user.getFirstName(), verificationToken);
         log.info("Verification email resent to: {}", email);
     }
 
@@ -415,8 +398,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
         passwordResetTokenRepository.save(passwordResetToken);
 
-        publishEmailEvent(user.getEmail(), "Reset your password", 
-                "Please reset your password using token: " + resetToken);
+        emailService.sendPasswordResetEmail(user.getEmail(), user.getFirstName(), resetToken);
         log.info("Password reset email sent to: {}", email);
     }
 

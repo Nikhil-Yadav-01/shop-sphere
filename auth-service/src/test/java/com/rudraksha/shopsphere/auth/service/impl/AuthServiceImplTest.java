@@ -82,9 +82,6 @@ class AuthServiceImplTest {
     @Mock
     private AppleAuthService appleAuthService;
 
-    @Mock
-    private KafkaTemplate<String, Object> kafkaTemplate;
-
     @InjectMocks
     private AuthServiceImpl authService;
 
@@ -265,7 +262,7 @@ class AuthServiceImplTest {
         assertEquals("access_token", response.getAccessToken());
         verify(emailVerificationTokenRepository).save(any(EmailVerificationToken.class));
         verify(userEventPublisher).publishUserCreatedEvent(any(User.class));
-        verify(kafkaTemplate).send(eq("notification.email.send"), eq("new@example.com"), any());
+        verify(emailService).sendVerificationEmail(eq("new@example.com"), anyString(), anyString());
     }
 
     @Test
@@ -621,7 +618,7 @@ class AuthServiceImplTest {
 
         verify(emailVerificationTokenRepository).deleteByUser(disabledUser);
         verify(emailVerificationTokenRepository).save(any(EmailVerificationToken.class));
-        verify(kafkaTemplate).send(eq("notification.email.send"), eq("disabled@example.com"), any());
+        verify(emailService).sendVerificationEmail(eq("disabled@example.com"), anyString(), anyString());
     }
 
     @Test
@@ -645,7 +642,7 @@ class AuthServiceImplTest {
 
         verify(passwordResetTokenRepository).deleteByUser(localUser);
         verify(passwordResetTokenRepository).save(any(PasswordResetToken.class));
-        verify(kafkaTemplate).send(eq("notification.email.send"), eq("test@example.com"), any());
+        verify(emailService).sendPasswordResetEmail(eq("test@example.com"), anyString(), anyString());
     }
 
     @Test
