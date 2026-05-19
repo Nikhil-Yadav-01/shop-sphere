@@ -16,7 +16,11 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/actuator/health/**", "/actuator/info/**").permitAll()
+                .requestMatchers("/actuator/**").hasRole("ADMIN")
+                .anyRequest().permitAll()
+            );
         return http.build();
     }
 }

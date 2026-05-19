@@ -161,6 +161,25 @@
             <artifactId>nimbus-jose-jwt</artifactId>
             <version>9.37.3</version>
         </dependency>
+        <!-- Spring Cloud Contract Verifier -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-contract-verifier</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Chaos Monkey for Spring Boot -->
+        <dependency>
+            <groupId>de.codecentric</groupId>
+            <artifactId>chaos-monkey-spring-boot</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <!-- Gatling Load Testing Highcharts -->
+        <dependency>
+            <groupId>io.gatling.highcharts</groupId>
+            <artifactId>gatling-charts-highcharts</artifactId>
+            <version>3.9.5</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -189,6 +208,26 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <!-- Spring Cloud Contract Plugin -->
+            <plugin>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-contract-maven-plugin</artifactId>
+                <version>4.1.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <testFramework>JUNIT5</testFramework>
+                    <baseClassForTests>com.rudraksha.shopsphere.auth.contract.AuthContractBase</baseClassForTests>
+                </configuration>
+            </plugin>
+            <!-- Gatling Load Test Plugin -->
+            <plugin>
+                <groupId>io.gatling</groupId>
+                <artifactId>gatling-maven-plugin</artifactId>
+                <version>4.3.0</version>
+                <configuration>
+                    <simulationClass>com.rudraksha.shopsphere.auth.load.AuthLoginSimulation</simulationClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -41,6 +41,10 @@ public class GatewayConfig {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
+                .route("block-actuator", r -> r
+                        .path("/*/actuator/**", "/actuator/**")
+                        .filters(f -> f.setStatus(org.springframework.http.HttpStatus.FORBIDDEN))
+                        .uri("no://op"))
                 .route("auth-service", r -> r
                         .path("/auth/**")
                         .filters(f -> f.requestRateLimiter(config -> {
@@ -81,6 +85,7 @@ public class GatewayConfig {
                 .route("cart-service", r -> r
                         .path("/cart/**")
                         .filters(f -> f.stripPrefix(1)
+                                .filter(authenticationFilter.apply(new AuthenticationFilter.Config()))
                                 .requestRateLimiter(config -> {
                                     config.setRateLimiter(defaultRateLimiter);
                                     config.setKeyResolver(userKeyResolver);

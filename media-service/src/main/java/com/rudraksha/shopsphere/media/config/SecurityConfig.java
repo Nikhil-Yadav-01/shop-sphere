@@ -17,6 +17,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.disable())
                 .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/actuator/health/**", "/actuator/info/**").permitAll()
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

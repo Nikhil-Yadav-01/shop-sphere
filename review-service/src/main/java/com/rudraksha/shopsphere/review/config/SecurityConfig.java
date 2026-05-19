@@ -18,15 +18,15 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .cors()
-                .and()
-                .authorizeHttpRequests((authz) -> authz
-                        .requestMatchers("/actuator/**").permitAll()
+        http.csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/actuator/health/**", "/actuator/info/**").permitAll()
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/**").permitAll()
                         .anyRequest().permitAll()
                 )
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }

@@ -33,7 +33,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers("/actuator/health/**", "/actuator/info/**").permitAll()
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/**").permitAll()  // Gateway handles auth
                         .anyRequest().permitAll()  // Gateway is the sole entry point
                 );
