@@ -81,6 +81,7 @@ public class GatewayConfig {
                 .route("cart-service", r -> r
                         .path("/cart/**")
                         .filters(f -> f.stripPrefix(1)
+                                .filter(authenticationFilter.apply(new AuthenticationFilter.Config()))
                                 .requestRateLimiter(config -> {
                                     config.setRateLimiter(defaultRateLimiter);
                                     config.setKeyResolver(userKeyResolver);
