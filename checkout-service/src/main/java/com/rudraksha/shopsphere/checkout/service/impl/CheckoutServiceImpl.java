@@ -124,7 +124,7 @@ public class CheckoutServiceImpl implements CheckoutService {
         record CartItemResponse(String productId, String productName, Integer quantity, BigDecimal price, BigDecimal subtotal) {}
     }
 
-    @FeignClient(name = "ORDER-SERVICE", path = "/order")
+    @FeignClient(name = "ORDER-SERVICE", path = "/order", fallbackFactory = OrderClientFallbackFactory.class)
     public interface OrderClient {
         @PostMapping
         OrderResponse createOrder(@RequestBody CreateOrderRequest request);

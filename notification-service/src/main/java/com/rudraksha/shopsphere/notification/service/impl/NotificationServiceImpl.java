@@ -105,14 +105,14 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional(readOnly = true)
     public Page<NotificationResponse> getNotificationsByUserId(String userId, Pageable pageable) {
-        return notificationRepository.findByUserId(userId, pageable)
+        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable)
                 .map(NotificationResponse::fromEntity);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<NotificationResponse> getUnreadNotificationsByUserId(String userId, Pageable pageable) {
-        return notificationRepository.findByUserIdAndIsRead(userId, false, pageable)
+        return notificationRepository.findByUserIdAndIsReadOrderByCreatedAtDesc(userId, false, pageable)
                 .map(NotificationResponse::fromEntity);
     }
 
