@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class ProcessPaymentRequest {
+    private String sessionId;
+
     @NotBlank(message = "Order Number cannot be blank")
     private String orderNumber;
 

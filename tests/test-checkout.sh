@@ -37,8 +37,8 @@ echo ""
 
 # Basic API Tests
 echo "=== Basic API Tests ==="
-echo "6. Get Empty Orders:"
-curl -s -H "X-User-Id: $USER_ID" http://$IP:8086/api/v1/checkout/orders | grep -q "^\[\]$" && echo "✓ Empty orders endpoint working" || echo "✗ Orders endpoint failed"
+echo "6. Get User Sessions (Empty initially):"
+curl -s -H "X-User-Id: $USER_ID" http://$IP:8086/api/v1/checkout/sessions | grep -q '"content":\s*\[\]' && echo "✓ Empty sessions endpoint working" || echo "✗ Sessions endpoint failed"
 echo ""
 
 # Checkout Workflow Tests
@@ -54,8 +54,12 @@ else
 fi
 echo ""
 
-echo "8. Process Checkout:"
-CHECKOUT_RESPONSE=$(curl -s -X POST -H "X-User-Id: $USER_ID" -H "Content-Type: application/json" -d '{
+echo "8. Process Checkout (Async SAGA):"
+CHECKOUT_RESPONSE=$(curl -s -X POST \
+  -H "X-User-Id: $USER_ID" \
+  -H "Idempotency-Key: $USER_ID-idemp" \
+  -H "Content-Type: application/json" \
+  -d '{
   "shippingAddress": {
     "firstName": "John",
     "lastName": "Doe",
@@ -69,66 +73,89 @@ CHECKOUT_RESPONSE=$(curl -s -X POST -H "X-User-Id: $USER_ID" -H "Content-Type: a
   "payment": {
     "paymentMethod": "CREDIT_CARD"
   }
-}' http://$IP:8086/api/v1/checkout 2>&1)
+}' http://$IP:8086/api/v1/checkout/sessions 2>&1)
 
-if echo "$CHECKOUT_RESPONSE" | grep -q "orderNumber"; then
-    echo "✓ Checkout successful"
-    ORDER_NUMBER=$(echo "$CHECKOUT_RESPONSE" | grep -o '"orderNumber":"[^"]*"' | cut -d'"' -f4)
-    ORDER_STATUS=$(echo "$CHECKOUT_RESPONSE" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
-    ORDER_ID=$(echo "$CHECKOUT_RESPONSE" | grep -o '"id":[0-9]*' | cut -d':' -f2)
-    echo "  Order Number: $ORDER_NUMBER"
-    echo "  Order Status: $ORDER_STATUS"
-    echo "  Order ID: $ORDER_ID"
+if echo "$CHECKOUT_RESPONSE" | grep -q "sessionId"; then
+    echo "✓ Checkout initiated successfully (202 Accepted)"
+    SESSION_ID=$(echo "$CHECKOUT_RESPONSE" | grep -o '"sessionId":"[^"]*"' | cut -d'"' -f4)
+    echo "  Session ID: $SESSION_ID"
     
-    # Additional tests if checkout succeeded
-    echo ""
-    echo "9. Verify Order Created in Order Service:"
-    if curl -s http://$IP:8084/order/number/$ORDER_NUMBER | grep -q "orderNumber"; then
-        echo "✓ Order correctly persisted in Order Service"
-    else
-        echo "✗ Order not found in Order Service"
-    fi
-    echo ""
-
-    echo "10. Verify Cart Cleared (Async wait):"
-    
-    CART_CLEARED=false
-    for i in {1..15}; do
-        CART_ITEMS=$(curl -s -H "X-User-Id: $USER_ID" http://$IP:8085/api/v1/cart | grep -o '"totalItems":[0-9]*' | cut -d':' -f2)
-        if [ "$CART_ITEMS" = "0" ]; then
-            CART_CLEARED=true
-            echo "✓ Cart cleared after checkout (took ~$i seconds)"
+    # Poll for SAGA completeness
+    echo "  Polling SAGA status..."
+    SAGA_STATUS="PENDING"
+    for i in {1..30}; do
+        SESSION_STATUS_RESP=$(curl -s http://$IP:8086/api/v1/checkout/sessions/$SESSION_ID)
+        SAGA_STATUS=$(echo "$SESSION_STATUS_RESP" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
+        echo "    Status: $SAGA_STATUS (attempt $i)"
+        if [ "$SAGA_STATUS" = "COMPLETED" ] || [ "$SAGA_STATUS" = "FAILED" ]; then
             break
         fi
         sleep 1
     done
-    
-    if [ "$CART_CLEARED" = false ]; then
-        echo "✗ Cart not cleared within timeout (items: $CART_ITEMS)"
-    fi
-    echo ""
-    
-    echo "11. Get Order by Number:"
-    if curl -s http://$IP:8086/api/v1/checkout/orders/number/$ORDER_NUMBER | grep -q "orderNumber"; then
-        echo "✓ Order found by number via Checkout Gateway"
-    else
-        echo "✗ Order not found by number"
-    fi
-    echo ""
-    
-    echo "12. Update Order Status (Directly in Order Service):"
-    if [ -n "$ORDER_ID" ]; then
-        STATUS_UPDATE=$(curl -s -X PUT "http://$IP:8084/order/$ORDER_ID/status?status=SHIPPED")
-        if echo "$STATUS_UPDATE" | grep -q '"status":"SHIPPED"'; then
-            echo "✓ Order status updated to SHIPPED"
+
+    if [ "$SAGA_STATUS" = "COMPLETED" ]; then
+        echo "✓ Checkout SAGA completed successfully"
+        ORDER_NUMBER=$(echo "$SESSION_STATUS_RESP" | grep -o '"orderNumber":"[^"]*"' | cut -d'"' -f4)
+        TOTAL_AMOUNT=$(echo "$SESSION_STATUS_RESP" | grep -o '"totalAmount":[0-9.]*' | cut -d':' -f2)
+        echo "  Order Number: $ORDER_NUMBER"
+        echo "  Total Amount: $TOTAL_AMOUNT"
+        
+        # Additional tests if checkout succeeded
+        echo ""
+        echo "9. Verify Order Created in Order Service:"
+        ORDER_DETAILS=$(curl -s http://$IP:8084/order/number/$ORDER_NUMBER)
+        if echo "$ORDER_DETAILS" | grep -q "orderNumber"; then
+            echo "✓ Order correctly persisted in Order Service"
+            ORDER_ID=$(echo "$ORDER_DETAILS" | grep -o '"id":[0-9]*' | cut -d':' -f2)
+            echo "  Order ID: $ORDER_ID"
         else
-            echo "✗ Failed to update order status"
+            echo "✗ Order not found in Order Service"
         fi
+        echo ""
+
+        echo "10. Verify Cart Cleared (Async wait):"
+        CART_CLEARED=false
+        for i in {1..15}; do
+            CART_ITEMS=$(curl -s -H "X-User-Id: $USER_ID" http://$IP:8085/api/v1/cart | grep -o '"totalItems":[0-9]*' | cut -d':' -f2)
+            if [ "$CART_ITEMS" = "0" ]; then
+                CART_CLEARED=true
+                echo "✓ Cart cleared after checkout (took ~$i seconds)"
+                break
+            fi
+            sleep 1
+        done
+        
+        if [ "$CART_CLEARED" = false ]; then
+            echo "✗ Cart not cleared within timeout (items: $CART_ITEMS)"
+        fi
+        echo ""
+        
+        echo "11. Get Order by Number:"
+        if echo "$ORDER_DETAILS" | grep -q "orderNumber"; then
+            echo "✓ Order found by number via Order Service directly"
+        else
+            echo "✗ Order not found by number"
+        fi
+        echo ""
+        
+        echo "12. Update Order Status (Directly in Order Service):"
+        if [ -n "$ORDER_ID" ]; then
+            STATUS_UPDATE=$(curl -s -X PUT "http://$IP:8084/order/$ORDER_ID/status?status=SHIPPED")
+            if echo "$STATUS_UPDATE" | grep -q '"status":"SHIPPED"'; then
+                echo "✓ Order status updated to SHIPPED"
+            else
+                echo "✗ Failed to update order status"
+            fi
+        else
+            echo "✗ No order ID to update status"
+        fi
+        echo ""
     else
-        echo "✗ No order ID to update status"
+        echo "✗ Checkout SAGA failed or timed out"
+        echo "  Final Status: $SAGA_STATUS"
+        echo "  Response: $SESSION_STATUS_RESP"
+        echo ""
     fi
-    echo ""
-    
 else
     echo "✗ Checkout failed"
     echo "  Response: $CHECKOUT_RESPONSE"
@@ -158,12 +185,13 @@ EMPTY_CHECKOUT=$(curl -s -X POST -H "X-User-Id: empty-user-$(date +%s)" -H "Cont
   "payment": {
     "paymentMethod": "PAYPAL"
   }
-}' http://$IP:8086/api/v1/checkout 2>&1)
+}' http://$IP:8086/api/v1/checkout/sessions 2>&1)
 
-if echo "$EMPTY_CHECKOUT" | grep -q "Cart is empty\|500"; then
+if echo "$EMPTY_CHECKOUT" | grep -q "Cart is empty\|500\|422\|UNPROCESSABLE_ENTITY"; then
     echo "✓ Empty cart validation working"
 else
     echo "✗ Empty cart validation failed"
+    echo "  Response: $EMPTY_CHECKOUT"
 fi
 echo ""
 

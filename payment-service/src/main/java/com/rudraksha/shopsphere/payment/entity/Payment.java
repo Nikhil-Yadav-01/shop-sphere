@@ -26,6 +26,9 @@ public class Payment {
     @Column(nullable = false)
     private String orderNumber;
 
+    @Column
+    private String sessionId;
+
     @Column(nullable = false)
     private String userId;
 

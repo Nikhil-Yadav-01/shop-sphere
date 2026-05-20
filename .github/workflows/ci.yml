@@ -63,6 +63,15 @@ jobs:
       - name: Build cart-service JAR
         run: mvn -f cart-service/pom.xml clean package -DskipTests -B -q
 
+      - name: Build checkout-service JAR
+        run: mvn -f checkout-service/pom.xml clean package -DskipTests -B -q
+
+      - name: Build order-service JAR
+        run: mvn -f order-service/pom.xml clean package -DskipTests -B -q
+
+      - name: Build payment-service JAR
+        run: mvn -f payment-service/pom.xml clean package -DskipTests -B -q
+
       # api-gateway builds inside Docker (multi-stage Dockerfile) – no host build needed
 
       # ──────────────────────────────────────────────────────────────
@@ -76,7 +85,7 @@ jobs:
             build \
               --no-cache \
               --parallel \
-              discovery-service auth-service notification-service catalog-service inventory-service cart-service api-gateway nginx-proxy
+              discovery-service auth-service notification-service catalog-service inventory-service cart-service api-gateway nginx-proxy checkout-service order-service payment-service
 
       # ──────────────────────────────────────────────────────────────
       # 5. Start the CI subset stack
@@ -88,8 +97,8 @@ jobs:
             -f docker-compose.ci.yml \
             up -d \
               --no-deps \
-              auth-db notification-db catalog-db inventory-db redis kafka \
-              discovery-service auth-service notification-service catalog-service inventory-service cart-service api-gateway nginx-proxy
+              auth-db notification-db catalog-db inventory-db checkout-db order-db payment-db redis kafka \
+              discovery-service auth-service notification-service catalog-service inventory-service cart-service api-gateway nginx-proxy checkout-service order-service payment-service
 
       # ──────────────────────────────────────────────────────────────
       # 6. Wait for all required services to be healthy
@@ -127,6 +136,42 @@ jobs:
               break
             fi
             if [ $i -eq 30 ]; then echo "inventory-db timed out"; exit 1; fi
+            sleep 5
+          done
+
+      - name: Wait – checkout-db (postgres)
+        run: |
+          echo "Waiting for checkout-db..."
+          for i in $(seq 1 30); do
+            if docker exec checkout-db pg_isready -U postgres -q 2>/dev/null; then
+              echo "checkout-db is ready after $((i*5))s"
+              break
+            fi
+            if [ $i -eq 30 ]; then echo "checkout-db timed out"; exit 1; fi
+            sleep 5
+          done
+
+      - name: Wait – order-db (postgres)
+        run: |
+          echo "Waiting for order-db..."
+          for i in $(seq 1 30); do
+            if docker exec order-db pg_isready -U postgres -q 2>/dev/null; then
+              echo "order-db is ready after $((i*5))s"
+              break
+            fi
+            if [ $i -eq 30 ]; then echo "order-db timed out"; exit 1; fi
+            sleep 5
+          done
+
+      - name: Wait – payment-db (postgres)
+        run: |
+          echo "Waiting for payment-db..."
+          for i in $(seq 1 30); do
+            if docker exec payment-db pg_isready -U postgres -q 2>/dev/null; then
+              echo "payment-db is ready after $((i*5))s"
+              break
+            fi
+            if [ $i -eq 30 ]; then echo "payment-db timed out"; exit 1; fi
             sleep 5
           done
 
@@ -240,6 +285,42 @@ jobs:
             sleep 5
           done
 
+      - name: Wait – checkout-service
+        run: |
+          echo "Waiting for checkout-service..."
+          for i in $(seq 1 48); do
+            if curl -sf http://localhost:8086/actuator/health > /dev/null 2>&1; then
+              echo "checkout-service healthy after $((i*5))s"
+              break
+            fi
+            if [ $i -eq 48 ]; then echo "checkout-service timed out"; exit 1; fi
+            sleep 5
+          done
+
+      - name: Wait – order-service
+        run: |
+          echo "Waiting for order-service..."
+          for i in $(seq 1 48); do
+            if curl -sf http://localhost:8084/actuator/health > /dev/null 2>&1; then
+              echo "order-service healthy after $((i*5))s"
+              break
+            fi
+            if [ $i -eq 48 ]; then echo "order-service timed out"; exit 1; fi
+            sleep 5
+          done
+
+      - name: Wait – payment-service
+        run: |
+          echo "Waiting for payment-service..."
+          for i in $(seq 1 48); do
+            if curl -sf http://localhost:8093/actuator/health > /dev/null 2>&1; then
+              echo "payment-service healthy after $((i*5))s"
+              break
+            fi
+            if [ $i -eq 48 ]; then echo "payment-service timed out"; exit 1; fi
+            sleep 5
+          done
+
       - name: Wait – api-gateway
         run: |
           echo "Waiting for api-gateway..."
@@ -284,6 +365,12 @@ jobs:
           curl -s http://localhost:8092/actuator/health | python3 -m json.tool || true
           echo "=== cart-service /actuator/health ==="
           curl -s http://localhost:8085/actuator/health | python3 -m json.tool || true
+          echo "=== checkout-service /actuator/health ==="
+          curl -s http://localhost:8086/actuator/health | python3 -m json.tool || true
+          echo "=== order-service /actuator/health ==="
+          curl -s http://localhost:8084/actuator/health | python3 -m json.tool || true
+          echo "=== payment-service /actuator/health ==="
+          curl -s http://localhost:8093/actuator/health | python3 -m json.tool || true
 
       # ──────────────────────────────────────────────────────────────
       # 8. Run tests
@@ -319,6 +406,10 @@ jobs:
       - name: Test – Inventory Service
         if: success() || failure()
         run: bash tests/test-inventory.sh
+
+      - name: Test – Checkout Service
+        if: success() || failure()
+        run: bash tests/test-checkout.sh
 
       - name: Test – Notification Service
         if: success() || failure()

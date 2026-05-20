@@ -33,7 +33,7 @@ public interface InventoryService {
     
     InventoryResponse reserveInventoryForOrder(String sku, Integer quantity, String orderNumber);
 
-    InventoryResponse reserveInventoryForOrderWithContext(String sku, Integer quantity, String orderNumber, String userId, String totalAmount);
+    InventoryResponse reserveInventoryForOrderWithContext(String sku, Integer quantity, String orderNumber, String userId, String totalAmount, String sessionId);
     
     void releaseReservationByOrder(String orderNumber);
 }

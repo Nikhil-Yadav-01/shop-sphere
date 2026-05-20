@@ -310,6 +310,117 @@ services:
   checkout-db:
     ports:
       - "5436:5432"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: 256M
+
+  order-db:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: 256M
+
+  payment-db:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: 256M
+
+  checkout-service:
+    ports: []
+    environment:
+      DB_HOST: checkout-db
+      DB_PORT: 5432
+      DB_NAME: shopsphere_checkout
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      EUREKA_URI: http://discovery-service:8761/eureka
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MANAGEMENT_HEALTH_KAFKA_ENABLED: "false"
+      MANAGEMENT_HEALTH_REDIS_ENABLED: "false"
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "always"
+    depends_on:
+      checkout-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      cart-service:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 768M
+
+  order-service:
+    ports: []
+    environment:
+      DB_HOST: order-db
+      DB_PORT: 5432
+      DB_NAME: shopsphere_order
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      EUREKA_URI: http://discovery-service:8761/eureka
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MANAGEMENT_HEALTH_KAFKA_ENABLED: "false"
+      MANAGEMENT_HEALTH_REDIS_ENABLED: "false"
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "always"
+    depends_on:
+      order-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 768M
+
+  payment-service:
+    ports: []
+    environment:
+      DB_HOST: payment-db
+      DB_PORT: 5432
+      POSTGRES_DB: shopsphere_payment
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      EUREKA_URI: http://discovery-service:8761/eureka
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MANAGEMENT_HEALTH_KAFKA_ENABLED: "false"
+      MANAGEMENT_HEALTH_REDIS_ENABLED: "false"
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "always"
+    depends_on:
+      payment-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 768M
 
   # batch-service: was 8091 → 8100 (conflicts with media-service)
   batch-service:

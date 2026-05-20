@@ -27,6 +27,7 @@ public class CreateOrderRequest {
 
     private String shippingAddress;
     private String billingAddress;
+    private String checkoutSessionId;
 
     @NotEmpty(message = "Order must have at least one item")
     private List<OrderItemRequest> items;

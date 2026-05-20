@@ -13,6 +13,7 @@ import com.rudraksha.shopsphere.inventory.repository.OutboxEventRepository;
 import com.rudraksha.shopsphere.inventory.repository.StockMovementRepository;
 import com.rudraksha.shopsphere.inventory.service.InventoryService;
 import com.rudraksha.shopsphere.inventory.util.DistributedLockUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ public class InventoryServiceImpl implements InventoryService {
     private final OutboxEventRepository outboxRepository;
     private final DistributedLockUtil distributedLockUtil;
     private final PlatformTransactionManager transactionManager;
+    private final ObjectMapper objectMapper;
 
     private <T> T executeInTransaction(org.springframework.transaction.support.TransactionCallback<T> action) {
         TransactionTemplate template = new TransactionTemplate(transactionManager);
@@ -231,9 +233,10 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     private void updateStatus(InventoryItem item) {
-        if (item.getQuantity() <= 0) {
+        int availableQuantity = item.getQuantity() - item.getReservedQuantity();
+        if (availableQuantity <= 0) {
             item.setStatus(InventoryItem.InventoryStatus.OUT_OF_STOCK);
-        } else if (item.getQuantity() <= item.getReorderLevel()) {
+        } else if (availableQuantity <= item.getReorderLevel()) {
             item.setStatus(InventoryItem.InventoryStatus.LOW_STOCK);
         } else {
             item.setStatus(InventoryItem.InventoryStatus.AVAILABLE);
@@ -253,11 +256,11 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public InventoryResponse reserveInventoryForOrder(String sku, Integer quantity, String orderNumber) {
-        return reserveInventoryForOrderWithContext(sku, quantity, orderNumber, null, null);
+        return reserveInventoryForOrderWithContext(sku, quantity, orderNumber, null, null, null);
     }
 
     @Override
-    public InventoryResponse reserveInventoryForOrderWithContext(String sku, Integer quantity, String orderNumber, String userId, String totalAmount) {
+    public InventoryResponse reserveInventoryForOrderWithContext(String sku, Integer quantity, String orderNumber, String userId, String totalAmount, String sessionId) {
         log.info("Reserving inventory for order {} with SKU: {} and quantity: {}", orderNumber, sku, quantity);
         
         return distributedLockUtil.executeWithLock(sku, () -> {
@@ -285,16 +288,41 @@ public class InventoryServiceImpl implements InventoryService {
                 recordMovement(item.getId(), StockMovement.MovementType.RESERVATION, 
                     quantity, "Order: " + orderNumber, null);
                 
-                // Publish event with full context for SAGA
-                String message = String.format("{\"sku\":\"%s\",\"quantity\":%d,\"orderNumber\":\"%s\",\"userId\":\"%s\",\"totalAmount\":\"%s\"}", 
-                    sku, quantity, orderNumber, userId != null ? userId : "", totalAmount != null ? totalAmount : "0.0");
-                
-                OutboxEvent event = OutboxEvent.builder()
-                    .topic("inventory.reserved")
-                    .key(sku)
-                    .payload(message)
-                    .build();
-                outboxRepository.save(event);
+                try {
+                    List<com.rudraksha.shopsphere.inventory.event.InventoryReservedPayload.ReservedItem> reservedItems = List.of(
+                            com.rudraksha.shopsphere.inventory.event.InventoryReservedPayload.ReservedItem.builder()
+                                    .sku(sku)
+                                    .quantity(quantity)
+                                    .build()
+                    );
+
+                    com.rudraksha.shopsphere.inventory.event.InventoryReservedPayload payload = com.rudraksha.shopsphere.inventory.event.InventoryReservedPayload.builder()
+                            .sessionId(sessionId)
+                            .orderNumber(orderNumber)
+                            .userId(userId)
+                            .totalAmount(totalAmount != null ? new java.math.BigDecimal(totalAmount) : java.math.BigDecimal.ZERO)
+                            .items(reservedItems)
+                            .build();
+
+                    com.rudraksha.shopsphere.inventory.event.EventEnvelope<com.rudraksha.shopsphere.inventory.event.InventoryReservedPayload> envelope =
+                            com.rudraksha.shopsphere.inventory.event.EventEnvelope.<com.rudraksha.shopsphere.inventory.event.InventoryReservedPayload>builder()
+                                    .type("INVENTORY_RESERVED")
+                                    .source("inventory-service")
+                                    .payload(payload)
+                                    .build();
+
+                    String jsonPayload = objectMapper.writeValueAsString(envelope);
+
+                    OutboxEvent event = OutboxEvent.builder()
+                        .topic("inventory.reserved")
+                        .key(sku)
+                        .payload(jsonPayload)
+                        .build();
+                    outboxRepository.save(event);
+                } catch (Exception e) {
+                    log.error("Failed to save inventory outbox event", e);
+                    throw new RuntimeException("Outbox serialization failure", e);
+                }
                 
                 log.info("Inventory reserved for order {}: SKU {} x {}", orderNumber, sku, quantity);
                 

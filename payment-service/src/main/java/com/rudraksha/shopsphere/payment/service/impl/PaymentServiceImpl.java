@@ -9,6 +9,10 @@ import com.rudraksha.shopsphere.payment.repository.PaymentRepository;
 import com.rudraksha.shopsphere.payment.service.PaymentService;
 import com.rudraksha.shopsphere.payment.entity.OutboxEvent;
 import com.rudraksha.shopsphere.payment.repository.OutboxEventRepository;
+import com.rudraksha.shopsphere.payment.event.EventEnvelope;
+import com.rudraksha.shopsphere.payment.event.PaymentSucceededPayload;
+import com.rudraksha.shopsphere.payment.event.PaymentFailedPayload;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,6 +33,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final OutboxEventRepository outboxRepository;
+    private final ObjectMapper objectMapper;
 
     @Override
     public PaymentResponse processPayment(ProcessPaymentRequest request) {
@@ -37,6 +42,7 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = Payment.builder()
                 .transactionId(transactionId)
                 .orderNumber(request.getOrderNumber())
+                .sessionId(request.getSessionId())
                 .userId(request.getUserId())
                 .status(Payment.PaymentStatus.PROCESSING)
                 .method(request.getMethod())
@@ -51,11 +57,11 @@ public class PaymentServiceImpl implements PaymentService {
         if (simulatePaymentGateway(request)) {
             savedPayment.setStatus(Payment.PaymentStatus.SUCCESS);
             savedPayment.setProcessedAt(LocalDateTime.now());
-            publishPaymentEvent("PAYMENT_SUCCESS", transactionId, savedPayment.getOrderNumber(), savedPayment.getUserId());
+            publishPaymentEvent("PAYMENT_SUCCESS", transactionId, savedPayment.getOrderNumber(), savedPayment.getUserId(), savedPayment.getSessionId(), savedPayment.getAmount(), null);
         } else {
             savedPayment.setStatus(Payment.PaymentStatus.FAILED);
             savedPayment.setFailureReason("Payment gateway declined");
-            publishPaymentEvent("PAYMENT_FAILED", transactionId, savedPayment.getOrderNumber(), savedPayment.getUserId());
+            publishPaymentEvent("PAYMENT_FAILED", transactionId, savedPayment.getOrderNumber(), savedPayment.getUserId(), savedPayment.getSessionId(), savedPayment.getAmount(), savedPayment.getFailureReason());
         }
 
         Payment updatedPayment = paymentRepository.save(savedPayment);
@@ -164,15 +170,69 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void publishPaymentEvent(String eventType, String transactionId, String orderNumber, String userId) {
+        publishPaymentEvent(eventType, transactionId, orderNumber, userId, null, null, null);
+    }
+
+    private void publishPaymentEvent(String eventType, String transactionId, String orderNumber, String userId, String sessionId, java.math.BigDecimal amount, String failureReason) {
         try {
+            // 1. Dual-publish to the old 'payment-events' topic for backward compatibility
             String message = eventType + ":" + transactionId + ":" + orderNumber + ":" + userId + ":" + LocalDateTime.now();
-            OutboxEvent event = OutboxEvent.builder()
+            OutboxEvent oldEvent = OutboxEvent.builder()
                     .topic("payment-events")
                     .key(orderNumber)
                     .payload(message)
                     .build();
-            outboxRepository.save(event);
-            log.info("Saved payment outbox event: {} for order {}", eventType, orderNumber);
+            outboxRepository.save(oldEvent);
+            log.info("Saved legacy payment outbox event: {} for order {}", eventType, orderNumber);
+
+            // 2. Publish new structured event format
+            if ("PAYMENT_SUCCESS".equals(eventType)) {
+                PaymentSucceededPayload payload = PaymentSucceededPayload.builder()
+                        .sessionId(sessionId)
+                        .orderNumber(orderNumber)
+                        .userId(userId)
+                        .transactionId(transactionId)
+                        .amount(amount)
+                        .build();
+
+                EventEnvelope<PaymentSucceededPayload> envelope = EventEnvelope.<PaymentSucceededPayload>builder()
+                        .type("PAYMENT_SUCCEEDED")
+                        .source("payment-service")
+                        .payload(payload)
+                        .build();
+
+                String jsonPayload = objectMapper.writeValueAsString(envelope);
+                OutboxEvent newEvent = OutboxEvent.builder()
+                        .topic("payment.succeeded")
+                        .key(orderNumber)
+                        .payload(jsonPayload)
+                        .build();
+                outboxRepository.save(newEvent);
+                log.info("Saved structured payment outbox event (succeeded) for session {}", sessionId);
+            } else if ("PAYMENT_FAILED".equals(eventType)) {
+                PaymentFailedPayload payload = PaymentFailedPayload.builder()
+                        .sessionId(sessionId)
+                        .orderNumber(orderNumber)
+                        .userId(userId)
+                        .transactionId(transactionId)
+                        .reason(failureReason != null ? failureReason : "Payment gateway declined")
+                        .build();
+
+                EventEnvelope<PaymentFailedPayload> envelope = EventEnvelope.<PaymentFailedPayload>builder()
+                        .type("PAYMENT_FAILED")
+                        .source("payment-service")
+                        .payload(payload)
+                        .build();
+
+                String jsonPayload = objectMapper.writeValueAsString(envelope);
+                OutboxEvent newEvent = OutboxEvent.builder()
+                        .topic("payment.failed")
+                        .key(orderNumber)
+                        .payload(jsonPayload)
+                        .build();
+                outboxRepository.save(newEvent);
+                log.info("Saved structured payment outbox event (failed) for session {}", sessionId);
+            }
         } catch (Exception e) {
             log.error("Failed to save payment outbox event: {} for order {}", eventType, orderNumber, e);
         }

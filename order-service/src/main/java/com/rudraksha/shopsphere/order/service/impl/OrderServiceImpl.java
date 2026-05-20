@@ -58,6 +58,7 @@ public class OrderServiceImpl implements OrderService {
                 .taxAmount(request.getTaxAmount())
                 .shippingAddress(request.getShippingAddress())
                 .billingAddress(request.getBillingAddress())
+                .checkoutSessionId(request.getCheckoutSessionId())
                 .items(items)
                 .build();
 
@@ -170,23 +171,29 @@ public class OrderServiceImpl implements OrderService {
 
     private void publishOrderPlacedEvent(Order order) {
         try {
-            Map<String, Object> message = new HashMap<>();
-            message.put("orderId", order.getOrderNumber());
-            
-            List<Map<String, Object>> items = order.getItems().stream()
-                    .map(item -> {
-                        Map<String, Object> itemMap = new HashMap<>();
-                        itemMap.put("sku", item.getProductId());
-                        itemMap.put("quantity", item.getQuantity());
-                        return itemMap;
-                    }).collect(Collectors.toList());
-            
-            message.put("items", items);
-            message.put("userId", order.getUserId());
-            message.put("totalAmount", order.getTotalAmount().toString());
-            message.put("timestamp", LocalDateTime.now().toString());
+            List<com.rudraksha.shopsphere.order.event.OrderPlacedPayload.OrderItemPayload> items = order.getItems().stream()
+                    .map(item -> com.rudraksha.shopsphere.order.event.OrderPlacedPayload.OrderItemPayload.builder()
+                            .sku(item.getProductId())
+                            .quantity(item.getQuantity())
+                            .build())
+                    .collect(Collectors.toList());
 
-            String jsonPayload = objectMapper.writeValueAsString(message);
+            com.rudraksha.shopsphere.order.event.OrderPlacedPayload payload = com.rudraksha.shopsphere.order.event.OrderPlacedPayload.builder()
+                    .orderNumber(order.getOrderNumber())
+                    .sessionId(order.getCheckoutSessionId())
+                    .userId(order.getUserId())
+                    .totalAmount(order.getTotalAmount())
+                    .items(items)
+                    .build();
+
+            com.rudraksha.shopsphere.order.event.EventEnvelope<com.rudraksha.shopsphere.order.event.OrderPlacedPayload> envelope =
+                    com.rudraksha.shopsphere.order.event.EventEnvelope.<com.rudraksha.shopsphere.order.event.OrderPlacedPayload>builder()
+                            .type("ORDER_PLACED")
+                            .source("order-service")
+                            .payload(payload)
+                            .build();
+
+            String jsonPayload = objectMapper.writeValueAsString(envelope);
             
             OutboxEvent event = OutboxEvent.builder()
                     .topic("order.placed")
@@ -194,7 +201,7 @@ public class OrderServiceImpl implements OrderService {
                     .payload(jsonPayload)
                     .build();
             outboxRepository.save(event);
-            log.info("Saved outbox event for order.placed: order {}", order.getOrderNumber());
+            log.info("Saved outbox event for order.placed: order {} for session {}", order.getOrderNumber(), order.getCheckoutSessionId());
         } catch (Exception e) {
             log.error("Failed to serialize and save order.placed outbox event", e);
         }

@@ -44,6 +44,12 @@ public class Order {
     @Column
     private String billingAddress;
 
+    @Column(name = "checkout_session_id")
+    private String checkoutSessionId;
+
+    @Version
+    private Long version;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<OrderItem> items;

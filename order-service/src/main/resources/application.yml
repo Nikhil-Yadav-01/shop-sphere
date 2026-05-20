@@ -25,6 +25,17 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: 6379
+
+outbox:
+  scheduler:
+    batch-size: 100
+    max-retries: 5
+    interval-ms: 1000
+    cleanup-days: 7
 
 eureka:
   client:
