@@ -1,4 +1,4 @@
-package com.rudraksha.shopsphere.inventory.entity;
+package com.rudraksha.shopsphere.payment.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

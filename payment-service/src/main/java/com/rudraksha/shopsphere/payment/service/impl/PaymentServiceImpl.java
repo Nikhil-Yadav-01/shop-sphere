@@ -7,10 +7,10 @@ import com.rudraksha.shopsphere.payment.entity.Payment;
 import com.rudraksha.shopsphere.payment.exception.PaymentException;
 import com.rudraksha.shopsphere.payment.repository.PaymentRepository;
 import com.rudraksha.shopsphere.payment.service.PaymentService;
+import com.rudraksha.shopsphere.payment.entity.OutboxEvent;
+import com.rudraksha.shopsphere.payment.repository.OutboxEventRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,7 +28,7 @@ import java.util.stream.Collectors;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final OutboxEventRepository outboxRepository;
 
     @Override
     public PaymentResponse processPayment(ProcessPaymentRequest request) {
@@ -165,14 +164,17 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void publishPaymentEvent(String eventType, String transactionId, String orderNumber, String userId) {
-        String message = eventType + ":" + transactionId + ":" + orderNumber + ":" + userId + ":" + LocalDateTime.now();
-        CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send("payment-events", orderNumber, message);
-        future.whenComplete((result, ex) -> {
-            if (ex != null) {
-                log.error("Failed to publish payment event: {} for order {}", eventType, orderNumber, ex);
-            } else {
-                log.info("Published payment event: {} for order {}", eventType, orderNumber);
-            }
-        });
+        try {
+            String message = eventType + ":" + transactionId + ":" + orderNumber + ":" + userId + ":" + LocalDateTime.now();
+            OutboxEvent event = OutboxEvent.builder()
+                    .topic("payment-events")
+                    .key(orderNumber)
+                    .payload(message)
+                    .build();
+            outboxRepository.save(event);
+            log.info("Saved payment outbox event: {} for order {}", eventType, orderNumber);
+        } catch (Exception e) {
+            log.error("Failed to save payment outbox event: {} for order {}", eventType, orderNumber, e);
+        }
     }
 }
