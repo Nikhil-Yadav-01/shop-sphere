@@ -16,7 +16,9 @@ import com.rudraksha.shopsphere.inventory.util.DistributedLockUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,6 +32,12 @@ public class InventoryServiceImpl implements InventoryService {
     private final OrderReservationRepository orderReservationRepository;
     private final OutboxEventRepository outboxRepository;
     private final DistributedLockUtil distributedLockUtil;
+    private final PlatformTransactionManager transactionManager;
+
+    private <T> T executeInTransaction(org.springframework.transaction.support.TransactionCallback<T> action) {
+        TransactionTemplate template = new TransactionTemplate(transactionManager);
+        return template.execute(action);
+    }
 
     @Override
     @Transactional
@@ -99,75 +107,83 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    @Transactional
     public InventoryResponse reserveInventory(ReserveInventoryRequest request) {
         log.info("Reserving inventory for SKU: {} with quantity: {}", 
             request.getSku(), request.getQuantity());
         
         return distributedLockUtil.executeWithLock(request.getSku(), () -> {
-            InventoryItem item = inventoryRepository.findBySkuWithLock(request.getSku())
-                .orElseThrow(() -> new IllegalArgumentException("Inventory not found for SKU: " + request.getSku()));
-            
-            if (item.getAvailableQuantity() < request.getQuantity()) {
-                log.warn("Insufficient inventory for SKU: {}", request.getSku());
-                throw new IllegalArgumentException("Insufficient inventory available");
-            }
-            
-            item.setReservedQuantity(item.getReservedQuantity() + request.getQuantity());
-            updateStatus(item);
-            
-            InventoryItem updated = inventoryRepository.save(item);
-            recordMovement(item.getId(), StockMovement.MovementType.RESERVATION, 
-                request.getQuantity(), request.getReference(), null);
-            
-            publishEvent("inventory.reserved", request.getSku(), request.getQuantity(), request.getReference());
-            log.info("Inventory reserved successfully for SKU: {}", request.getSku());
-            
-            return InventoryResponse.fromEntity(updated);
+            return executeInTransaction(status -> {
+                InventoryItem item = inventoryRepository.findBySkuWithLock(request.getSku())
+                    .orElseThrow(() -> new IllegalArgumentException("Inventory not found for SKU: " + request.getSku()));
+                
+                if (item.getAvailableQuantity() < request.getQuantity()) {
+                    log.warn("Insufficient inventory for SKU: {}", request.getSku());
+                    throw new IllegalArgumentException("Insufficient inventory available");
+                }
+                
+                item.setReservedQuantity(item.getReservedQuantity() + request.getQuantity());
+                updateStatus(item);
+                
+                InventoryItem updated = inventoryRepository.save(item);
+                recordMovement(item.getId(), StockMovement.MovementType.RESERVATION, 
+                    request.getQuantity(), request.getReference(), null);
+                
+                publishEvent("inventory.reserved", request.getSku(), request.getQuantity(), request.getReference());
+                log.info("Inventory reserved successfully for SKU: {}", request.getSku());
+                
+                return InventoryResponse.fromEntity(updated);
+            });
         });
     }
 
     @Override
-    @Transactional
     public InventoryResponse releaseReservation(String sku, Integer quantity, String reference) {
         log.info("Releasing reservation for SKU: {} with quantity: {}", sku, quantity);
         
         return distributedLockUtil.executeWithLock(sku, () -> {
-            InventoryItem item = inventoryRepository.findBySkuWithLock(sku)
-                .orElseThrow(() -> new IllegalArgumentException("Inventory not found for SKU: " + sku));
-            
-            int newReserved = Math.max(0, item.getReservedQuantity() - quantity);
-            item.setReservedQuantity(newReserved);
-            updateStatus(item);
-            
-            InventoryItem updated = inventoryRepository.save(item);
-            recordMovement(item.getId(), StockMovement.MovementType.RESERVATION_RELEASE, 
-                quantity, reference, null);
-            
-            publishEvent("inventory.reservation.released", sku, quantity, reference);
-            log.info("Reservation released successfully for SKU: {}", sku);
-            
-            return InventoryResponse.fromEntity(updated);
+            return executeInTransaction(status -> {
+                InventoryItem item = inventoryRepository.findBySkuWithLock(sku)
+                    .orElseThrow(() -> new IllegalArgumentException("Inventory not found for SKU: " + sku));
+                
+                int newReserved = Math.max(0, item.getReservedQuantity() - quantity);
+                item.setReservedQuantity(newReserved);
+                updateStatus(item);
+                
+                InventoryItem updated = inventoryRepository.save(item);
+                recordMovement(item.getId(), StockMovement.MovementType.RESERVATION_RELEASE, 
+                    quantity, reference, null);
+                
+                publishEvent("inventory.reservation.released", sku, quantity, reference);
+                log.info("Reservation released successfully for SKU: {}", sku);
+                
+                return InventoryResponse.fromEntity(updated);
+            });
         });
     }
 
     @Override
-    @Transactional
     public InventoryResponse adjustInventory(Long id, AdjustInventoryRequest request) {
         log.info("Adjusting inventory with ID: {} by quantity: {}", id, request.getAdjustmentQuantity());
         
         InventoryItem item = inventoryRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Inventory not found"));
         
-        item.setQuantity(item.getQuantity() + request.getAdjustmentQuantity());
-        updateStatus(item);
-        
-        InventoryItem updated = inventoryRepository.save(item);
-        recordMovement(id, StockMovement.MovementType.ADJUSTMENT, 
-            request.getAdjustmentQuantity(), request.getReason(), request.getNotes());
-        
-        log.info("Inventory adjusted successfully");
-        return InventoryResponse.fromEntity(updated);
+        return distributedLockUtil.executeWithLock(item.getSku(), () -> {
+            return executeInTransaction(status -> {
+                InventoryItem currentItem = inventoryRepository.findBySkuWithLock(item.getSku())
+                    .orElseThrow(() -> new IllegalArgumentException("Inventory not found for SKU: " + item.getSku()));
+                
+                currentItem.setQuantity(currentItem.getQuantity() + request.getAdjustmentQuantity());
+                updateStatus(currentItem);
+                
+                InventoryItem updated = inventoryRepository.save(currentItem);
+                recordMovement(id, StockMovement.MovementType.ADJUSTMENT, 
+                    request.getAdjustmentQuantity(), request.getReason(), request.getNotes());
+                
+                log.info("Inventory adjusted successfully");
+                return InventoryResponse.fromEntity(updated);
+            });
+        });
     }
 
     @Override
@@ -236,93 +252,109 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    @Transactional
     public InventoryResponse reserveInventoryForOrder(String sku, Integer quantity, String orderNumber) {
         return reserveInventoryForOrderWithContext(sku, quantity, orderNumber, null, null);
     }
 
     @Override
-    @Transactional
     public InventoryResponse reserveInventoryForOrderWithContext(String sku, Integer quantity, String orderNumber, String userId, String totalAmount) {
         log.info("Reserving inventory for order {} with SKU: {} and quantity: {}", orderNumber, sku, quantity);
         
         return distributedLockUtil.executeWithLock(sku, () -> {
-            InventoryItem item = inventoryRepository.findBySkuWithLock(sku)
-                .orElseThrow(() -> new IllegalArgumentException("Inventory not found for SKU: " + sku));
-            
-            if (item.getAvailableQuantity() < quantity) {
-                log.warn("Insufficient inventory for order {}: SKU {}", orderNumber, sku);
-                throw new IllegalArgumentException("Insufficient inventory available for SKU: " + sku);
-            }
-            
-            item.setReservedQuantity(item.getReservedQuantity() + quantity);
-            updateStatus(item);
-            
-            InventoryItem updated = inventoryRepository.save(item);
-            
-            OrderReservation reservation = OrderReservation.builder()
-                .orderNumber(orderNumber)
-                .inventoryItemId(item.getId())
-                .quantityReserved(quantity)
-                .build();
-            orderReservationRepository.save(reservation);
-            
-            recordMovement(item.getId(), StockMovement.MovementType.RESERVATION, 
-                quantity, "Order: " + orderNumber, null);
-            
-            // Publish event with full context for SAGA
-            String message = String.format("{\"sku\":\"%s\",\"quantity\":%d,\"orderNumber\":\"%s\",\"userId\":\"%s\",\"totalAmount\":\"%s\"}", 
-                sku, quantity, orderNumber, userId != null ? userId : "", totalAmount != null ? totalAmount : "0.0");
-            
-            OutboxEvent event = OutboxEvent.builder()
-                .topic("inventory.reserved")
-                .key(sku)
-                .payload(message)
-                .build();
-            outboxRepository.save(event);
-            
-            log.info("Inventory reserved for order {}: SKU {} x {}", orderNumber, sku, quantity);
-            
-            return InventoryResponse.fromEntity(updated);
+            return executeInTransaction(status -> {
+                InventoryItem item = inventoryRepository.findBySkuWithLock(sku)
+                    .orElseThrow(() -> new IllegalArgumentException("Inventory not found for SKU: " + sku));
+                
+                if (item.getAvailableQuantity() < quantity) {
+                    log.warn("Insufficient inventory for order {}: SKU {}", orderNumber, sku);
+                    throw new IllegalArgumentException("Insufficient inventory available for SKU: " + sku);
+                }
+                
+                item.setReservedQuantity(item.getReservedQuantity() + quantity);
+                updateStatus(item);
+                
+                InventoryItem updated = inventoryRepository.save(item);
+                
+                OrderReservation reservation = OrderReservation.builder()
+                    .orderNumber(orderNumber)
+                    .inventoryItemId(item.getId())
+                    .quantityReserved(quantity)
+                    .build();
+                orderReservationRepository.save(reservation);
+                
+                recordMovement(item.getId(), StockMovement.MovementType.RESERVATION, 
+                    quantity, "Order: " + orderNumber, null);
+                
+                // Publish event with full context for SAGA
+                String message = String.format("{\"sku\":\"%s\",\"quantity\":%d,\"orderNumber\":\"%s\",\"userId\":\"%s\",\"totalAmount\":\"%s\"}", 
+                    sku, quantity, orderNumber, userId != null ? userId : "", totalAmount != null ? totalAmount : "0.0");
+                
+                OutboxEvent event = OutboxEvent.builder()
+                    .topic("inventory.reserved")
+                    .key(sku)
+                    .payload(message)
+                    .build();
+                outboxRepository.save(event);
+                
+                log.info("Inventory reserved for order {}: SKU {} x {}", orderNumber, sku, quantity);
+                
+                return InventoryResponse.fromEntity(updated);
+            });
         });
     }
 
     @Override
-    @Transactional
     public void releaseReservationByOrder(String orderNumber) {
         log.info("Releasing all reservations for order: {}", orderNumber);
         
         List<OrderReservation> reservations = orderReservationRepository.findByOrderNumber(orderNumber);
-        
-        for (OrderReservation reservation : reservations) {
-            InventoryItem item = inventoryRepository.findById(reservation.getInventoryItemId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                    "Inventory item not found: " + reservation.getInventoryItemId()));
-            
-            distributedLockUtil.executeWithLock(item.getSku(), () -> {
-                InventoryItem currentItem = inventoryRepository.findBySkuWithLock(item.getSku())
-                    .orElseThrow();
-                
-                int newReserved = Math.max(0, 
-                    currentItem.getReservedQuantity() - reservation.getQuantityReserved());
-                currentItem.setReservedQuantity(newReserved);
-                updateStatus(currentItem);
-                
-                inventoryRepository.save(currentItem);
-                
-                recordMovement(item.getId(), StockMovement.MovementType.RESERVATION_RELEASE, 
-                    reservation.getQuantityReserved(), "Order cancelled: " + orderNumber, null);
-                
-                publishEvent("inventory.reservation.released", item.getSku(), 
-                    reservation.getQuantityReserved(), orderNumber);
-                
-                log.info("Inventory released for order {}: {} x {}", orderNumber, item.getSku(), 
-                    reservation.getQuantityReserved());
-                
-                return null;
-            });
+        if (reservations.isEmpty()) {
+            log.info("No reservations found to release for order: {}", orderNumber);
+            return;
         }
         
-        orderReservationRepository.deleteByOrderNumber(orderNumber);
+        // Extract all SKUs and sort them to prevent deadlocks
+        List<String> skus = reservations.stream()
+            .map(r -> {
+                InventoryItem item = inventoryRepository.findById(r.getInventoryItemId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                        "Inventory item not found: " + r.getInventoryItemId()));
+                return item.getSku();
+            })
+            .distinct()
+            .sorted()
+            .collect(Collectors.toList());
+        
+        distributedLockUtil.executeWithLocks(skus, () -> {
+            return executeInTransaction(status -> {
+                for (OrderReservation reservation : reservations) {
+                    InventoryItem item = inventoryRepository.findById(reservation.getInventoryItemId())
+                        .orElseThrow(() -> new IllegalArgumentException(
+                            "Inventory item not found: " + reservation.getInventoryItemId()));
+                    
+                    InventoryItem currentItem = inventoryRepository.findBySkuWithLock(item.getSku())
+                        .orElseThrow();
+                    
+                    int newReserved = Math.max(0, 
+                        currentItem.getReservedQuantity() - reservation.getQuantityReserved());
+                    currentItem.setReservedQuantity(newReserved);
+                    updateStatus(currentItem);
+                    
+                    inventoryRepository.save(currentItem);
+                    
+                    recordMovement(item.getId(), StockMovement.MovementType.RESERVATION_RELEASE, 
+                        reservation.getQuantityReserved(), "Order cancelled: " + orderNumber, null);
+                    
+                    publishEvent("inventory.reservation.released", item.getSku(), 
+                        reservation.getQuantityReserved(), orderNumber);
+                    
+                    log.info("Inventory released for order {}: {} x {}", orderNumber, item.getSku(), 
+                        reservation.getQuantityReserved());
+                }
+                
+                orderReservationRepository.deleteByOrderNumber(orderNumber);
+                return null;
+            });
+        });
     }
 }
