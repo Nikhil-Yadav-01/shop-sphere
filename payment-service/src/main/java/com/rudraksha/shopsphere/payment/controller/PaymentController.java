@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @RestController
@@ -38,21 +40,18 @@ public class PaymentController {
     }
 
     @GetMapping("/order/{orderNumber}")
-    public ResponseEntity<List<PaymentResponse>> getPaymentsByOrderNumber(@PathVariable String orderNumber) {
-        List<PaymentResponse> payments = paymentService.getPaymentsByOrderNumber(orderNumber);
-        return ResponseEntity.ok(payments);
+    public ResponseEntity<Page<PaymentResponse>> getPaymentsByOrderNumber(@PathVariable String orderNumber, Pageable pageable) {
+        return ResponseEntity.ok(paymentService.getPaymentsByOrderNumber(orderNumber, pageable));
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<PaymentResponse>> getPaymentsByUserId(@PathVariable String userId) {
-        List<PaymentResponse> payments = paymentService.getPaymentsByUserId(userId);
-        return ResponseEntity.ok(payments);
+    public ResponseEntity<Page<PaymentResponse>> getPaymentsByUserId(@PathVariable String userId, Pageable pageable) {
+        return ResponseEntity.ok(paymentService.getPaymentsByUserId(userId, pageable));
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<PaymentResponse>> getPaymentsByStatus(@PathVariable Payment.PaymentStatus status) {
-        List<PaymentResponse> payments = paymentService.getPaymentsByStatus(status);
-        return ResponseEntity.ok(payments);
+    public ResponseEntity<Page<PaymentResponse>> getPaymentsByStatus(@PathVariable Payment.PaymentStatus status, Pageable pageable) {
+        return ResponseEntity.ok(paymentService.getPaymentsByStatus(status, pageable));
     }
 
     @PostMapping("/refund")
@@ -68,8 +67,7 @@ public class PaymentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PaymentResponse>> getAllPayments() {
-        List<PaymentResponse> payments = paymentService.getAllPayments();
-        return ResponseEntity.ok(payments);
+    public ResponseEntity<Page<PaymentResponse>> getAllPayments(Pageable pageable) {
+        return ResponseEntity.ok(paymentService.getAllPayments(pageable));
     }
 }

@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -102,20 +104,16 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<NotificationResponse> getNotificationsByUserId(String userId) {
-        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId)
-                .stream()
-                .map(NotificationResponse::fromEntity)
-                .toList();
+    public Page<NotificationResponse> getNotificationsByUserId(String userId, Pageable pageable) {
+        return notificationRepository.findByUserId(userId, pageable)
+                .map(NotificationResponse::fromEntity);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<NotificationResponse> getUnreadNotificationsByUserId(String userId) {
-        return notificationRepository.findByUserIdAndIsRead(userId, false)
-                .stream()
-                .map(NotificationResponse::fromEntity)
-                .toList();
+    public Page<NotificationResponse> getUnreadNotificationsByUserId(String userId, Pageable pageable) {
+        return notificationRepository.findByUserIdAndIsRead(userId, false, pageable)
+                .map(NotificationResponse::fromEntity);
     }
 
     @Override
@@ -167,11 +165,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<NotificationResponse> getRecentNotifications(String userId, int days) {
+    public Page<NotificationResponse> getRecentNotifications(String userId, int days, Pageable pageable) {
         LocalDateTime since = LocalDateTime.now().minusDays(days);
-        return notificationRepository.findRecentNotifications(userId, since)
-                .stream()
-                .map(NotificationResponse::fromEntity)
-                .toList();
+        return notificationRepository.findRecentNotifications(userId, since, pageable)
+                .map(NotificationResponse::fromEntity);
     }
 }

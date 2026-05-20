@@ -1,6 +1,8 @@
 package com.rudraksha.shopsphere.notification.repository;
 
 import com.rudraksha.shopsphere.notification.entity.Notification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,14 +14,16 @@ import java.util.List;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    List<Notification> findByUserId(String userId);
+    Page<Notification> findByUserId(String userId, Pageable pageable);
+
+    Page<Notification> findByUserIdAndIsRead(String userId, Boolean isRead, Pageable pageable);
 
     List<Notification> findByUserIdAndIsRead(String userId, Boolean isRead);
 
     List<Notification> findByUserIdOrderByCreatedAtDesc(String userId);
 
     @Query("SELECT n FROM Notification n WHERE n.userId = :userId AND n.createdAt >= :since ORDER BY n.createdAt DESC")
-    List<Notification> findRecentNotifications(@Param("userId") String userId, @Param("since") LocalDateTime since);
+    Page<Notification> findRecentNotifications(@Param("userId") String userId, @Param("since") LocalDateTime since, Pageable pageable);
 
     List<Notification> findByStatus(Notification.NotificationStatus status);
 

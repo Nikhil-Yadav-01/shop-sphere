@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -79,29 +81,23 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PaymentResponse> getPaymentsByOrderNumber(String orderNumber) {
-        return paymentRepository.findByOrderNumber(orderNumber)
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<PaymentResponse> getPaymentsByOrderNumber(String orderNumber, Pageable pageable) {
+        return paymentRepository.findByOrderNumber(orderNumber, pageable)
+                .map(this::mapToResponse);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<PaymentResponse> getPaymentsByUserId(String userId) {
-        return paymentRepository.findByUserId(userId)
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<PaymentResponse> getPaymentsByUserId(String userId, Pageable pageable) {
+        return paymentRepository.findByUserId(userId, pageable)
+                .map(this::mapToResponse);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<PaymentResponse> getPaymentsByStatus(Payment.PaymentStatus status) {
-        return paymentRepository.findByStatus(status)
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<PaymentResponse> getPaymentsByStatus(Payment.PaymentStatus status, Pageable pageable) {
+        return paymentRepository.findByStatus(status, pageable)
+                .map(this::mapToResponse);
     }
 
     @Override
@@ -136,11 +132,9 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PaymentResponse> getAllPayments() {
-        return paymentRepository.findAll()
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<PaymentResponse> getAllPayments(Pageable pageable) {
+        return paymentRepository.findAll(pageable)
+                .map(this::mapToResponse);
     }
 
     private String generateTransactionId() {

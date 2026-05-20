@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,15 +36,13 @@ public class NotificationController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<NotificationResponse>> getUserNotifications(@PathVariable String userId) {
-        List<NotificationResponse> notifications = notificationService.getNotificationsByUserId(userId);
-        return ResponseEntity.ok(notifications);
+    public ResponseEntity<Page<NotificationResponse>> getUserNotifications(@PathVariable String userId, Pageable pageable) {
+        return ResponseEntity.ok(notificationService.getNotificationsByUserId(userId, pageable));
     }
 
     @GetMapping("/user/{userId}/unread")
-    public ResponseEntity<List<NotificationResponse>> getUnreadNotifications(@PathVariable String userId) {
-        List<NotificationResponse> notifications = notificationService.getUnreadNotificationsByUserId(userId);
-        return ResponseEntity.ok(notifications);
+    public ResponseEntity<Page<NotificationResponse>> getUnreadNotifications(@PathVariable String userId, Pageable pageable) {
+        return ResponseEntity.ok(notificationService.getUnreadNotificationsByUserId(userId, pageable));
     }
 
     @GetMapping("/user/{userId}/unread/count")
@@ -75,10 +75,11 @@ public class NotificationController {
     }
 
     @GetMapping("/user/{userId}/recent")
-    public ResponseEntity<List<NotificationResponse>> getRecentNotifications(
+    public ResponseEntity<Page<NotificationResponse>> getRecentNotifications(
             @PathVariable String userId,
-            @RequestParam(defaultValue = "7") int days) {
-        List<NotificationResponse> notifications = notificationService.getRecentNotifications(userId, days);
+            @RequestParam(defaultValue = "7") int days,
+            Pageable pageable) {
+        Page<NotificationResponse> notifications = notificationService.getRecentNotifications(userId, days, pageable);
         return ResponseEntity.ok(notifications);
     }
 

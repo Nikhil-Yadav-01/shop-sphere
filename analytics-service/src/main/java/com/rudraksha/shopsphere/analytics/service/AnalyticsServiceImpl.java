@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -35,24 +37,21 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     @Override
-    public List<AnalyticsResponse> getEventsByType(String eventType) {
-        return repository.findByEventType(eventType).stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+    public Page<AnalyticsResponse> getEventsByType(String eventType, Pageable pageable) {
+        return repository.findByEventType(eventType, pageable)
+                .map(this::toResponse);
     }
 
     @Override
-    public List<AnalyticsResponse> getUserEvents(String userId, LocalDateTime startDate, LocalDateTime endDate) {
-        return repository.findByUserIdAndTimestampBetween(userId, startDate, endDate).stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+    public Page<AnalyticsResponse> getUserEvents(String userId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+        return repository.findByUserIdAndTimestampBetween(userId, startDate, endDate, pageable)
+                .map(this::toResponse);
     }
 
     @Override
-    public List<AnalyticsResponse> getRecentEvents(String eventType, LocalDateTime since) {
-        return repository.findByEventTypeAndTimestampAfter(eventType, since).stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+    public Page<AnalyticsResponse> getRecentEvents(String eventType, LocalDateTime since, Pageable pageable) {
+        return repository.findByEventTypeAndTimestampAfter(eventType, since, pageable)
+                .map(this::toResponse);
     }
 
     @Override
