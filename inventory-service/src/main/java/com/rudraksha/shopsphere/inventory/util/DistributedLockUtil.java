@@ -31,8 +31,8 @@ public class DistributedLockUtil {
         RLock lock = redissonClient.getLock(lockKey);
         
         try {
-            // Wait up to 3 seconds, auto-release after 30 seconds (watchdog auto-renews)
-            if (lock.tryLock(3, 30, TimeUnit.SECONDS)) {
+            // Wait up to 3 seconds, watchdog auto-renews (no lease time specified)
+            if (lock.tryLock(3, TimeUnit.SECONDS)) {
                 try {
                     log.debug("Lock acquired for SKU: {}", sku);
                     return operation.execute();
@@ -50,6 +50,60 @@ public class DistributedLockUtil {
             Thread.currentThread().interrupt();
             log.warn("Lock acquisition interrupted for SKU: {}", sku);
             throw new RuntimeException("Lock acquisition interrupted for SKU: " + sku, e);
+        }
+    }
+
+    /**
+     * Execute operation with multiple distributed locks in a sorted order to prevent deadlocks.
+     * @param skus List of Stock Keeping Units to lock
+     * @param operation Callback to execute under locks
+     * @return Result from operation
+     * @throws RuntimeException if any lock cannot be acquired
+     */
+    public <T> T executeWithLocks(java.util.List<String> skus, LockCallback<T> operation) {
+        if (skus == null || skus.isEmpty()) {
+            return operation.execute();
+        }
+        
+        // Sort to prevent distributed deadlocks
+        java.util.List<String> sortedSkus = skus.stream()
+            .distinct()
+            .sorted()
+            .collect(java.util.stream.Collectors.toList());
+            
+        java.util.List<RLock> acquiredLocks = new java.util.ArrayList<>();
+        
+        try {
+            for (String sku : sortedSkus) {
+                String lockKey = LOCK_PREFIX + sku;
+                RLock lock = redissonClient.getLock(lockKey);
+                // Wait up to 3 seconds, watchdog auto-renews
+                if (lock.tryLock(3, TimeUnit.SECONDS)) {
+                    acquiredLocks.add(lock);
+                    log.debug("Lock acquired for SKU: {}", sku);
+                } else {
+                    log.warn("Failed to acquire lock for SKU: {} after 3 seconds", sku);
+                    throw new RuntimeException("Could not acquire lock for SKU: " + sku);
+                }
+            }
+            return operation.execute();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("Multi-lock acquisition interrupted");
+            throw new RuntimeException("Lock acquisition interrupted", e);
+        } finally {
+            // Release in reverse order of acquisition
+            for (int i = acquiredLocks.size() - 1; i >= 0; i--) {
+                RLock lock = acquiredLocks.get(i);
+                try {
+                    if (lock.isHeldByCurrentThread()) {
+                        lock.unlock();
+                        log.debug("Lock released for SKU: {}", lock.getName());
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to release lock cleanly for " + lock.getName(), e);
+                }
+            }
         }
     }
 

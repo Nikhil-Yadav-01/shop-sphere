@@ -17,8 +17,9 @@ public class InventoryEventListener {
     /**
      * Listen to order.placed event and auto-reserve inventory
      * Expected message format: {"orderId": 123, "items": [{"sku": "ABC", "quantity": 5}]}
-     @KafkaListener(topics = "order.placed", groupId = "inventory-service")
-     public void handleOrderPlaced(String message) {
+     */
+    @KafkaListener(topics = "order.placed", groupId = "inventory-service")
+    public void handleOrderPlaced(String message) {
          log.info("Received order.placed event: {}", message);
          try {
              // Parse JSON message
@@ -46,7 +47,6 @@ public class InventoryEventListener {
                      inventoryService.reserveInventoryForOrderWithContext(sku, quantity, orderId, userId, totalAmount);
                      log.info("Inventory reserved for order {}: {} x {}", orderId, sku, quantity);
                  } catch (Exception e) {
-     ...
                     log.error("Failed to reserve inventory for order {}: {} x {}", orderId, sku, quantity, e);
                     // Emit inventory.reservation.failed event for saga compensation
                     throw new RuntimeException("Inventory reservation failed for order: " + orderId, e);
