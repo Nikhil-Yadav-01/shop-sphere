@@ -217,7 +217,7 @@ jobs:
         run: |
           echo "Waiting for discovery-service..."
           for i in $(seq 1 36); do
-            if curl -sf http://localhost:8761/actuator/health > /dev/null 2>&1; then
+            if docker exec discovery-service curl -sf http://localhost:8761/actuator/health > /dev/null 2>&1; then
               echo "discovery-service healthy after $((i*5))s"
               break
             fi
@@ -229,7 +229,7 @@ jobs:
         run: |
           echo "Waiting for auth-service..."
           for i in $(seq 1 48); do
-            if curl -sf http://localhost:8081/ > /dev/null 2>&1; then
+            if docker exec auth-service curl -sf http://localhost:8081/ > /dev/null 2>&1; then
               echo "auth-service healthy after $((i*5))s"
               break
             fi
@@ -241,7 +241,7 @@ jobs:
         run: |
           echo "Waiting for notification-service..."
           for i in $(seq 1 48); do
-            if curl -sf http://localhost:8095/actuator/health > /dev/null 2>&1; then
+            if docker exec notification-service curl -sf http://localhost:8095/actuator/health > /dev/null 2>&1; then
               echo "notification-service healthy after $((i*5))s"
               break
             fi
@@ -253,7 +253,7 @@ jobs:
         run: |
           echo "Waiting for catalog-service..."
           for i in $(seq 1 48); do
-            if curl -sf http://localhost:8083/actuator/health > /dev/null 2>&1; then
+            if docker exec catalog-service curl -sf http://localhost:8083/actuator/health > /dev/null 2>&1; then
               echo "catalog-service healthy after $((i*5))s"
               break
             fi
@@ -265,7 +265,7 @@ jobs:
         run: |
           echo "Waiting for inventory-service..."
           for i in $(seq 1 48); do
-            if curl -sf http://localhost:8092/actuator/health > /dev/null 2>&1; then
+            if docker exec inventory-service curl -sf http://localhost:8092/actuator/health > /dev/null 2>&1; then
               echo "inventory-service healthy after $((i*5))s"
               break
             fi
@@ -277,7 +277,7 @@ jobs:
         run: |
           echo "Waiting for cart-service..."
           for i in $(seq 1 48); do
-            if curl -sf http://localhost:8085/actuator/health > /dev/null 2>&1; then
+            if docker exec cart-service curl -sf http://localhost:8085/actuator/health > /dev/null 2>&1; then
               echo "cart-service healthy after $((i*5))s"
               break
             fi
@@ -289,7 +289,7 @@ jobs:
         run: |
           echo "Waiting for checkout-service..."
           for i in $(seq 1 48); do
-            if curl -sf http://localhost:8086/actuator/health > /dev/null 2>&1; then
+            if docker exec checkout-service curl -sf http://localhost:8086/actuator/health > /dev/null 2>&1; then
               echo "checkout-service healthy after $((i*5))s"
               break
             fi
@@ -301,7 +301,7 @@ jobs:
         run: |
           echo "Waiting for order-service..."
           for i in $(seq 1 48); do
-            if curl -sf http://localhost:8084/actuator/health > /dev/null 2>&1; then
+            if docker exec order-service curl -sf http://localhost:8084/actuator/health > /dev/null 2>&1; then
               echo "order-service healthy after $((i*5))s"
               break
             fi
@@ -313,7 +313,7 @@ jobs:
         run: |
           echo "Waiting for payment-service..."
           for i in $(seq 1 48); do
-            if curl -sf http://localhost:8093/actuator/health > /dev/null 2>&1; then
+            if docker exec payment-service curl -sf http://localhost:8093/actuator/health > /dev/null 2>&1; then
               echo "payment-service healthy after $((i*5))s"
               break
             fi
@@ -325,7 +325,7 @@ jobs:
         run: |
           echo "Waiting for api-gateway..."
           for i in $(seq 1 48); do
-            if curl -sf http://localhost:8080/actuator/health > /dev/null 2>&1; then
+            if docker exec api-gateway curl -sf http://localhost:8080/actuator/health > /dev/null 2>&1; then
               echo "api-gateway healthy after $((i*5))s"
               break
             fi

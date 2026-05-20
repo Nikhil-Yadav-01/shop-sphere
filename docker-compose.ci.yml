@@ -332,8 +332,7 @@ services:
           memory: 256M
 
   checkout-service:
-    ports:
-      - "8086:8086"
+    ports: []
     environment:
       DB_HOST: checkout-db
       DB_PORT: 5432
