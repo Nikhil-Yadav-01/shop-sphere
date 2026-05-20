@@ -85,7 +85,8 @@ services:
   # ── Discovery (Eureka) ───────────────────────────────────────────────────────
   discovery-service:
     # No host port in CI — only the gateway is the public entry point
-    ports: []
+    ports:
+      - "8761:8761"
     deploy:
       resources:
         limits:
@@ -331,7 +332,8 @@ services:
           memory: 256M
 
   checkout-service:
-    ports: []
+    ports:
+      - "8086:8086"
     environment:
       DB_HOST: checkout-db
       DB_PORT: 5432
