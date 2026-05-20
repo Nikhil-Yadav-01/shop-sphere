@@ -104,11 +104,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<OrderResponse> getOrdersByStatus(Order.OrderStatus status) {
-        return orderRepository.findByStatus(status)
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<OrderResponse> getOrdersByStatus(Order.OrderStatus status, Pageable pageable) {
+        return orderRepository.findByStatus(status, pageable)
+                .map(this::mapToResponse);
     }
 
     @Override

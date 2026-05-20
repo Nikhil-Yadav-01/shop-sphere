@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -34,23 +36,25 @@ public class AnalyticsController {
     }
 
     @GetMapping("/events/{eventType}")
-    public ResponseEntity<ApiResponse<List<AnalyticsResponse>>> getEventsByType(@PathVariable String eventType) {
-        return ResponseEntity.ok(ApiResponse.success(analyticsService.getEventsByType(eventType)));
+    public ResponseEntity<ApiResponse<Page<AnalyticsResponse>>> getEventsByType(@PathVariable String eventType, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(analyticsService.getEventsByType(eventType, pageable)));
     }
 
     @GetMapping("/users/{userId}/events")
-    public ResponseEntity<ApiResponse<List<AnalyticsResponse>>> getUserEvents(
+    public ResponseEntity<ApiResponse<Page<AnalyticsResponse>>> getUserEvents(
             @PathVariable String userId,
             @RequestParam LocalDateTime startDate,
-            @RequestParam LocalDateTime endDate) {
-        return ResponseEntity.ok(ApiResponse.success(analyticsService.getUserEvents(userId, startDate, endDate)));
+            @RequestParam LocalDateTime endDate,
+            Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(analyticsService.getUserEvents(userId, startDate, endDate, pageable)));
     }
 
     @GetMapping("/events/recent")
-    public ResponseEntity<ApiResponse<List<AnalyticsResponse>>> getRecentEvents(
+    public ResponseEntity<ApiResponse<Page<AnalyticsResponse>>> getRecentEvents(
             @RequestParam String eventType,
-            @RequestParam LocalDateTime since) {
-        return ResponseEntity.ok(ApiResponse.success(analyticsService.getRecentEvents(eventType, since)));
+            @RequestParam LocalDateTime since,
+            Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(analyticsService.getRecentEvents(eventType, since, pageable)));
     }
 
     @GetMapping("/count")

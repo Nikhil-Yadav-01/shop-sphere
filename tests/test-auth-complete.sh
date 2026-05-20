@@ -37,6 +37,37 @@ assert_contains() {
   fi
 }
 
+is_jwt_expired() {
+  local token="$1"
+  if [ "$token" == "invalid-google-token" ] || [ "$token" == "invalid-apple-token" ] || [ -z "$token" ]; then
+    return 0
+  fi
+  
+  local payload
+  payload=$(echo "$token" | cut -d'.' -f2 2>/dev/null || echo "")
+  if [ -z "$payload" ]; then
+    return 0
+  fi
+  
+  local padding=$(( (4 - ${#payload} % 4) % 4 ))
+  if [ $padding -eq 1 ]; then payload="${payload}="; fi
+  if [ $padding -eq 2 ]; then payload="${payload}=="; fi
+  if [ $padding -eq 3 ]; then payload="${payload}==="; fi
+  
+  local exp
+  exp=$(echo "$payload" | tr '_-' '/+' | base64 -d 2>/dev/null | jq -r '.exp' 2>/dev/null || echo "0")
+  if [ -z "$exp" ] || [ "$exp" == "null" ]; then
+    return 0
+  fi
+  
+  local now
+  now=$(date +%s)
+  if [[ "$exp" =~ ^[0-9]+$ ]] && [ "$exp" -ge "$now" ]; then
+    return 1
+  fi
+  return 0
+}
+
 echo ""
 echo "🔐 Testing Complete Auth Service (production flow)"
 echo "==================================================="
@@ -251,8 +282,8 @@ echo ""
 # Note: Google ID Tokens expire in 1 hour.
 TEST_GOOGLE_ID_TOKEN="eyJhbGciOiJSUzI1NiIsImtpZCI6ImY4ZTY2MjBkMzk3MTFhYTIxY2U4YTJiZjJmM2VlMDFiOTI0Y2IyZDAiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIzMzk3OTc0NTA5NDUtYTRmNDVpYXU1NDJmYTNna210aTJvaXByaGNkam9vc2MuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIzMzk3OTc0NTA5NDUtYTRmNDVpYXU1NDJmYTNna210aTJvaXByaGNkam9vc2MuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTc0MTEzNDM0NjYwMzg0MTIyMDciLCJlbWFpbCI6Im5pa2hpbGRldnIuMDFAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImF0X2hhc2giOiJsQmRBS196cDdYWHJ4VDl5UGdrb1B3IiwibmFtZSI6Ik5pa2hpbCBZYWRhdiIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NMWUpoQXhuM0FyX1RaZVdzVGdsUjM3WjBSMGI2MnVjLXFSRS1vaXdEbzF3UFkzMHc9czk2LWMiLCJnaXZlbl9uYW1lIjoiTmlraGlsIiwiZmFtaWx5X25hbWUiOiJZYWRhdiIsImlhdCI6MTc3ODg0Njg5MywiZXhwIjoxNzc4ODUwNDkzfQ.O2oYlo6pjr0U6mC49cCZyKJAsCXr_Cml5sxOvC_UIFF_fR5i5IW5DHfP2kD7p3BPTCgEYTzy_iviWkOxTKK4mbqzBGUGvahYZwpyWj3i7R6k4XVP6eZQcZr77_6NqP_AS2towsRzwY-mhBBJ5ZnhoEwqtCCG-73WEUlABwv947TO64n90QZMynlbOQFmCP2bHF88tweyXa4I1cAKiR4TrMdKHmT-QLXmQse76IxfXtPsc4CHxBE_5hkHvsIg1-3NrMxN3DN4t9-VWpJDz5HH2eV2PobH0uIMKCw60P5OK_coKyHe7HKQE5uLaH3KusanNN5bXm2We7_n-z4bYsm7OQ"
 GOOGLE_TOKEN="${TEST_GOOGLE_ID_TOKEN:-invalid-google-token}"
-if [ "$GOOGLE_TOKEN" == "invalid-google-token" ]; then
-  echo "11. Testing Google login with invalid token..."
+if is_jwt_expired "$GOOGLE_TOKEN"; then
+  echo "11. Testing Google login with invalid/expired token..."
   EXPECTED_CODE=401
 else
   echo "11. Testing Google login with valid token..."
@@ -277,8 +308,8 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 echo ""
 APPLE_TOKEN="${TEST_APPLE_ID_TOKEN:-invalid-apple-token}"
-if [ "$APPLE_TOKEN" == "invalid-apple-token" ]; then
-  echo "12. Testing Apple login with invalid token..."
+if is_jwt_expired "$APPLE_TOKEN"; then
+  echo "12. Testing Apple login with invalid/expired token..."
   EXPECTED_CODE=401
 else
   echo "12. Testing Apple login with valid token..."

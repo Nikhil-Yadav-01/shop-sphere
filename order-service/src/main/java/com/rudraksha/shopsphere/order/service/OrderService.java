@@ -14,7 +14,7 @@ public interface OrderService {
     OrderResponse getOrderByOrderNumber(String orderNumber);
     List<OrderResponse> getOrdersByUserId(String userId);
     Page<OrderResponse> getOrdersByUserId(String userId, Pageable pageable);
-    List<OrderResponse> getOrdersByStatus(Order.OrderStatus status);
+    Page<OrderResponse> getOrdersByStatus(Order.OrderStatus status, Pageable pageable);
     OrderResponse updateOrderStatus(Long id, Order.OrderStatus newStatus);
     void deleteOrder(Long id);
     Page<OrderResponse> getAllOrders(Pageable pageable);

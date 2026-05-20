@@ -237,12 +237,12 @@ test_result "Retrieved notification ID matches" "$NOTIF_ID" "$GET_ID"
 
 echo "Test 4.2: Get all notifications for user..."
 USER_NOTIFS=$(curl -s http://localhost:8095/api/v1/notifications/user/user-001)
-USER_COUNT=$(echo "$USER_NOTIFS" | jq 'length' 2>/dev/null)
+USER_COUNT=$(echo "$USER_NOTIFS" | jq '.content | length' 2>/dev/null)
 test_result "Get user notifications returns array" "true" "$([ $USER_COUNT -ge 1 ] && echo true || echo false)"
 
 echo "Test 4.3: Get unread notifications for user..."
 UNREAD_NOTIFS=$(curl -s http://localhost:8095/api/v1/notifications/user/user-002/unread)
-UNREAD_COUNT=$(echo "$UNREAD_NOTIFS" | jq 'length' 2>/dev/null)
+UNREAD_COUNT=$(echo "$UNREAD_NOTIFS" | jq '.content | length' 2>/dev/null)
 test_result "Get unread notifications returns array" "true" "$([ ! -z '$UNREAD_COUNT' ] && echo true || echo false)"
 
 echo "Test 4.4: Get unread count for user..."
@@ -252,12 +252,12 @@ test_result "Get unread count returns number >= 0" "true" "$([ $UNREAD_CNT_NUM -
 
 echo "Test 4.5: Get recent notifications (last 7 days)..."
 RECENT=$(curl -s http://localhost:8095/api/v1/notifications/user/user-001/recent)
-RECENT_COUNT=$(echo "$RECENT" | jq 'length' 2>/dev/null)
+RECENT_COUNT=$(echo "$RECENT" | jq '.content | length' 2>/dev/null)
 test_result "Get recent notifications returns array" "true" "$([ ! -z '$RECENT_COUNT' ] && echo true || echo false)"
 
 echo "Test 4.6: Get recent notifications (custom days)..."
 RECENT_30=$(curl -s http://localhost:8095/api/v1/notifications/user/user-001/recent?days=30)
-RECENT_30_COUNT=$(echo "$RECENT_30" | jq 'length' 2>/dev/null)
+RECENT_30_COUNT=$(echo "$RECENT_30" | jq '.content | length' 2>/dev/null)
 test_result "Get notifications with custom days parameter" "true" "$([ ! -z '$RECENT_30_COUNT' ] && echo true || echo false)"
 
 # 5. UPDATE/MARK AS READ TESTS
@@ -389,7 +389,7 @@ for i in {1..5}; do
 done
 
 MULTI_NOTIFS=$(curl -s http://localhost:8095/api/v1/notifications/user/$UNIQUE_MULTI_USER)
-MULTI_COUNT=$(echo "$MULTI_NOTIFS" | jq 'length' 2>/dev/null)
+MULTI_COUNT=$(echo "$MULTI_NOTIFS" | jq '.content | length' 2>/dev/null)
 test_result "All 5 notifications retrieved for user" "5" "$MULTI_COUNT"
 
 # 9. EDGE CASES & BOUNDARY TESTS
@@ -468,17 +468,17 @@ print_header "10. QUERY & FILTERING TESTS"
 
 echo "Test 10.1: Filter by user returns only that user's notifications..."
 USER1_NOTIFS=$(curl -s http://localhost:8095/api/v1/notifications/user/user-001)
-ALL_SAME_USER=$(echo "$USER1_NOTIFS" | jq '[.[].userId] | map(. == "user-001") | all' 2>/dev/null)
+ALL_SAME_USER=$(echo "$USER1_NOTIFS" | jq '.content | map(.userId == "user-001") | all' 2>/dev/null)
 test_result "All retrieved notifications belong to queried user" "true" "$ALL_SAME_USER"
 
 echo "Test 10.2: Unread filter works correctly..."
 UNREAD_NOTIFS=$(curl -s http://localhost:8095/api/v1/notifications/user/user-002/unread)
-ALL_UNREAD=$(echo "$UNREAD_NOTIFS" | jq '[.[].isRead] | map(. == false) | all' 2>/dev/null)
+ALL_UNREAD=$(echo "$UNREAD_NOTIFS" | jq '.content | map(.isRead == false) | all' 2>/dev/null)
 test_result "All unread notifications have isRead=false" "true" "$ALL_UNREAD"
 
 echo "Test 10.3: Results ordered by creation date (descending)..."
-ORDERED=$(curl -s http://localhost:8095/api/v1/notifications/user/user-multi-test)
-IS_DESC=$(echo "$ORDERED" | jq '[.[0].createdAt, .[1].createdAt] | .[0] >= .[1]' 2>/dev/null)
+ORDERED=$(curl -s http://localhost:8095/api/v1/notifications/user/$UNIQUE_MULTI_USER)
+IS_DESC=$(echo "$ORDERED" | jq '.content | [.[0].createdAt, .[1].createdAt] | .[0] >= .[1]' 2>/dev/null)
 test_result "Notifications ordered by createdAt descending" "true" "$IS_DESC"
 
 # 11. CONTENT TYPE & HEADER TESTS
@@ -539,7 +539,7 @@ wait
 echo "Created 5 concurrent notifications"
 
 CONCURRENT_CHECK=$(curl -s http://localhost:8095/api/v1/notifications/user/$UNIQUE_USER)
-CONCURRENT_COUNT=$(echo "$CONCURRENT_CHECK" | jq 'length' 2>/dev/null)
+CONCURRENT_COUNT=$(echo "$CONCURRENT_CHECK" | jq '.content | length' 2>/dev/null)
 test_result "All 5 concurrent notifications created successfully" "5" "$CONCURRENT_COUNT"
 
 # 13. RESPONSE CONSISTENCY TESTS

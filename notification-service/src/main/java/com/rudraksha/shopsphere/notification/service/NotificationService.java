@@ -3,6 +3,8 @@ package com.rudraksha.shopsphere.notification.service;
 import com.rudraksha.shopsphere.notification.dto.NotificationRequest;
 import com.rudraksha.shopsphere.notification.dto.NotificationResponse;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface NotificationService {
@@ -11,9 +13,9 @@ public interface NotificationService {
 
     NotificationResponse getNotificationById(Long id);
 
-    List<NotificationResponse> getNotificationsByUserId(String userId);
+    Page<NotificationResponse> getNotificationsByUserId(String userId, Pageable pageable);
 
-    List<NotificationResponse> getUnreadNotificationsByUserId(String userId);
+    Page<NotificationResponse> getUnreadNotificationsByUserId(String userId, Pageable pageable);
 
     NotificationResponse markAsRead(Long notificationId);
 
@@ -23,7 +25,7 @@ public interface NotificationService {
 
     long getUnreadCount(String userId);
 
-    List<NotificationResponse> getRecentNotifications(String userId, int days);
+    Page<NotificationResponse> getRecentNotifications(String userId, int days, Pageable pageable);
 
     void registerPushToken(String userId, String token, String deviceType);
 }

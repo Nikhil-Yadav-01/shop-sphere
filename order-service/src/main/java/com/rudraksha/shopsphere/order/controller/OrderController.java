@@ -45,9 +45,8 @@ public class OrderController {
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<OrderResponse>> getOrdersByStatus(@PathVariable Order.OrderStatus status) {
-        List<OrderResponse> orders = orderService.getOrdersByStatus(status);
-        return ResponseEntity.ok(orders);
+    public ResponseEntity<Page<OrderResponse>> getOrdersByStatus(@PathVariable Order.OrderStatus status, Pageable pageable) {
+        return ResponseEntity.ok(orderService.getOrdersByStatus(status, pageable));
     }
 
     @PutMapping("/{id}/status")
