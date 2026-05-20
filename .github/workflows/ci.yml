@@ -2,7 +2,7 @@ name: CI – Gateway & Auth Slice
 
 on:
   push:
-    branches: [ main, master, develop, ci, 'fix/*', 'feature/*' ]
+    branches: [ main, master, develop, ci, 'fix/*', 'feature/*', 'feat/*' ]
   pull_request:
     branches: [ main, master, develop ]
   workflow_dispatch:
