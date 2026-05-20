@@ -1,7 +1,7 @@
-package com.rudraksha.shopsphere.inventory.service;
+package com.rudraksha.shopsphere.payment.service;
 
-import com.rudraksha.shopsphere.inventory.entity.OutboxEvent;
-import com.rudraksha.shopsphere.inventory.repository.OutboxEventRepository;
+import com.rudraksha.shopsphere.payment.entity.OutboxEvent;
+import com.rudraksha.shopsphere.payment.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +40,7 @@ public class OutboxPublisher {
             return;
         }
 
-        log.debug("Found {} inventory outbox events to publish", events.size());
+        log.debug("Found {} payment outbox events to publish", events.size());
         
         for (OutboxEvent event : events) {
             try {
@@ -49,7 +49,7 @@ public class OutboxPublisher {
                         .get(5, TimeUnit.SECONDS);
                 
                 event.setProcessed(true);
-                log.info("Successfully published inventory outbox event: {} to topic {}", event.getId(), event.getTopic());
+                log.info("Successfully published payment outbox event: {} to topic {}", event.getId(), event.getTopic());
             } catch (Exception e) {
                 int currentRetry = event.getRetryCount() + 1;
                 event.setRetryCount(currentRetry);
@@ -61,10 +61,10 @@ public class OutboxPublisher {
                 event.setLastError(errorMsg);
                 
                 if (currentRetry >= maxRetries) {
-                    log.error("Inventory outbox event {} exceeded max retries ({}) and is now marked as FAILED.", 
+                    log.error("Payment outbox event {} exceeded max retries ({}) and is now marked as FAILED.", 
                             event.getId(), maxRetries, e);
                 } else {
-                    log.warn("Failed to publish inventory outbox event {} (Retry {}/{}): {}", 
+                    log.warn("Failed to publish payment outbox event {} (Retry {}/{}): {}", 
                             event.getId(), currentRetry, maxRetries, e.getMessage());
                 }
             }
@@ -76,12 +76,12 @@ public class OutboxPublisher {
     @Scheduled(cron = "${outbox.scheduler.cleanup-cron:0 0 2 * * *}") // Run daily at 2:00 AM
     public void cleanupProcessedEvents() {
         LocalDateTime threshold = LocalDateTime.now().minusDays(cleanupDays);
-        log.info("Starting cleanup of processed inventory outbox events older than {}", threshold);
+        log.info("Starting cleanup of processed payment outbox events older than {}", threshold);
         try {
             int deletedCount = outboxRepository.deleteProcessedBefore(threshold);
-            log.info("Successfully deleted {} processed inventory outbox events", deletedCount);
+            log.info("Successfully deleted {} processed payment outbox events", deletedCount);
         } catch (Exception e) {
-            log.error("Failed to clean up processed inventory outbox events", e);
+            log.error("Failed to clean up processed payment outbox events", e);
         }
     }
 }

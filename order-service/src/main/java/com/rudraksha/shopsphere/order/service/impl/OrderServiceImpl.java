@@ -9,12 +9,12 @@ import com.rudraksha.shopsphere.order.entity.OrderItem;
 import com.rudraksha.shopsphere.order.exception.OrderException;
 import com.rudraksha.shopsphere.order.repository.OrderRepository;
 import com.rudraksha.shopsphere.order.service.OrderService;
+import com.rudraksha.shopsphere.order.entity.OutboxEvent;
+import com.rudraksha.shopsphere.order.repository.OutboxEventRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -34,7 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final OutboxEventRepository outboxRepository;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -188,30 +187,31 @@ public class OrderServiceImpl implements OrderService {
             message.put("timestamp", LocalDateTime.now().toString());
 
             String jsonPayload = objectMapper.writeValueAsString(message);
-            CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send("order.placed", order.getOrderNumber(), jsonPayload);
             
-            future.whenComplete((result, ex) -> {
-                if (ex != null) {
-                    log.error("Failed to publish order.placed event for order {}", order.getOrderNumber(), ex);
-                } else {
-                    log.info("Successfully published order.placed event for order {}", order.getOrderNumber());
-                }
-            });
+            OutboxEvent event = OutboxEvent.builder()
+                    .topic("order.placed")
+                    .key(order.getOrderNumber())
+                    .payload(jsonPayload)
+                    .build();
+            outboxRepository.save(event);
+            log.info("Saved outbox event for order.placed: order {}", order.getOrderNumber());
         } catch (Exception e) {
-            log.error("Failed to serialize order.placed event", e);
+            log.error("Failed to serialize and save order.placed outbox event", e);
         }
     }
 
     private void publishGenericOrderEvent(String eventType, String details) {
-        String message = eventType + ":" + details + ":" + LocalDateTime.now();
-        CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send("order-events", details, message);
-        
-        future.whenComplete((result, ex) -> {
-            if (ex != null) {
-                log.error("Failed to publish order event: {} for order {}", eventType, details, ex);
-            } else {
-                log.info("Successfully published order event: {} for order {}", eventType, details);
-            }
-        });
+        try {
+            String message = eventType + ":" + details + ":" + LocalDateTime.now();
+            OutboxEvent event = OutboxEvent.builder()
+                    .topic("order-events")
+                    .key(details)
+                    .payload(message)
+                    .build();
+            outboxRepository.save(event);
+            log.info("Saved outbox event for order-events: {} for {}", eventType, details);
+        } catch (Exception e) {
+            log.error("Failed to save generic order outbox event", e);
+        }
     }
 }

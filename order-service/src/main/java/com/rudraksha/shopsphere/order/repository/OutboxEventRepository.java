@@ -1,6 +1,6 @@
-package com.rudraksha.shopsphere.inventory.repository;
+package com.rudraksha.shopsphere.order.repository;
 
-import com.rudraksha.shopsphere.inventory.entity.OutboxEvent;
+import com.rudraksha.shopsphere.order.entity.OutboxEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,8 +13,7 @@ import java.util.List;
 
 @Repository
 public interface OutboxEventRepository extends JpaRepository<OutboxEvent, Long> {
-    List<OutboxEvent> findByProcessedFalseOrderByCreatedAtAsc();
-
+    
     @Query(value = "SELECT * FROM outbox_events WHERE processed = false AND retry_count < :maxRetries ORDER BY created_at ASC LIMIT :limit FOR UPDATE SKIP LOCKED", nativeQuery = true)
     List<OutboxEvent> findUnprocessedForPublishing(@Param("limit") int limit, @Param("maxRetries") int maxRetries);
 
