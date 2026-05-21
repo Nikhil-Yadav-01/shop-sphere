@@ -85,4 +85,9 @@ public class AuthController {
         authService.resetPassword(request.getToken(), request.getNewPassword());
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<com.rudraksha.shopsphere.auth.dto.response.UserDetailsResponse> getUserById(@PathVariable String id) {
+        return ResponseEntity.ok(authService.getUserById(id));
+    }
 }

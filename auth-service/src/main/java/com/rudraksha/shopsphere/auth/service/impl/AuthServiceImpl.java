@@ -403,7 +403,6 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    @Transactional
     public void resetPassword(String token, String newPassword) {
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
                 .orElseThrow(() -> new AuthException("Invalid reset token"));
@@ -420,6 +419,18 @@ public class AuthServiceImpl implements AuthService {
         passwordResetTokenRepository.save(resetToken);
 
         log.info("Password reset successfully for user: {}", user.getEmail());
+    }
+
+    @Override
+    public com.rudraksha.shopsphere.auth.dto.response.UserDetailsResponse getUserById(String id) {
+        User user = userRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new AuthException("User not found"));
+        return com.rudraksha.shopsphere.auth.dto.response.UserDetailsResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .build();
     }
 
     private AuthResponse buildAuthResponse(User user, String accessToken, String refreshToken) {

@@ -113,12 +113,54 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderException("Order not found with id: " + id));
 
+        Order.OrderStatus currentStatus = order.getStatus();
+        if (!isValidTransition(currentStatus, newStatus)) {
+            throw new OrderException("Invalid status transition from " + currentStatus + " to " + newStatus);
+        }
+
         order.setStatus(newStatus);
         Order updatedOrder = orderRepository.save(order);
 
-        publishGenericOrderEvent("ORDER_STATUS_UPDATED", order.getOrderNumber() + ":" + newStatus);
+        publishOrderStatusUpdatedEvent(updatedOrder, currentStatus);
 
         return mapToResponse(updatedOrder);
+    }
+
+    private boolean isValidTransition(Order.OrderStatus current, Order.OrderStatus next) {
+        Map<Order.OrderStatus, List<Order.OrderStatus>> transitions = new HashMap<>();
+        transitions.put(Order.OrderStatus.PENDING, List.of(Order.OrderStatus.CONFIRMED, Order.OrderStatus.CANCELLED));
+        transitions.put(Order.OrderStatus.CONFIRMED, List.of(Order.OrderStatus.PROCESSING, Order.OrderStatus.CANCELLED));
+        transitions.put(Order.OrderStatus.PROCESSING, List.of(Order.OrderStatus.PACKED, Order.OrderStatus.CANCELLED));
+        transitions.put(Order.OrderStatus.PACKED, List.of(Order.OrderStatus.SHIPPED, Order.OrderStatus.CANCELLED));
+        transitions.put(Order.OrderStatus.SHIPPED, List.of(Order.OrderStatus.OUT_FOR_DELIVERY));
+        transitions.put(Order.OrderStatus.OUT_FOR_DELIVERY, List.of(Order.OrderStatus.DELIVERED, Order.OrderStatus.CANCELLED));
+        transitions.put(Order.OrderStatus.DELIVERED, List.of());
+        transitions.put(Order.OrderStatus.CANCELLED, List.of());
+
+        return transitions.getOrDefault(current, List.of()).contains(next);
+    }
+
+    private void publishOrderStatusUpdatedEvent(Order order, Order.OrderStatus previousStatus) {
+        try {
+            Map<String, Object> message = new HashMap<>();
+            message.put("orderId", order.getOrderNumber());
+            message.put("userId", order.getUserId());
+            message.put("newStatus", order.getStatus().name());
+            message.put("previousStatus", previousStatus.name());
+            message.put("timestamp", LocalDateTime.now().toString());
+
+            String jsonPayload = objectMapper.writeValueAsString(message);
+
+            OutboxEvent event = OutboxEvent.builder()
+                    .topic("notification.send")
+                    .key(order.getOrderNumber())
+                    .payload(jsonPayload)
+                    .build();
+            outboxRepository.save(event);
+            log.info("Saved outbox event for notification.send (order status update): order {}", order.getOrderNumber());
+        } catch (Exception e) {
+            log.error("Failed to serialize and save order status update outbox event", e);
+        }
     }
 
     @Override

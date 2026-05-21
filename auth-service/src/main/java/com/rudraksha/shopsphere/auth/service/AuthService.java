@@ -32,4 +32,5 @@ public interface AuthService {
     void forgotPassword(String email);
 
     void resetPassword(String token, String newPassword);
+    com.rudraksha.shopsphere.auth.dto.response.UserDetailsResponse getUserById(String id);
 }
