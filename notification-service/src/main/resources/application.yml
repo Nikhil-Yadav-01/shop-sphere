@@ -5,7 +5,7 @@ spring:
     resources:
       add-mappings: false
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5439}/shopsphere_notification
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5442}/shopsphere_notification
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
