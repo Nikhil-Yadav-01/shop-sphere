@@ -42,9 +42,32 @@ jobs:
           cache: maven
 
       # ──────────────────────────────────────────────────────────────
-      # 3. Build JARs for services that use pre-built JARs in Docker
-      #    (auth-service, discovery-service pattern: COPY target/*.jar)
+      # 3. Run Unit Tests (Mocked - No Docker Needed)
       # ──────────────────────────────────────────────────────────────
+      - name: Run All Unit Tests
+        run: |
+          services=(
+            "auth-service"
+            "user-service"
+            "catalog-service"
+            "search-service"
+            "cart-service"
+            "order-service"
+            "checkout-service"
+            "payment-service"
+            "inventory-service"
+            "pricing-service"
+            "coupon-service"
+            "returns-service"
+          )
+          for svc in "${services[@]}"; do
+            echo "::group::Testing $svc"
+            mvn -f "$svc/pom.xml" test -B
+            echo "::endgroup::"
+          done
+
+      # ──────────────────────────────────────────────────────────────
+      # 4. Build JARs for services that use pre-built JARs in Docker
       - name: Build auth-service JAR
         run: mvn -f auth-service/pom.xml clean package -DskipTests -B -q
 
