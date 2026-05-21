@@ -1002,9 +1002,9 @@ services:
       EUREKA_HOST: discovery-service
       EUREKA_PORT: 8761
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      SERVER_PORT: 8099
+      SERVER_PORT: 8098
     ports:
-    - 8099:8099
+    - 8098:8098
     depends_on:
       recommendation-db:
         condition: service_healthy
@@ -1019,7 +1019,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8099/actuator/health
+      - http://localhost:8098/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5

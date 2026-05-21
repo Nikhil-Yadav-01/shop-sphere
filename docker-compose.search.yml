@@ -84,7 +84,7 @@ services:
       EUREKA_PORT: 8761
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     ports:
-    - 8084:8084
+    - 8099:8099
     depends_on:
       search-db:
         condition: service_healthy
@@ -99,7 +99,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8084/actuator/health
+      - http://localhost:8099/actuator/health
       interval: 30s
       timeout: 10s
       retries: 5

@@ -4,6 +4,6 @@ WORKDIR /app
 USER appuser
 ARG JAR_FILE=batch-service/target/batch-service.jar
 COPY ${JAR_FILE} app.jar
-EXPOSE 8091
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 CMD curl -f http://localhost:8091/actuator/health || exit 1
+EXPOSE 8094
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 CMD curl -f http://localhost:8094/actuator/health || exit 1
 ENTRYPOINT ["java", "-jar", "app.jar"]

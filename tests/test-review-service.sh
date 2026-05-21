@@ -5,7 +5,7 @@
 
 set -e
 
-BASE_URL="http://localhost:8089"
+BASE_URL="http://localhost:8096"
 RESULTS_FILE="review-service-test-results.txt"
 PASSED=0
 FAILED=0

@@ -5,8 +5,8 @@
 
 set -e
 
-BASE_URL="http://localhost:8084/api/v1"
-HEALTH_CHECK_URL="http://localhost:8084/actuator/health"
+BASE_URL="http://localhost:8099/api/v1"
+HEALTH_CHECK_URL="http://localhost:8099/actuator/health"
 
 echo "================================================"
 echo "Search Service Test Suite"
@@ -113,7 +113,7 @@ echo "All tests completed successfully!"
 echo "================================================"
 echo ""
 echo "Service Information:"
-echo "- Service Port: 8084"
+echo "- Service Port: 8099"
 echo "- Database: MongoDB (27022)"
 echo "- Service Discovery: Eureka (8761)"
 echo "- Message Queue: Kafka (9092)"

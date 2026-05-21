@@ -311,17 +311,17 @@ services:
     ports:
       - "5436:5432"
 
-  # batch-service: was 8091 → 8100 (conflicts with media-service)
+  # batch-service: 8094
   batch-service:
     ports:
-      - "8100:8091"
+      - "8094:8094"
 
-  # review-service: was 8089 → 8096 (conflicts with admin-service)
+  # review-service: 8096
   review-service:
     ports:
-      - "8096:8089"
+      - "8096:8096"
 
-  # recommendation-service: was 8089 → 8099 (conflicts with admin-service)
+  # recommendation-service: 8098
   recommendation-service:
     ports:
-      - "8099:8089"
+      - "8098:8098"

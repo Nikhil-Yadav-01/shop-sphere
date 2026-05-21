@@ -4,6 +4,6 @@ WORKDIR /app
 USER appuser
 ARG JAR_FILE=recommendation-service/target/recommendation-service.jar
 COPY ${JAR_FILE} app.jar
-EXPOSE 8089
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 CMD curl -f http://localhost:8089/actuator/health || exit 1
+EXPOSE 8098
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 CMD curl -f http://localhost:8098/actuator/health || exit 1
 ENTRYPOINT ["java", "-jar", "app.jar"]

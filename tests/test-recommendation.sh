@@ -4,7 +4,7 @@
 
 set -e
 IP="localhost"
-BASE_URL="http://$IP:8089/api/v1"
+BASE_URL="http://$IP:8098/api/v1"
 SERVICE_NAME="Recommendation Service"
 
 echo "================================"
@@ -29,7 +29,7 @@ echo ""
 
 # Test 2: Actuator Health
 echo "Test 2: Actuator Health"
-response=$(curl -s -w "\n%{http_code}" "$IP:8089/../actuator/health")
+response=$(curl -s -w "\n%{http_code}" "$IP:8098/../actuator/health")
 http_code=$(echo "$response" | tail -1)
 
 if [ "$http_code" = "200" ]; then
@@ -101,7 +101,7 @@ echo ""
 echo "================================"
 echo "Test Summary"
 echo "================================"
-echo "✓ Service is running on port 8089"
+echo "✓ Service is running on port 8098"
 echo "✓ Welcome endpoint responding"
 echo "✓ Health check accessible"
 echo "✓ All API endpoints are registered and accessible"
