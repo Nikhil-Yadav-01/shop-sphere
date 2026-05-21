@@ -3,7 +3,7 @@
 # Payment Service Test Script
 # Tests all endpoints of the Payment Service
 
-PAYMENT_SERVICE_URL="http://localhost:8092"
+PAYMENT_SERVICE_URL="http://localhost:8093"
 BASE_ENDPOINT="/payment"
 RED='\033[0;31m'
 GREEN='\033[0;32m'

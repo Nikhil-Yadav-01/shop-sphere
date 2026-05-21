@@ -4,7 +4,7 @@
 # Minimal tests for quick validation
 IP="localhost"
 
-PAYMENT_SERVICE_URL="http://$IP:8092"
+PAYMENT_SERVICE_URL="http://$IP:8093"
 BASE_ENDPOINT="/payment"
 
 echo "=== Payment Service Quick Test ==="
